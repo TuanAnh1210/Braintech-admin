@@ -1,5 +1,5 @@
 import React from 'react';
-import { Layout, Table, Card, Form, Input, Button, Row, Col } from 'antd';
+import { Layout, Table, Card, Row, Col } from 'antd';
 
 const { Content } = Layout;
 
@@ -31,7 +31,6 @@ const Analytics = () => {
     const columnCourse = [
         { title: 'ID', dataIndex: 'id', key: 'id' },
         { title: 'Name', dataIndex: 'name', key: 'name' },
-        { title: 'Image', dataIndex: 'image', key: 'image' },
         { title: 'Price', dataIndex: 'price', key: 'price' },
         { title: 'Subcribers', dataIndex: 'subcribers', key: 'subcribers' },
     ];
@@ -43,7 +42,7 @@ const Analytics = () => {
     return (
         <Layout>
             <Content>
-                <Row gutter={[16, 16]} style={{ marginBottom: '24px' }}>
+                <Row gutter={[16, 16]} className="mb-6">
                     <Col span={8}>
                         <div style={{ background: '#fff', padding: 24, textAlign: 'center' }}>
                             <h3 className="text-2xl text-teal-600">Total Revenue</h3>
