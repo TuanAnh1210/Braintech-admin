@@ -25,7 +25,7 @@ const CourseManager = () => {
     };
     const columns = [
         {
-            title: 'Tên khóa học',
+            title: 'Tên khóa ',
             dataIndex: 'title',
             width: '20%',
             render: (title) => (
