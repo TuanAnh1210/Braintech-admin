@@ -4,7 +4,6 @@ import React from 'react';
 const CourseManager = () => {
     const [isloading, setLoading] = React.useState(false);
     const [data, setData] = React.useState([]);
-
     const fetchData = () => {
         setLoading(true);
         fetch('https://jsonplaceholder.typicode.com/todos').then((res) =>
@@ -14,7 +13,6 @@ const CourseManager = () => {
             }),
         );
     };
-    console.log(data);
     React.useEffect(() => {
         fetchData();
     }, []);
@@ -25,9 +23,11 @@ const CourseManager = () => {
     };
     const columns = [
         {
-            title: 'Tên khóa ',
+            title: 'Tên khóa học',
             dataIndex: 'title',
             width: '20%',
+            sorter: (a, b) => a.title.length - b.title.length,
+
             render: (title) => (
                 <>
                     <h5>{title}</h5>
@@ -54,9 +54,11 @@ const CourseManager = () => {
             ],
             render: (title) => (
                 <>
-                    <p>Chủ đề {title}</p>
+                    <h5>Chủ đề {title}</h5>
                 </>
             ),
+            onFilter: (value, record) => record.title.includes(value),
+            sorter: (a, b) => a.title.length - b.title.length,
         },
 
         {
@@ -91,7 +93,7 @@ const CourseManager = () => {
     ];
     return (
         <>
-            <div className="w-100">
+            <div className="w-full">
                 <Breadcrumb className="mb-4" items={[{ title: 'Trang chủ' }, { title: 'Quản lý khóa học' }]} />
 
                 <Table
