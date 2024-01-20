@@ -1,3 +1,4 @@
+import BillManager from '@/pages/BillManager';
 import UserManager from '@/pages/UserManager';
 
 const publicRoutes = [
@@ -5,7 +6,7 @@ const publicRoutes = [
     { path: 'manager-users', component: UserManager },
     { path: 'manager-courses', component: UserManager },
     { path: 'manager-comments', component: UserManager },
-    { path: 'manager-bills', component: UserManager },
+    { path: 'manager-bills', component: BillManager },
     { path: 'statistical', component: UserManager },
 ];
 
