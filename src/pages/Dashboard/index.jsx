@@ -1,9 +1,9 @@
 import { Breadcrumb, Button, Col, Input, Row, Space, Table } from "antd"
 import { useEffect, useRef, useState } from "react";
-import qs from 'qs';
 import { SearchOutlined } from '@ant-design/icons';
 import Highlighter from "react-highlight-words";
 import { useGetCoursesQuery } from "@/providers/apis/courseApi";
+import { useGetBillsQuery } from "@/providers/apis/billApi";
 import { useGetUsersQuery } from "@/providers/apis/userApi";
 
 
@@ -12,9 +12,13 @@ const Dashboard = () => {
     const [searchText, setSearchText] = useState('');
     const [searchedColumn, setSearchedColumn] = useState('');
     const searchInput = useRef(null);
-    const { data: listCourses, isLoading, isFetching, isError } = useGetCoursesQuery();
-    const { data: listUsers } = useGetUsersQuery();
-    console.log(listCourses);
+    const { data: listCourses } = useGetCoursesQuery();
+    const { data: listBills } = useGetBillsQuery()
+    const { data: listUser } = useGetUsersQuery()
+    const VND = new Intl.NumberFormat('vi-VN', {
+        style: 'currency',
+        currency: 'VND',
+    });
 
     const handleSearch = (selectedKeys, confirm, dataIndex) => {
         confirm();
@@ -118,47 +122,88 @@ const Dashboard = () => {
             ) : (
                 text
             ),
-    });
 
+    });
     const columns = [
+
         {
-            title: 'ID',
-            dataIndex: '_id',
-            key: '_id',
-            width: '10%',
+            title: 'STT',
+            dataIndex: 'id',
+            key: 'id',
+            width: '5%',
+            ...getColumnSearchProps('id'),
         },
         {
             title: 'Tên khóa học',
             dataIndex: 'name',
             key: 'name',
-            width: '30%',
+            width: '35%',
             ...getColumnSearchProps('name'),
         },
         {
             title: 'Số lượng bán',
-            dataIndex: 'age',
-            key: 'age',
-            width: '17%',
-            ...getColumnSearchProps('age'),
+            dataIndex: 'count',
+            key: 'count',
+            width: '15%',
+            ...getColumnSearchProps('count'),
+
         },
 
         {
             title: 'Giá bán',
-            dataIndex: 'age',
-            key: 'age',
-            width: '10%',
-            ...getColumnSearchProps('age'),
+            dataIndex: 'price',
+            key: 'price',
+            width: '20%',
+            ...getColumnSearchProps('price'),
         },
 
         {
             title: 'Tổng',
-            dataIndex: 'description',
-            key: 'description',
-            ...getColumnSearchProps('description'),
+            dataIndex: 'totalSum',
+            key: `totalSum`,
+            ...getColumnSearchProps('totalSum'),
             sorter: (a, b) => a.description.length - b.description.length,
             sortDirections: ['descend', 'ascend'],
         },
     ];
+    // const langs = listBills?.coursesBuy?.map((i) => i?.course_id?.name)
+    // const setLang = new Set(langs)
+
+
+    // // for (let l of setLang) {
+    // //     const filterlang = langs.filter((lang) => lang === l)
+
+    // //     Counts.push({ name: l, count: filterlang.length })
+    // // }
+    // Tạo một đối tượng băm (hash object) để đếm số lần xuất hiện của mỗi object
+    const Counts = [];
+    const langsPrice = listBills?.coursesBuy?.map((i) => i?.course_id)
+    let countMap = {};
+    langsPrice?.forEach((obj) => {
+        const key = JSON.stringify(obj); // Tạo một key dựa trên JSON của object
+        countMap[key] = (countMap[key] || 0) + 1; // Đếm số lần xuất hiện của mỗi object
+    });
+
+    // Lọc ra các object không trùng lặp
+    const uniqueObjects = Object.keys(countMap).map((key) => JSON.parse(key));
+
+    // Hiển thị số lượng và các object không trùng lặp
+    uniqueObjects.forEach((obj, index) => {
+        console.log(index);
+        let key = JSON.stringify(obj);
+        Counts.push({ id: index + 1, name: obj.name, price: VND.format(obj.price), count: countMap[key], total: countMap[key] * (obj.price), totalSum: VND.format(countMap[key] * (obj.price)) });
+    });
+
+    function SumCourt(arr) {
+        let sum = 0;
+        for (let i = 0; i < arr.length; i++) {
+            sum += arr[i];
+        }
+        return sum;
+    }
+
+    let sumItem = SumCourt(Counts?.map((i) => i?.total));
+    console.log(listUser?.data?.name);
 
     return (
         <div className="w-full">
@@ -187,7 +232,8 @@ const Dashboard = () => {
                             <div className='ml-[65%]'>
                                 <p className='text-white text-[17px]'>Học viên</p>
                                 <h3 className='text-white ml-[65%] text-[17px]'>
-                                    0
+                                    {listUser?.data
+                                        ?.filter((user) => user?.role == 'user').length}
                                 </h3>
 
                             </div>
@@ -292,18 +338,15 @@ const Dashboard = () => {
 
             <div className=' relative p-[5px] mt-[100px] '>
                 <div className='static'>
-                    <div className='bg-gray-600 absolute top-0 left-0  w-[95%] h-[95px] ml-[30px] p-[15px] rounded '>
-                        <h4 className='text-white text-[20px] mt-[10px] mb-[5px]'>Doanh thu năm 2024</h4>
-                        <p className='text-white'> Tổng doanh thu: <strong
-
-                            className=""></strong></p>
+                    <div className='bg-gray-600 absolute top-0 left-0  w-[95%] h-[105px] ml-[30px] p-[15px] rounded '>
+                        <h4 className='text-white text-[25px] mt-[10px] mb-[5px]'>Doanh thu năm 2024</h4>
+                        <p className='text-white pb-[20px] mr-[20px] text-[18px]'> Tổng doanh thu: <span className="px-[5px] font-bold">{VND.format(sumItem)}</span></p>
                     </div>
                 </div>
                 <div className='bg-white mt-[30px] pt-[80px] rounded w-full'>
                     <div className='px-[30px] '>
                         <Table
-
-                            columns={columns} dataSource={listCourses?.courses}
+                            columns={columns} dataSource={Counts}
                         />
 
                     </div>
@@ -311,6 +354,6 @@ const Dashboard = () => {
             </div>
         </div>
     )
-}
 
+}
 export default Dashboard
