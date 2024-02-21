@@ -221,7 +221,7 @@ function UserManager() {
             render: () => {
                 return (
                     <div className="flex gap-3">
-                        <Button type="primary">Cập nhật</Button>
+                        {/* <Button type="primary">Cập nhật</Button> */}
                         <Button danger>Khóa</Button>
                     </div>
                 );
@@ -246,21 +246,24 @@ function UserManager() {
                 ]}
             />
 
-            <Table
-                className="bg-white p-3 rounded"
-                columns={columns}
-                rowSelection={{
-                    ...rowSelection,
-                }}
-                rowKey={(record) => record.login.uuid}
-                dataSource={data}
-                pagination={tableParams.pagination}
-                loading={loading}
-                title={() => {
-                    return <p style={{ fontWeight: 600, fontSize: '20px' }}>Danh sách tài khoản</p>;
-                }}
-                onChange={handleTableChange}
-            />
+            <div className="overflow-x-auto min-w-[20px]">
+                <Table
+                    style={{ overflowX: 'auto' }}
+                    className="bg-white p-3 rounded"
+                    columns={columns}
+                    rowSelection={{
+                        ...rowSelection,
+                    }}
+                    rowKey={(record) => record.login.uuid}
+                    dataSource={data}
+                    pagination={tableParams.pagination}
+                    loading={loading}
+                    title={() => {
+                        return <p style={{ fontWeight: 600, fontSize: '20px' }}>Danh sách tài khoản</p>;
+                    }}
+                    onChange={handleTableChange}
+                />
+            </div>
         </div>
     );
 }
