@@ -4,10 +4,12 @@ import UserManager from '@/pages/UserManager';
 import Analytics from '@/pages/Analytics';
 import CommentManager from '@/pages/CommentManager';
 import DetailComment from '@/pages/DetailComment';
+import CourseDetail from '@/pages/CourseDetail';
 const publicRoutes = [
     { path: 'dashboard', component: Dashboard },
     { path: 'manager-users', component: UserManager },
     { path: 'manager-courses', component: CourseManager },
+    { path: 'manager-courses/:id', component: CourseDetail },
     { path: 'manager-comments', component: CommentManager },
     { path: 'manager-comments/:id', component: DetailComment },
     { path: 'manager-bills', component: UserManager },

@@ -1,5 +1,6 @@
-import { Breadcrumb, Image, Table, Button, Space } from 'antd';
+import { Breadcrumb, Image, Table, Button, Space, Empty } from 'antd';
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 const CourseManager = () => {
     const [isloading, setLoading] = React.useState(false);
@@ -25,7 +26,7 @@ const CourseManager = () => {
         {
             title: 'Tên khóa học',
             dataIndex: 'title',
-            width: '20%',
+            width: '25%',
             sorter: (a, b) => a.title.length - b.title.length,
 
             render: (title) => (
@@ -36,8 +37,8 @@ const CourseManager = () => {
         },
         {
             title: 'Chủ đề',
-            dataIndex: 'title',
-            width: '20%',
+            dataIndex: 'title2',
+            width: '25%',
             filters: [
                 {
                     text: 'BackEnd',
@@ -64,28 +65,19 @@ const CourseManager = () => {
         {
             title: 'Hình Ảnh',
             dataIndex: 'img',
-            width: '20%',
+            width: '25%',
             render: () => <Image src="https://picsum.photos/150/150" />,
         },
-        {
-            title: 'Chi tiết',
-            dataIndex: 'desc',
-            width: '20%',
-            render: () => (
-                <>
-                    <Space>
-                        <Button type="primary">Kiểm tra</Button>
-                    </Space>
-                </>
-            ),
-        },
+
         {
             title: 'Thao tác',
-            dataIndex: 'cell',
-            width: '20%',
-            render: () => (
+            dataIndex: 'id',
+            width: '25%',
+            render: (id) => (
                 <Space>
-                    <Button type="primary">Cập nhật </Button>
+                    <Link to={`/manager-courses/${id}`}>
+                        <Button type="primary">Chi tiết</Button>
+                    </Link>
                     <Button danger>Khóa</Button>
                 </Space>
             ),
@@ -100,6 +92,7 @@ const CourseManager = () => {
                     className="bg-white p-3 rounded"
                     rowSelection={{ ...rowSelection }}
                     dataSource={data}
+                    locale={{ emptyText: <Empty description="Chưa có khóa học" /> }}
                     columns={columns}
                     rowKey={(record) => record.id}
                     loading={isloading}
