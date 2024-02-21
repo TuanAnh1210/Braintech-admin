@@ -14,7 +14,7 @@ const AdminLayout = ({ children }) => {
         <div className={cx('main')}>
             <AdminSidebar />
             <AdminHeader />
-            <div className={cx('main-layout')} style={{ marginLeft: '280px', padding: '0 24px' }}>
+            <div className={cx('main-layout')} style={{ padding: '0 24px' }}>
                 <div className={cx('main-content')}>{children}</div>
                 <AdminFooter />
             </div>

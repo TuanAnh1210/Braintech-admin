@@ -1,10 +1,14 @@
 .main {
     display: flex;
     min-height: 100vh;
+    position: relative;
     background-color: #f0f1f7;
 
     .main-layout {
-        width: 100%;
+        width: calc(100% - 280px);
+        position: absolute;
+        right: 0;
+        background-color: #f0f1f7;
     }
 
     .main-content {
@@ -14,5 +18,6 @@
         border-radius: 5px;
         margin-top: 110px;
         min-height: calc(100vh - 190px);
+
     }
 }
