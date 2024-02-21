@@ -18,7 +18,7 @@ function AdminSidebar() {
     ];
 
     return (
-        <div className="w-[280px] fixed top-0 bottom-0 bg-white border-r">
+        <div className="lg:w-[280px] sm:w-[180px] sm:w-[200px]  top-0 bottom-0 bg-white border-r">
             {/* bg-[#111c43] */}
             <div className="flex flex-col">
                 <div className="logo flex items-center justify-center border-b pb-4 p-4">
