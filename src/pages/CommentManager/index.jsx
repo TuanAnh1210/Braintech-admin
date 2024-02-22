@@ -1,27 +1,22 @@
-import React from 'react';
 import { Breadcrumb, Button, Card, Table } from 'antd';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 
 const CommentManager = () => {
+    const [data, setData] = useState([])
+    const fetchData = () =>{
+        fetch('https://jsonplaceholder.typicode.com/comments')
+      .then(response => response.json())
+      .then(json => setData(json.slice(0,10)))
+    }
+    useEffect(()=>{
+        fetchData()
+    },[])
     const columns = [
         { title: 'ID', dataIndex: 'id', key: 'id' },
-        { title: 'Course Name', dataIndex: 'course_name', key: 'course_name' },
-        { title: 'Total', dataIndex: 'total', key: 'total' },
-        { title: 'Detail', dataIndex: 'detail', key: 'detail' },
-    ];
-    const data = [
-        {
-            id: 1,
-            course_name: 'Mô hình Client - Server là gì?',
-            total: 1,
-            detail: <Link to={`/manager-comments/1`}><Button type="primary">See detail</Button></Link>
-        },
-        {
-            id: 2,
-            course_name: 'Tìm hiểu về HTML, CSS',
-            total: 1,
-            detail: <Link to={`/manager-comments/2`}><Button type="primary">See detail</Button></Link>
-        }
+        { title: 'Course Name', dataIndex: 'course_name', key: 'name' },
+        { title: 'Email', dataIndex: 'email', key: 'email' },
+        { title: 'Detail', dataIndex: 'detail', key: 'detail',render: (_, {id}) => (<Link to={`/manager-comments/${id}`}><Button type="primary">See detail</Button></Link> )},
     ];
     return (
             <div className='w-full'>
