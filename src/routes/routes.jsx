@@ -1,6 +1,12 @@
 
 import BillManager from '@/pages/BillManager';
 
+import DetailBill from '@/pages/DetailBill';
+import UserManager from '@/pages/UserManager';
+
+
+
+
 import Dashboard from '@/pages/Dashboard';
 import CourseManager from '@/pages/CourseManager';
 
@@ -16,6 +22,10 @@ const publicRoutes = [
     { path: 'manager-comments', component: CommentManager },
     { path: 'manager-comments/:id', component: DetailComment },
     { path: 'manager-bills', component: BillManager },
+
+
+    { path: 'manager-bills/:id', component: DetailBill},
+
     { path: 'statistical', component: Analytics },
 
 ];
