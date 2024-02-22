@@ -1,3 +1,4 @@
+
 import { Breadcrumb, Image, Table, Button, Space, Input } from 'antd';
 import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -115,12 +116,21 @@ const BillManager = () => {
             ),
     });
 
+
+import { Breadcrumb, Image, Table, Button, Space } from 'antd';
+import React from 'react';
+
+const BillManager = () => {
+    const [isloading, setLoading] = React.useState(false);
+    const [data, setData] = React.useState([]);
+
     const fetchData = () => {
         setLoading(true);
         fetch('https://jsonplaceholder.typicode.com/users').then((res) =>
             res.json().then((data) => {
                 setData(data);
                 setLoading(false);
+
                 setTableParams({
                     ...tableParams,
                     pagination: {
@@ -135,10 +145,19 @@ const BillManager = () => {
     useEffect(() => {
         fetchData();
     }, [JSON.stringify(tableParams)]);
+
+            }),
+        );
+    };
+    React.useEffect(() => {
+        fetchData();
+    }, []);
+
     const rowSelection = {
         onChange: (selectedRowKeys, selectedRows) => {
             console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
         },
+
         getCheckboxProps: (record) => ({
             disabled: record.name === 'Disabled Bill',
             // Column configuration not to be checked
@@ -159,18 +178,26 @@ const BillManager = () => {
         }
     };
 
+
+    };
+
     const columns = [
         {
             title: 'Mã hoá đơn',
             dataIndex: 'id',
+
             width: '20%',
             ...getColumnsSearchProps('id'),
+
         },
         {
             title: 'Tên khoá học',
             dataIndex: 'name',
             key: 'name',
+
             ...getColumnsSearchProps('name'),
+
+
             width: '20%',
             sorter: (a, b) => a.title.length - b.title.length,
         },
@@ -192,12 +219,21 @@ const BillManager = () => {
             title: 'Chi tiết',
             dataIndex: 'desc',
             width: '20%',
+
             render: (_, {id}) => (
                 <Link to={`/manager-bills/${id}`}>
                     <Space>
                         <Button type="primary">Xem</Button>
                     </Space>
                 </Link>
+
+            render: () => (
+                <>
+                    <Space>
+                        <Button type="primary">Xem</Button>
+                    </Space>
+                </>
+
             ),
         },
 
@@ -209,7 +245,9 @@ const BillManager = () => {
 
                 <Table
                     className="bg-white p-3 rounded"
+
                     pagination={tableParams.pagination}
+
                     rowSelection={{ ...rowSelection }}
                     dataSource={data}
                     columns={columns}
@@ -218,7 +256,9 @@ const BillManager = () => {
                     title={() => {
                         return <p style={{ fontWeight: 600, fontSize: '20px' }}>Danh sách hoá đơn</p>;
                     }}
+
                     onChange={handleTableChange}
+
                 />
             </div>
         </>
