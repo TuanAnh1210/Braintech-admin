@@ -4,6 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearch } from '@fortawesome/free-solid-svg-icons';
 import Highlighter from 'react-highlight-words';
 import { useEffect, useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
 
 
 const BillManager = () => {
@@ -191,12 +192,12 @@ const BillManager = () => {
             title: 'Chi tiết',
             dataIndex: 'desc',
             width: '20%',
-            render: () => (
-                <>
+            render: (_, {id}) => (
+                <Link to={`/manager-bills/${id}`}>
                     <Space>
                         <Button type="primary">Xem</Button>
                     </Space>
-                </>
+                </Link>
             ),
         },
 
