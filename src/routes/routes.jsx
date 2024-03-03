@@ -6,6 +6,7 @@ import Analytics from '@/pages/Analytics';
 import CommentManager from '@/pages/CommentManager';
 import DetailComment from '@/pages/DetailComment';
 import CourseDetail from '@/pages/CourseDetail';
+import BillManager from '@/pages/BillManager';
 const publicRoutes = [
     { path: 'dashboard', component: Dashboard },
     { path: 'manager-users', component: UserManager },
@@ -14,7 +15,7 @@ const publicRoutes = [
     { path: 'manager-courses/:id', component: CourseDetail },
     { path: 'manager-comments', component: CommentManager },
     { path: 'manager-comments/:id', component: DetailComment },
-
+    { path: 'manager-bills', component: BillManager },
     { path: 'manager-bills/:id', component: DetailBill },
 
     { path: 'statistical', component: Analytics },
