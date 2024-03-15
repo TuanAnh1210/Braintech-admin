@@ -125,7 +125,6 @@ const BillManager = () => {
             dataIndex: 'id',
             key: 'id',
             width: '5%',
-            textAlign: 'center',
         },
         {
             title: 'Khoá học',

@@ -1,42 +1,53 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Layout, Table, Card, Row, Col, Input, Space, Button } from 'antd';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearch } from '@fortawesome/free-solid-svg-icons';
 import Highlighter from 'react-highlight-words';
+import axios from 'axios';
 
 const { Content } = Layout;
 
 const data = [
-    {
-        id: 1,
-        name: 'HTML, CSS Pro',
-        price: 120,
-        subcribers: 200,
-        image: 'https://picsum.photos/64/64',
-    },
-    {
-        id: 2,
-        name: 'React Native',
-        price: 200,
-        subcribers: 100,
-        image: 'https://picsum.photos/64/64',
-    },
-    {
-        id: 3,
-        name: 'Vue 3 Js',
-        price: 210,
-        subcribers: 70,
-        image: 'https://picsum.photos/64/64',
-    },
+    // {
+    //     id: 1,
+    //     name: 'HTML, CSS Pro',
+    //     price: 120,
+    //     subcribers: 200,
+    //     image: 'https://picsum.photos/64/64',
+    // },
+    // {
+    //     id: 2,
+    //     name: 'React Native',
+    //     price: 200,
+    //     subcribers: 100,
+    //     image: 'https://picsum.photos/64/64',
+    // },
+    // {
+    //     id: 3,
+    //     name: 'Vue 3 Js',
+    //     price: 210,
+    //     subcribers: 70,
+    //     image: 'https://picsum.photos/64/64',
+    // },
 ];
 
 const Analytics = () => {
     const [loading, setLoading] = useState(false);
     const [searchText, setSearchText] = useState('');
     const [searchedColumn, setSearchedColumn] = useState('');
-    const [courseData, setCourseData] = useState(data);
+    const [courseData, setCourseData] = useState([]);
     const [sortedInfo, setSortedInfo] = useState({});
     const searchInput = useRef(null);
+
+    useEffect(() => {
+        const getCoursesData = async () => {
+            const res = await axios.get('http://localhost:8080/api/courses/all');
+            const data = await res.data;
+            console.log(data.courses);
+            setCourseData(data.courses);
+        };
+        getCoursesData();
+    }, []);
 
     const handleNameSearch = (selectedKeys, confirm, dataIndex) => {
         confirm();
@@ -150,7 +161,7 @@ const Analytics = () => {
 
     // Table columns
     const columnCourse = [
-        { title: 'ID', dataIndex: 'id', key: 'id', width: '10%' },
+        { title: 'ID', dataIndex: '_id', key: 'id', width: '10%' },
         {
             title: 'Name',
             dataIndex: 'name',
@@ -159,16 +170,16 @@ const Analytics = () => {
         },
         {
             title: 'Price',
-            dataIndex: 'price',
-            key: 'price',
+            dataIndex: 'old_price',
+            key: 'old_price',
             sorter: true,
-            sortOrder: sortedInfo.columnKey === 'price' && sortedInfo.order,
+            sortOrder: sortedInfo.columnKey === 'old_price' && sortedInfo.order,
             onHeaderCell: () => ({
                 onClick: () => {
                     handleSorted(sortedInfo.order === 'ascend' ? 'descend' : 'ascend', 'price');
                 },
             }),
-            ...getColumnSearchProps('price'),
+            ...getColumnSearchProps('odl_price'),
         },
         {
             title: 'Subcribers',
@@ -200,7 +211,7 @@ const Analytics = () => {
                     <Col span={8}>
                         <div style={{ background: '#fff', padding: 24, textAlign: 'center' }}>
                             <h3 className="text-2xl text-teal-600">Total Revenue</h3>
-                            <p className="text-base font-bold">$ {overAll.totalRevenue()}</p>
+                            <p className="text-base font-bold">$ {overAll.totalRevenue() | 0}</p>
                         </div>
                     </Col>
                     <Col span={8}>
@@ -212,7 +223,7 @@ const Analytics = () => {
                     <Col span={8}>
                         <div style={{ background: '#fff', padding: 24, textAlign: 'center' }}>
                             <h3 className="text-2xl text-sky-600">Total Students</h3>
-                            <p className="text-base font-bold">{overAll.totalStudents()}</p>
+                            <p className="text-base font-bold">{overAll.totalStudents() | 0}</p>
                         </div>
                     </Col>
                 </Row>
