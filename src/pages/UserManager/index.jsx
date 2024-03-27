@@ -6,6 +6,7 @@ import Highlighter from 'react-highlight-words';
 import { useEffect, useRef, useState } from 'react';
 import qs from 'qs';
 import axios from 'axios';
+import Swal from 'sweetalert2';
 
 const getRandomuserParams = (params) => ({
     results: params.pagination?.pageSize,
@@ -21,7 +22,7 @@ function UserManager() {
     const [tableParams, setTableParams] = useState({
         pagination: {
             current: 1,
-            pageSize: 10,
+            pageSize: 6,
         },
     });
     const searchInput = useRef(null);
@@ -135,8 +136,6 @@ function UserManager() {
                     pagination: {
                         ...tableParams.pagination,
                         total: 200,
-                        // 200 is mock data, you should read it from server
-                        // total: data.totalCount,
                     },
                 });
             });
@@ -170,17 +169,24 @@ function UserManager() {
         }
     };
     const onHandleDelete = async (id) => {
-        if(confirm('Are you sure?')){
-            try {
-                const response = await axios.delete(`http://localhost:8080/api/user/delete/${id}`)
-                if(response.status == 200){
-                    alert('Successfull')
-                    fetchData()
-                }
-            } catch (error) {
-                console.log("ERROR_DELETE:",error)
+        Swal.fire({
+            title: "Do you want to save the changes?",
+            showDenyButton: true,
+            showCancelButton: true,
+            confirmButtonText: "Save",
+            denyButtonText: `Don't save`
+          }).then((result) => {
+            if (result.isConfirmed) {
+                    axios.delete(`http://localhost:8080/api/user/delete/${id}`)
+                    .then(()=>{
+                        fetchData()
+                        Swal.fire("Saved!", "", "success")
+                    })
+                    .catch(error=>console.log("ERROR_DELETE:",error))
+            } else if (result.isDenied) {
+              Swal.fire("Changes are not saved", "", "info");
             }
-        }
+          })
     }
     const columns = [ 
         {

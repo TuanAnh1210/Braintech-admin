@@ -35,7 +35,8 @@
         "react-responsive-carousel": "^3.2.23",
         "react-router-dom": "^6.11.2",
         "react-slick": "^0.29.0",
-        "slick-carousel": "^1.8.1"
+        "slick-carousel": "^1.8.1",
+        "sweetalert2": "^11.10.7"
     },
     "devDependencies": {
         "@types/react": "^18.0.28",
