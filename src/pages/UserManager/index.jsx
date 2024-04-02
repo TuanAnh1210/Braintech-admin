@@ -4,14 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearch } from '@fortawesome/free-solid-svg-icons';
 import Highlighter from 'react-highlight-words';
 import { useEffect, useRef, useState } from 'react';
-import qs from 'qs';
 import axios from 'axios';
-
-const getRandomuserParams = (params) => ({
-    results: params.pagination?.pageSize,
-    page: params.pagination?.current,
-    ...params,
-});
 
 function UserManager() {
     const [data, setData] = useState();
@@ -170,19 +163,19 @@ function UserManager() {
         }
     };
     const onHandleDelete = async (id) => {
-        if(confirm('Are you sure?')){
+        if (confirm('Are you sure?')) {
             try {
-                const response = await axios.delete(`http://localhost:8080/api/user/delete/${id}`)
-                if(response.status == 200){
-                    alert('Successfull')
-                    fetchData()
+                const response = await axios.delete(`http://localhost:8080/api/user/delete/${id}`);
+                if (response.status == 200) {
+                    alert('Successfull');
+                    fetchData();
                 }
             } catch (error) {
-                console.log("ERROR_DELETE:",error)
+                console.log('ERROR_DELETE:', error);
             }
         }
-    }
-    const columns = [ 
+    };
+    const columns = [
         {
             title: 'Hình ảnh',
             dataIndex: 'avatar',
@@ -209,7 +202,9 @@ function UserManager() {
                 return (
                     <div className="flex gap-3">
                         {/* <Button type="primary">Cập nhật</Button> */}
-                        <Button danger onClick={()=>onHandleDelete(id)}>Khóa</Button>
+                        <Button danger onClick={() => onHandleDelete(id)}>
+                            Khóa
+                        </Button>
                     </div>
                 );
             },
@@ -241,7 +236,6 @@ function UserManager() {
                     rowSelection={{
                         ...rowSelection,
                     }}
-                    
                     dataSource={data}
                     pagination={tableParams.pagination}
                     loading={loading}

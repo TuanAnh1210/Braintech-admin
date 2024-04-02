@@ -5,3 +5,19 @@
 .ant-breadcrumb {
     font-weight: 500;
 }
+
+.s-course .ant-select-single.ant-select-lg .ant-select-selector {
+    font-size: 14px !important;
+}
+
+.mdxeditor-popup-container {
+    z-index: 1000 !important;
+
+    button[title='Save'] {
+        background-color: #0588f0 !important;
+    }
+
+    button[title='Cancel'] {
+        background-color: #80838d !important;
+    }
+}

@@ -7,7 +7,6 @@ export const userApi = createApi({
         getUsers: build.query({
             query: () => '/users',
         }),
-
         authUser: build.mutation({
             query: (payload) => {
                 console.log(payload);
