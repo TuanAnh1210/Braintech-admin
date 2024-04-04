@@ -18,35 +18,28 @@ const DetailComment = () => {
     useEffect(() => {
         fetchData();
     }, []);
+    console.log(data)
     const columns = [
-        { title: 'Content', dataIndex: 'content', key: 'content' },
-        { title: 'User', dataIndex: 'email', key: 'email' },
-        { title: 'Name', dataIndex: 'user', key: 'user' },
-        { title: 'Time', dataIndex: 'date', render(data) {
-            return (
-                <div>
-                    <p>{data?.split("T")[0]}</p>
-                </div>
-            );
-        }},
+        { title: 'Khóa học', dataIndex: 'lessonName', key: 'lessonName' },
+        { title: 'Nội dung', dataIndex: 'content', key: 'content' },
+        { title: 'Tên người dùng', dataIndex: 'user', key: 'user' },
+        { title: 'Số điện thoại', dataIndex: 'phone', key:'phone'},
         {
             title: '',
             dataIndex: 'action',
             key: 'action',
             render: (_, { _id }) => (
                 <Button danger onClick={() => onHandleDelete(_id)}>
-                    Delete
+                    Xóa
                 </Button>
             ),
         },
     ];
     const onHandleDelete = (id) => {
         Swal.fire({
-            title: "Do you want to save the changes?",
-            showDenyButton: true,
+            title: "Bạn có chắc muốn xóa bình luận này?",
             showCancelButton: true,
             confirmButtonText: "Save",
-            denyButtonText: `Don't save`
           }).then((result) => {
             if (result.isConfirmed) {
                     axios.delete(`http://localhost:8080/api/comments/${id}`)
@@ -63,7 +56,7 @@ const DetailComment = () => {
     return (
         <div className="w-full">
             <Breadcrumb className="mb-4" items={[{ title: 'Trang chủ' }, { title: 'Quản lý bình luận' }]} />
-            <Card title="Comment Management">
+            <Card title="Quản lý bình luận">
                 <Table dataSource={Array(data)} columns={columns} />
             </Card>
         </div>

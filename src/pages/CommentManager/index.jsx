@@ -36,14 +36,15 @@ const CommentManager = () => {
         }
     };
     const columns = [
-        { title: 'Course Name', dataIndex: 'course', key: 'course' },
-        { title: 'Email', dataIndex: 'email', key: 'email' },
-        { title: 'Detail', dataIndex: 'detail', key: 'detail',render: (_, {_id}) => (<Link to={`/manager-comments/${_id}`}><Button type="primary">See detail</Button></Link> )},
+        { title: 'Khóa học', dataIndex: 'lessonName', key: 'lessonName' },
+        { title: 'Người bình luận', dataIndex: 'user', key: 'user' },
+        { title: 'Nội dung', dataIndex: 'content', key: 'content' },
+        { title: 'Chi tiết bình luận', dataIndex: 'detail', key: 'detail',render: (_, {_id})  => (<Link to={`/manager-comments/${_id}`}><Button type="primary">Chi tiết</Button></Link> )},
     ];
     return (
             <div className='w-full'>
             <Breadcrumb className="mb-4" items={[{ title: 'Trang chủ' }, { title: 'Quản lý bình luận' }]} />
-            <Card title="Comment Management">
+            <Card title="Quản lý bình luận">
                 <Table dataSource={data}  columns={columns}  onChange={handleTableChange}/>
             </Card>   
             </div>    
