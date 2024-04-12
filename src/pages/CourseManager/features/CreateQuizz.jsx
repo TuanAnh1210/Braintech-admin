@@ -6,7 +6,7 @@ import React from 'react';
 
 import { useCreateQuizzsMutation } from '@/providers/apis/quizzApi';
 
-const CreateQuizz = ({ _id }) => {
+const CreateQuizz = ({ lessonId }) => {
     const [isOpenModalQuizz, setIsOpenModalQuizz] = React.useState(false);
 
     const [createQuizz, { isLoading }] = useCreateQuizzsMutation();
@@ -52,7 +52,7 @@ const CreateQuizz = ({ _id }) => {
             });
 
             const datas = {
-                lesson_id: _id,
+                lesson_id: lessonId,
                 title: quizzFields.title,
                 answers: dataAnswers,
             };
@@ -77,6 +77,7 @@ const CreateQuizz = ({ _id }) => {
                 title="Thêm Quizz"
                 onCancel={handleCancel}
                 open={isOpenModalQuizz}
+                confirmLoading={isLoading}
                 destroyOnClose={true}
                 okText={'Xác nhận'}
                 cancelText={'Quay lại'}

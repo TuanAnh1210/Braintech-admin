@@ -36,7 +36,7 @@ export const courseApi = createApi({
             },
         }),
         uploadImage: build.mutation({
-            query: (payload) => {
+            queryFn: async (payload) => {
                 return { url: '/courses/upload', method: 'POST', body: payload };
             },
         }),

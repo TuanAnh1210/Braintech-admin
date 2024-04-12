@@ -28,7 +28,7 @@ const ModalDeleteCourse = ({ course }) => {
     return (
         <>
             <Button onClick={showModal} danger>
-                Xóa
+                Nháp
             </Button>
             <Modal
                 title={<span className="text-red-600 font-bold">Xác nhận xóa khóa học</span>}

@@ -35,7 +35,6 @@ function CourseMDXEditor({ setDescription, markdown = '' }) {
 
     return (
         <MDXEditor
-            className="mt-12"
             markdown={markdown}
             placeholder={'Nhập mô tả khóa học'}
             onChange={(markdown) => setDescription(markdown)}

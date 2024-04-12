@@ -21,3 +21,20 @@
         background-color: #80838d !important;
     }
 }
+
+.chapters {
+    .ant-tree-treenode {
+        padding: 16px 8px !important;
+
+        &:hover {
+            background-color: rgba(0, 0, 0, 0.05) !important;
+            transition: all 0.2s, border 0s, line-height 0s, box-shadow 0s;
+        }
+
+
+    }
+
+    .ant-tree-switcher {
+        width: 10px !important;
+    }
+}

@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
 import { LoadingOutlined, CheckOutlined, CloseCircleOutlined } from '@ant-design/icons';
 import classNames from 'classnames';
-import { Image } from 'antd';
+import { Image, Progress } from 'antd';
 import React from 'react';
 
 import { clipboard, convertBytesToReadableSize } from '@/lib/utils';
@@ -12,7 +12,20 @@ import uploadImageSvg from '@/assets/images/upload.svg';
 const UploadThumbCourse = ({ course, thumbnail, setThumbnail }) => {
     const [file, setFile] = React.useState(null);
 
-    const [uploadImage, { isLoading: isLoadingUpload }] = useUploadImageMutation();
+    const [uploadImage, { isLoading: isLoadingUpload }] = useUploadImageMutation({
+        onError: (error) => {
+            console.error('Đã xảy ra lỗi:', error);
+        },
+        onSuccess: (data) => {
+            console.log('Upload ảnh thành công:', data);
+            // Xử lý kết quả upload ảnh ở đây
+        },
+        onProgress: (event) => {
+            const percentCompleted = Math.round((event.loaded / event.total) * 100);
+            console.log('Tiến độ upload:', percentCompleted);
+            // Cập nhật tiến độ upload ở đây
+        },
+    });
 
     const handleUploadThumb = async (file) => {
         setFile(file);
@@ -45,17 +58,10 @@ const UploadThumbCourse = ({ course, thumbnail, setThumbnail }) => {
     }; // Hủy thay đổi ảnh bìa
 
     return (
-        <div className="flex items-stretch justify-center gap-5 py-6">
-            <div className="!w-[480px] !h-[160px] rounded-sm border border-dashed overflow-hidden">
-                <Image
-                    src={thumbnail ? thumbnail?.url : course ? course.thumb : 'https://i.imgur.com/e1z9NPh.jpeg'}
-                    alt=""
-                />
-            </div>
-
+        <div className="py-5">
             <div
                 className={classNames(
-                    'flex flex-col items-center justify-center border border-dashed w-full rounded-sm relative',
+                    'flex flex-col items-center justify-center border border-dashed w-full rounded-sm relative py-6',
                     thumbnail && 'bg-green-50',
                     !thumbnail && 'cursor-pointer',
                 )}
@@ -70,7 +76,8 @@ const UploadThumbCourse = ({ course, thumbnail, setThumbnail }) => {
                 {isLoadingUpload ? (
                     <>
                         <LoadingOutlined className="text-2xl" />
-                        <p className="mt-3">{file?.name}</p>
+                        <p className="my-3">{file?.name || 'opacity-0 absolute inse.png'}</p>
+                        <Progress className="px-6" percent={50} status="active" />
                     </>
                 ) : (
                     <div className={classNames(thumbnail && 'hidden')}>
@@ -95,7 +102,7 @@ const UploadThumbCourse = ({ course, thumbnail, setThumbnail }) => {
                             </div>
                             <span className="font-bold text-green-600">Upload Success</span>
                         </div>
-                        <div className="w-96 truncate" onClick={() => clipboard(thumbnail?.url)}>
+                        <div className="w-72 truncate" onClick={() => clipboard(thumbnail?.url)}>
                             <span className="font-medium">URL hình ảnh: </span>
                             <span
                                 className="font-semibold hover:text-blue-500 active:text-blue-800 cursor-pointer"
@@ -104,22 +111,30 @@ const UploadThumbCourse = ({ course, thumbnail, setThumbnail }) => {
                                 {thumbnail?.url}
                             </span>
                         </div>
-                        <div className="w-96 truncate">
+                        <div className="w-72 truncate">
                             <span className="font-medium">Định dạng: </span>
                             <span className="font-semibold uppercase">{thumbnail?.format}</span>
                         </div>
-                        <div className="w-96 truncate">
+                        <div className="w-72 truncate">
                             <span className="font-medium">Kích thước: </span>
                             <span className="font-semibold">
                                 {thumbnail?.width}x{thumbnail?.height}
                             </span>
                         </div>
-                        <div className="w-96 truncate">
+                        <div className="w-72 truncate">
                             <span className="font-medium">Kích thước hình ảnh: </span>
                             <span className="font-semibold">{convertBytesToReadableSize(thumbnail?.bytes)}</span>
                         </div>
                     </div>
                 )}
+            </div>
+            <div className="flex items-center justify-center !h-[180px] rounded-sm border border-dashed overflow-hidden mt-8">
+                <Image
+                    width={course ? 'auto' : 130}
+                    className="w-full"
+                    src={thumbnail ? thumbnail?.url : course ? course.thumb : 'https://i.imgur.com/e1z9NPh.jpeg'}
+                    alt=""
+                />
             </div>
         </div>
     );
