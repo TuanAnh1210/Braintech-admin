@@ -5,6 +5,8 @@ import { useEffect, useState } from 'react';
 
 import styles from './AdminHeader.module.scss';
 
+import facesImage from '@/assets/images/faces.jpg';
+
 const cx = classNames.bind(styles);
 
 function AdminHeader() {
@@ -61,7 +63,7 @@ function AdminHeader() {
     };
 
     return (
-        <div className={cx('header', 'h-[68px] border-b')}>
+        <div className={cx('header', 'h-[68px] border-b z-[999]')}>
             <div className="cursor-pointer">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path
@@ -96,13 +98,7 @@ function AdminHeader() {
                 </div>
 
                 <div className="flex items-center gap-3 cursor-pointer">
-                    <img
-                        width={30}
-                        height={30}
-                        className="rounded-full"
-                        src="https://spruko.com/demo/ynex/dist/assets/images/faces/9.jpg"
-                        alt=""
-                    />
+                    <img width={30} height={30} className="rounded-full" src={facesImage} alt="" />
                     <div className="flex items-start flex-col">
                         <span className="leading-5" style={{ fontSize: '12px', fontWeight: '600' }}>
                             Juno Dev

@@ -8,13 +8,46 @@ export const courseApi = createApi({
             query: () => {
                 return '/courses/all';
             },
+            transformResponse: (response) => {
+                return response.courses;
+            },
         }),
-        getDetail: build.query({
-            query: (id) => {
-                return `/courses/${id}`;
+        getCourseById: build.query({
+            query: (_id) => {
+                return `/courses/${_id}`;
+            },
+            transformResponse: (response) => {
+                return response.course;
+            },
+        }),
+        createCourse: build.mutation({
+            query: (payload) => {
+                return { url: '/courses/create', method: 'POST', body: payload };
+            },
+        }),
+        updateCourse: build.mutation({
+            query: ({ _id, ...payload }) => {
+                return { url: `/courses/${_id}/update`, method: 'PUT', body: payload };
+            },
+        }),
+        deleteCourse: build.mutation({
+            query: (payload) => {
+                return { url: `/courses/${payload._id}/delete`, method: 'DELETE' };
+            },
+        }),
+        uploadImage: build.mutation({
+            queryFn: async (payload) => {
+                return { url: '/courses/upload', method: 'POST', body: payload };
             },
         }),
     }),
 });
 
-export const { useGetCoursesQuery, useGetDetailQuery } = courseApi;
+export const {
+    useGetCoursesQuery,
+    useGetCourseByIdQuery,
+    useUploadImageMutation,
+    useCreateCourseMutation,
+    useUpdateCourseMutation,
+    useDeleteCourseMutation,
+} = courseApi;
