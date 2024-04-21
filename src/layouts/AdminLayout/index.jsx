@@ -11,7 +11,6 @@ const cx = classNames.bind(styles);
 
 const AdminLayout = ({ children }) => {
     return (
-
         <div className={cx('main')}>
             <AdminSidebar />
             <AdminHeader />
