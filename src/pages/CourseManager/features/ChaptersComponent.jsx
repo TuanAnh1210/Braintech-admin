@@ -35,7 +35,7 @@ const ChaptersComponent = () => {
                     </Flex>
 
                     <Flex align="flex-start">
-                        {chapter?.isFree && <Tag color="processing">Miễn phí</Tag>}
+                        {/* {chapter?.isFree && <Tag color="processing">Miễn phí</Tag>} */}
                         <Tag color={chapter?.isPublic ? 'success' : 'warning'}>
                             {chapter?.isPublic ? 'Công khai' : 'Bản nháp'}
                         </Tag>

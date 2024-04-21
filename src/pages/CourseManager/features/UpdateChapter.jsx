@@ -97,9 +97,9 @@ const UpdateChapter = ({ chapter, refetch }) => {
                         <Form.Item name="isPublic" valuePropName="checked">
                             <Checkbox onChange={() => console.log(true)}>Xác nhận xuất bản</Checkbox>
                         </Form.Item>
-                        <Form.Item name={'isFree'} valuePropName="checked">
+                        {/* <Form.Item name={'isFree'} valuePropName="checked">
                             <Checkbox onChange={() => console.log(true)}>Chương học miễn phí</Checkbox>
-                        </Form.Item>
+                        </Form.Item> */}
                     </Flex>
                 </Form>
             </Modal>
