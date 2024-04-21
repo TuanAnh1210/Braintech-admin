@@ -40,7 +40,7 @@ const CreateLesson = ({ refetch }) => {
     const handleUploadVideo = async (e) => {
         try {
             const file = e.target.files[0];
-            if (!file || !file.type.includes('mp4')) {
+            if (!file || (!file.type.includes('mp4') && !file.type.includes('webm'))) {
                 message.error('File không đúng định dạng.');
                 return;
             }
