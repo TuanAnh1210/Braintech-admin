@@ -150,7 +150,7 @@ const CourseManager = () => {
             onFilter: (value, record) => record.cate_id.code === value,
         },
         {
-            title: 'Tổng bài học',
+            title: 'Tổng chương học',
             dataIndex: 'chapters',
             render: (chapters) => {
                 return <div>{chapters.length}</div>;
