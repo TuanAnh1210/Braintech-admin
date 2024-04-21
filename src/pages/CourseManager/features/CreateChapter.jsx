@@ -6,7 +6,7 @@ import React from 'react';
 
 import { useCreateChapterMutation } from '@/providers/apis/chapterApi';
 
-const CreateChapter = () => {
+const CreateChapter = ({ refetch }) => {
     const [isOpenModal, setIsOpenModal] = React.useState(false);
 
     const [createChapter, { isLoading }] = useCreateChapterMutation();
@@ -37,6 +37,7 @@ const CreateChapter = () => {
 
             await createChapter(chapterData);
             handleCancel();
+            refetch();
             form.resetFields();
             message.success('Thêm Chương Học Thành Công!');
         } catch (error) {

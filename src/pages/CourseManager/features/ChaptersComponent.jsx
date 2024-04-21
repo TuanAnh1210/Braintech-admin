@@ -14,8 +14,13 @@ import UpdateChapter from './UpdateChapter';
 const ChaptersComponent = () => {
     const { courseId } = useParams();
 
-    const { data: course = { chapters: [] }, isLoading } = useGetCourseByIdQuery(courseId, {
+    const {
+        data: course = { chapters: [] },
+        isLoading,
+        refetch,
+    } = useGetCourseByIdQuery(courseId, {
         skip: !courseId,
+        refetchOnMountOrArgChange: true,
     });
 
     const gchapters = course.chapters.map((chapter, index) => {
@@ -26,7 +31,7 @@ const ChaptersComponent = () => {
                 <Flex justify="space-between" className="font-semibold text-base">
                     <Flex>
                         {index + 1}. {chapter.name}
-                        <UpdateChapter chapter={chapter} />
+                        <UpdateChapter chapter={chapter} refetch={refetch} />
                     </Flex>
 
                     <Flex align="flex-start">
@@ -113,7 +118,7 @@ const ChaptersComponent = () => {
                 <Space className="flex items-center justify-between">
                     <p>Danh sách chương học</p>
 
-                    <CreateChapter />
+                    <CreateChapter refetch={refetch} />
                 </Space>
             }
             className="w-full min-h-[680px]"

@@ -7,7 +7,7 @@ import React from 'react';
 
 import { useUpdateChapterMutation } from '@/providers/apis/chapterApi';
 
-const UpdateChapter = ({ chapter }) => {
+const UpdateChapter = ({ chapter, refetch }) => {
     const [isOpenModal, setIsOpenModal] = React.useState(false);
 
     const [updateChapter, { isLoading }] = useUpdateChapterMutation();
@@ -37,7 +37,8 @@ const UpdateChapter = ({ chapter }) => {
             await updateChapter(chapterData);
 
             handleCancel();
-            form.resetFields();
+            refetch();
+            // form.resetFields();
             message.success('Cập Nhật Chương Học Thành Công!');
         } catch (error) {
             console.log(error);
