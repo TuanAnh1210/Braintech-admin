@@ -20,7 +20,7 @@ import uploadImageSvg from '@/assets/images/upload.svg';
 import documentImageSvg from '@/assets/images/document.svg';
 import { useCreateLessonMutation } from '@/providers/apis/lessonApi';
 
-const CreateLesson = () => {
+const CreateLesson = ({ refetch }) => {
     const [progress, setProgress] = React.useState(0);
     const [sourceType, setSourceType] = React.useState('youtube');
     const [url, setUrl] = React.useState('');
@@ -128,6 +128,7 @@ const CreateLesson = () => {
 
             await createLesson(lessonData);
 
+            refetch();
             form.resetFields();
             setUrl('');
             message.success('Thêm Bài Học Thành Công!');

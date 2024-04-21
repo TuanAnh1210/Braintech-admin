@@ -13,7 +13,7 @@ import React from 'react';
 const ChapterDetailPage = () => {
     const { courseId, chapterId } = useParams();
 
-    const { data: chapter = { lessons: [] }, isLoading } = useGetChapterByIdQuery(chapterId, {
+    const { data: chapter = { lessons: [] }, refetch } = useGetChapterByIdQuery(chapterId, {
         skip: !chapterId,
     });
 
@@ -114,7 +114,7 @@ const ChapterDetailPage = () => {
                 ]}
             />
 
-            <CreateLesson />
+            <CreateLesson refetch={refetch} />
 
             <Card title="Danh sách bài học">
                 <h2 className="font-bold text-lg mb-6">Chương học: {chapter?.name}</h2>
