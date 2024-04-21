@@ -3,6 +3,7 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 export const courseApi = createApi({
     reducerPath: 'courseApi',
     baseQuery: fetchBaseQuery({ baseUrl: 'http://localhost:8080/api' }),
+    // tagTypes: ['Courses', 'Upload_image'],
     endpoints: (build) => ({
         getCourses: build.query({
             query: () => {
@@ -11,6 +12,7 @@ export const courseApi = createApi({
             transformResponse: (response) => {
                 return response.courses;
             },
+            // providesTags: ['Courses'],
         }),
         getCourseById: build.query({
             query: (_id) => {
@@ -39,6 +41,7 @@ export const courseApi = createApi({
             queryFn: async (payload) => {
                 return { url: '/courses/upload', method: 'POST', body: payload };
             },
+            // providesTags: ['Upload_image'],
         }),
     }),
 });

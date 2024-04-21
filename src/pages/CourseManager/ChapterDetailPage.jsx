@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { Flex, Breadcrumb, Card, Tag, Tree } from 'antd';
-import { Link, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { EditOutlined } from '@ant-design/icons';
 
 import CreateLesson from './features/CreateLesson';

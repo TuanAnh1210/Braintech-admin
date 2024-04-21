@@ -19,7 +19,7 @@ const CourseManager = () => {
     const [searchedColumn, setSearchedColumn] = React.useState('');
     const searchInput = React.useRef(null);
 
-    const { data: courses = [], isLoading } = useGetCoursesQuery();
+    const { data: courses = [], isLoading } = useGetCoursesQuery({}, { refetchOnMountOrArgChange: true });
     const { data: categories = [] } = useGetCateQuery();
 
     const categoriesFormat = categories.map((c) => ({ _id: c._id, text: c.name, value: c.code }));

@@ -24,6 +24,7 @@ const UpdateCourse = () => {
     const { data: categories = [] } = useGetCateQuery();
     const { data: course } = useGetCourseByIdQuery(courseId, {
         skip: !courseId,
+        refetchOnMountOrArgChange: true,
     });
 
     const [form] = Form.useForm();

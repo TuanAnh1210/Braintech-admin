@@ -34,6 +34,7 @@ const UploadThumbCourse = ({ course, thumbnail, setThumbnail }) => {
         form.append('image', file);
 
         const { data } = await uploadImage(form);
+        console.log(data);
         setThumbnail(data?.data);
     }; // Xử lý upload hình ảnh lên clould
 
