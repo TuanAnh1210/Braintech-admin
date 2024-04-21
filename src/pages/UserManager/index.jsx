@@ -4,15 +4,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearch } from '@fortawesome/free-solid-svg-icons';
 import Highlighter from 'react-highlight-words';
 import { useEffect, useRef, useState } from 'react';
-import qs from 'qs';
 import axios from 'axios';
 import Swal from 'sweetalert2';
-
-const getRandomuserParams = (params) => ({
-    results: params.pagination?.pageSize,
-    page: params.pagination?.current,
-    ...params,
-});
 
 function UserManager() {
     const [data, setData] = useState();
@@ -169,6 +162,7 @@ function UserManager() {
         }
     };
     const onHandleDelete = async (id) => {
+
         Swal.fire({
             title: "Do you want to save the changes?",
             showDenyButton: true,
@@ -215,7 +209,9 @@ function UserManager() {
                 return (
                     <div className="flex gap-3">
                         {/* <Button type="primary">Cập nhật</Button> */}
-                        <Button danger onClick={()=>onHandleDelete(id)}>Khóa</Button>
+                        <Button danger onClick={() => onHandleDelete(id)}>
+                            Khóa
+                        </Button>
                     </div>
                 );
             },
@@ -247,7 +243,6 @@ function UserManager() {
                     rowSelection={{
                         ...rowSelection,
                     }}
-                    
                     dataSource={data}
                     pagination={tableParams.pagination}
                     loading={loading}
