@@ -10,20 +10,19 @@ const DetailComment = () => {
     const navi = useNavigate();
     const fetchData = () => {
         fetch(`http://localhost:8080/api/comments/${id}`)
-        .then((res) => res.json())
-        .then(({ data }) => {
-            setData(data);
-        });
+            .then((res) => res.json())
+            .then(({ data }) => {
+                setData(data);
+            });
     };
     useEffect(() => {
         fetchData();
     }, []);
-    console.log(data)
     const columns = [
         { title: 'Khóa học', dataIndex: 'lessonName', key: 'lessonName' },
-        { title: 'Nội dung', dataIndex: 'content', key: 'content' },
+        { title: 'Nội dung', dataIndex: 'text', key: 'text' },
         { title: 'Tên người dùng', dataIndex: 'user', key: 'user' },
-        { title: 'Số điện thoại', dataIndex: 'phone', key:'phone'},
+        { title: 'Số điện thoại', dataIndex: 'phone', key: 'phone' },
         {
             title: '',
             dataIndex: 'action',
@@ -40,18 +39,18 @@ const DetailComment = () => {
             title: "Bạn có chắc muốn xóa bình luận này?",
             showCancelButton: true,
             confirmButtonText: "Save",
-          }).then((result) => {
+        }).then((result) => {
             if (result.isConfirmed) {
-                    axios.delete(`http://localhost:8080/api/comments/${id}`)
-                    .then(()=>{
+                axios.delete(`http://localhost:8080/api/comments/${id}`)
+                    .then(() => {
                         navi(-1)
                         Swal.fire("Saved!", "", "success")
                     })
-                    .catch(error=>console.log("ERROR_DELETE:",error))
+                    .catch(error => console.log("ERROR_DELETE:", error))
             } else if (result.isDenied) {
-              Swal.fire("Changes are not saved", "", "info");
+                Swal.fire("Changes are not saved", "", "info");
             }
-          })
+        })
     };
     return (
         <div className="w-full">

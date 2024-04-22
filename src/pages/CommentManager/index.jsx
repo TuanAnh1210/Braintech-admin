@@ -10,23 +10,23 @@ const CommentManager = () => {
             pageSize: 6,
         },
     });
-    const fetchData = () =>{
+    const fetchData = () => {
         fetch('http://localhost:8080/api/comments')
-        .then((res) => res.json())
-        .then(({ data }) => {
-            setData(data);
-            setTableParams({
-                ...tableParams,
-                pagination: {
-                    ...tableParams.pagination,
-                    total: 200,
-                },
+            .then((res) => res.json())
+            .then(({ data }) => {
+                setData(data);
+                setTableParams({
+                    ...tableParams,
+                    pagination: {
+                        ...tableParams.pagination,
+                        total: 200,
+                    },
+                });
             });
-        });
     }
-    useEffect(()=>{
+    useEffect(() => {
         fetchData()
-    },[])
+    }, [])
     const handleTableChange = (pagination) => {
         setTableParams({
             pagination
@@ -38,16 +38,16 @@ const CommentManager = () => {
     const columns = [
         { title: 'Khóa học', dataIndex: 'lessonName', key: 'lessonName' },
         { title: 'Người bình luận', dataIndex: 'user', key: 'user' },
-        { title: 'Nội dung', dataIndex: 'content', key: 'content' },
-        { title: 'Chi tiết bình luận', dataIndex: 'detail', key: 'detail',render: (_, {_id})  => (<Link to={`/manager-comments/${_id}`}><Button type="primary">Chi tiết</Button></Link> )},
+        { title: 'Nội dung', dataIndex: 'text', key: 'text' },
+        { title: 'Chi tiết bình luận', dataIndex: 'detail', key: 'detail', render: (_, { _id }) => (<Link to={`/manager-comments/${_id}`}><Button type="primary">Chi tiết</Button></Link>) },
     ];
     return (
-            <div className='w-full'>
+        <div className='w-full'>
             <Breadcrumb className="mb-4" items={[{ title: 'Trang chủ' }, { title: 'Quản lý bình luận' }]} />
             <Card title="Quản lý bình luận">
-                <Table dataSource={data}  columns={columns}  onChange={handleTableChange}/>
-            </Card>   
-            </div>    
+                <Table dataSource={data} columns={columns} onChange={handleTableChange} />
+            </Card>
+        </div>
     );
 };
 
