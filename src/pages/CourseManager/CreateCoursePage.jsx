@@ -123,7 +123,10 @@ const CreateCoursePage = () => {
                 title={
                     <Space className="flex items-center justify-between">
                         <Flex gap={10}>
-                            <LeftOutlined onClick={() => navigate(-1)} className="cursor-pointer" />
+                            <LeftOutlined
+                                onClick={() => navigate(-1)}
+                                className="hover:-translate-x-0.5 duration-100 cursor-pointer"
+                            />
                             <p>Thêm khóa học mới</p>
                         </Flex>
                         <Space>

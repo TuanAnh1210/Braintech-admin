@@ -48,11 +48,9 @@ const CreateChapter = ({ refetch }) => {
     return (
         <>
             <Space>
-                <Space>
-                    <Button onClick={handleShow} type="primary">
-                        Thêm chương mới
-                    </Button>
-                </Space>
+                <Button onClick={handleShow} type="primary">
+                    Thêm chương mới
+                </Button>
             </Space>
             <Modal
                 width={620}
@@ -94,7 +92,7 @@ const CreateChapter = ({ refetch }) => {
 
                     <Flex className="flex items-center gap-6">
                         <Form.Item name="isPublic" valuePropName="checked">
-                            <Checkbox onChange={() => console.log(true)}>Xác nhận xuất bản</Checkbox>
+                            <Checkbox onChange={() => console.log(true)}>Xuất bản</Checkbox>
                         </Form.Item>
                         {/* <Form.Item name={'isFree'} valuePropName="checked">
                             <Checkbox onChange={() => console.log(true)}>Chương học miễn phí</Checkbox>
