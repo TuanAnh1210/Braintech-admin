@@ -1,17 +1,21 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { Flex, Breadcrumb, Card, Tag, Tree } from 'antd';
-import { useParams } from 'react-router-dom';
-import { EditOutlined } from '@ant-design/icons';
+import { LeftOutlined, EditOutlined } from '@ant-design/icons';
+import { Flex, Breadcrumb, Card, Tag, Tree, Empty } from 'antd';
+import { useNavigate, useParams } from 'react-router-dom';
 
 import CreateLesson from './features/CreateLesson';
 
 import { useGetChapterByIdQuery } from '@/providers/apis/chapterApi';
 import React from 'react';
+import UpdateLesson from './features/UpdateLesson';
 
 // import UpdateLesson from './features/LessonComponent';
 
 const ChapterDetailPage = () => {
+    const [lesson, setLesson] = React.useState(null);
     const { courseId, chapterId } = useParams();
+
+    const navigate = useNavigate();
 
     const { data: chapter = { lessons: [] }, refetch } = useGetChapterByIdQuery(chapterId, {
         skip: !chapterId,
@@ -34,7 +38,11 @@ const ChapterDetailPage = () => {
                         <Tag color={lesson?.isPublic ? 'success' : 'warning'}>
                             {lesson?.isPublic ? 'Công khai' : 'Bản nháp'}
                         </Tag>
-                        <EditOutlined className="text-green-500 ml-3 text-xl cursor-pointer" />
+
+                        <EditOutlined
+                            onClick={() => setLesson(lesson)}
+                            className="text-green-500 ml-3 text-xl cursor-pointer"
+                        />
                     </Flex>
                 </Flex>
             ),
@@ -104,32 +112,49 @@ const ChapterDetailPage = () => {
     };
 
     return (
-        <Flex className="w-full" gap={20} vertical>
-            <Breadcrumb
-                items={[
-                    { title: 'Trang chủ' },
-                    { title: 'Quản lý khóa học', href: '/manager-courses' },
-                    { title: 'Chi tiết khóa học', href: `/manager-courses/${courseId}` },
-                    { title: 'Chi tiết chương học' },
-                ]}
-            />
-
-            <CreateLesson refetch={refetch} />
-
-            <Card title="Danh sách bài học">
-                <h2 className="font-bold text-lg mb-6">Chương học: {chapter?.name}</h2>
-
-                <Tree
-                    draggable
-                    blockNode
-                    rootClassName="chapters"
-                    onDragEnter={onDragEnter}
-                    onDrop={onDrop}
-                    treeData={gData}
-                    className="draggable-tree"
+        <>
+            <Flex className="w-full" gap={20} vertical>
+                <Breadcrumb
+                    items={[
+                        { title: 'Trang chủ' },
+                        { title: 'Quản lý khóa học', href: '/manager-courses' },
+                        { title: 'Chi tiết khóa học', href: `/manager-courses/${courseId}` },
+                        { title: 'Chi tiết chương học' },
+                    ]}
                 />
-            </Card>
-        </Flex>
+
+                <Card
+                    title={
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center justify-between gap-3">
+                                <LeftOutlined
+                                    onClick={() => navigate(-1)}
+                                    className="hover:-translate-x-0.5 duration-150 cursor-pointer"
+                                />
+                                <h3 className="font-bold">Danh sách bài học</h3>
+                            </div>
+                            <CreateLesson refetch={refetch} />
+                        </div>
+                    }
+                >
+                    <h2 className="font-bold text-lg mb-6">Chương học: {chapter?.name}</h2>
+
+                    <Tree
+                        draggable
+                        blockNode
+                        rootClassName="chapters"
+                        onDragEnter={onDragEnter}
+                        onDrop={onDrop}
+                        treeData={gData}
+                        className="draggable-tree"
+                    />
+
+                    {gData.length === 0 && <Empty className="my-8" description="Chưa có dữ liệu" />}
+                </Card>
+            </Flex>
+
+            <UpdateLesson refetch={refetch} lesson={lesson} setLesson={setLesson} />
+        </>
     );
 };
 
