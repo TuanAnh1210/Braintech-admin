@@ -1,6 +1,6 @@
 .main {
     display: flex;
-    min-height: 100vh;
+    height: 100%;
     position: relative;
     background-color: #f0f1f7;
 
@@ -12,7 +12,7 @@
     }
 
     .main-content {
-        width: 100%;
+
         display: flex;
         color: #000;
         border-radius: 5px;
@@ -20,4 +20,67 @@
         min-height: calc(100vh - 190px);
 
     }
+
+    // @media (max-width:320px) {
+    //     .main-layout {
+    //         width: calc(100% - 580px);
+    //         position: absolute;
+    //         right: 0;
+    //         background-color: #f0f1f7;
+    //     }
+    // }
+
+    // @media (max-width:480px) {
+    //     .main-layout {
+    //         width: calc(100% - 200px);
+    //         position: absolute;
+    //         right: 0;
+    //         background-color: #f0f1f7;
+    //     }
+    // }
+
+    // @media (max-width:600px) {
+    //     .main-layout {
+    //         width: calc(100% - 200px);
+    //         position: absolute;
+    //         right: 0;
+    //         background-color: #f0f1f7;
+    //     }
+    // }
+
+    // @media (max-width:800px) {
+    //     .main-layout {
+    //         width: calc(100% - 180px);
+    //         position: absolute;
+    //         right: 0;
+    //         background-color: #f0f1f7;
+    //     }
+    // }
+
+    // @media (max-width:768px) {
+    //     .main-layout {
+    //         width: calc(100% - 280px);
+    //         position: absolute;
+    //         right: 0;
+    //         background-color: #f0f1f7;
+    //     }
+    // }
+
+    // @media (max-width:1024px) {
+    //     .main-layout {
+    //         width: calc(100% - 280px);
+    //         position: absolute;
+    //         right: 0;
+    //         background-color: #f0f1f7;
+    //     }
+    // }
+
+    // @media (max-width:1024px) {
+    //     .main-layout {
+    //         width: calc(100% - 280px);
+    //         position: absolute;
+    //         right: 0;
+    //         background-color: #f0f1f7;
+    //     }
+    // }
 }

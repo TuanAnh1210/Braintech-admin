@@ -4,13 +4,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearch } from '@fortawesome/free-solid-svg-icons';
 import Highlighter from 'react-highlight-words';
 import { useEffect, useRef, useState } from 'react';
-import qs from 'qs';
-
-const getRandomuserParams = (params) => ({
-    results: params.pagination?.pageSize,
-    page: params.pagination?.current,
-    ...params,
-});
+import axios from 'axios';
+import Swal from 'sweetalert2';
 
 function UserManager() {
     const [data, setData] = useState();
@@ -20,10 +15,9 @@ function UserManager() {
     const [tableParams, setTableParams] = useState({
         pagination: {
             current: 1,
-            pageSize: 10,
+            pageSize: 6,
         },
     });
-
     const searchInput = useRef(null);
 
     const handleSearch = (selectedKeys, confirm, dataIndex) => {
@@ -125,18 +119,16 @@ function UserManager() {
 
     const fetchData = () => {
         setLoading(true);
-        fetch(`https://randomuser.me/api?${qs.stringify(getRandomuserParams(tableParams))}`)
+        fetch(`http://localhost:8080/api/user`)
             .then((res) => res.json())
-            .then(({ results }) => {
-                setData(results);
+            .then(({ data }) => {
+                setData(data);
                 setLoading(false);
                 setTableParams({
                     ...tableParams,
                     pagination: {
                         ...tableParams.pagination,
                         total: 200,
-                        // 200 is mock data, you should read it from server
-                        // total: data.totalCount,
                     },
                 });
             });
@@ -155,7 +147,7 @@ function UserManager() {
 
     useEffect(() => {
         fetchData();
-    }, [JSON.stringify(tableParams)]);
+    }, []);
 
     const handleTableChange = (pagination, filters, sorter) => {
         setTableParams({
@@ -169,20 +161,33 @@ function UserManager() {
             setData([]);
         }
     };
+    const onHandleDelete = async (id) => {
 
-    const columns = [
-        {
-            title: 'Họ và tên',
-            dataIndex: 'name',
-            width: '20%',
-            ...getColumnSearchProps('name'),
-            render: (name) => `${name.first} ${name.last}`,
-        },
+        Swal.fire({
+            title: "Do you want to save the changes?",
+            showDenyButton: true,
+            showCancelButton: true,
+            confirmButtonText: "Save",
+            denyButtonText: `Don't save`
+          }).then((result) => {
+            if (result.isConfirmed) {
+                    axios.delete(`http://localhost:8080/api/user/delete/${id}`)
+                    .then(()=>{
+                        fetchData()
+                        Swal.fire("Saved!", "", "success")
+                    })
+                    .catch(error=>console.log("ERROR_DELETE:",error))
+            } else if (result.isDenied) {
+              Swal.fire("Changes are not saved", "", "info");
+            }
+          })
+    }
+    const columns = [ 
         {
             title: 'Hình ảnh',
-            dataIndex: 'picture',
+            dataIndex: 'avatar',
             render: (picture) => {
-                return <Image width={40} className="rounded-full" src={picture.medium} alt="" />;
+                return <Image width={40} className="rounded-full" src={picture} alt="" />;
             },
         },
         {
@@ -192,37 +197,21 @@ function UserManager() {
             ...getColumnSearchProps('email'),
         },
         {
-            title: 'Giới tính',
-            dataIndex: 'gender',
-            filters: [
-                {
-                    text: 'Male',
-                    value: 'male',
-                },
-                {
-                    text: 'Female',
-                    value: 'female',
-                },
-            ],
-            width: '10%',
-        },
-        {
-            title: 'Điện thoại',
-            dataIndex: 'cell',
-        },
-        {
-            title: 'Quốc gia',
-            dataIndex: 'location',
-            render: (location) => location.country,
+            title: 'Phone',
+            dataIndex: 'phone',
+            sorter: true,
+            ...getColumnSearchProps('phone'),
         },
         {
             title: 'Thao tác',
-            dataIndex: 'cell',
-            render: () => {
+            dataIndex: '_id',
+            render: (id) => {
                 return (
                     <div className="flex gap-3">
                         {/* <Button type="primary">Cập nhật</Button> */}
-                        <Button danger>Khóa</Button>
+                        <Button danger onClick={() => onHandleDelete(id)}>
+                            Khóa
+                        </Button>
                     </div>
                 );
             },
@@ -254,7 +243,6 @@ function UserManager() {
                     rowSelection={{
                         ...rowSelection,
                     }}
-                    rowKey={(record) => record.login.uuid}
                     dataSource={data}
                     pagination={tableParams.pagination}
                     loading={loading}
