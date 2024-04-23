@@ -9,6 +9,7 @@ import intern from './intern.png';
 import js from './js.png';
 import node from './node.png';
 import react from './react.png';
+import upload from './upload.svg';
 import fe from './fe.png';
 import be from './be.png';
 import bg from './bg.webp';
@@ -22,6 +23,7 @@ import bg_blue from './bg_blue.png';
 const images = {
     bg_blue,
     ta,
+    upload,
     core,
     about,
     logo,

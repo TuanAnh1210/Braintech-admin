@@ -35,12 +35,14 @@ const CommentManager = () => {
             setData([]);
         }
     };
+  
     const columns = [
         { title: 'Khóa học', dataIndex: 'lessonName', key: 'lessonName' },
         { title: 'Người bình luận', dataIndex: 'user', key: 'user' },
         { title: 'Nội dung', dataIndex: 'text', key: 'text' },
         { title: 'Chi tiết bình luận', dataIndex: 'detail', key: 'detail', render: (_, { _id }) => (<Link to={`/manager-comments/${_id}`}><Button type="primary">Chi tiết</Button></Link>) },
     ];
+
     return (
         <div className='w-full'>
             <Breadcrumb className="mb-4" items={[{ title: 'Trang chủ' }, { title: 'Quản lý bình luận' }]} />

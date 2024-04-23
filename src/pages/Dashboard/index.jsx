@@ -15,6 +15,7 @@ const Dashboard = () => {
     const { data: listCourses } = useGetCoursesQuery();
     const { data: listBills } = useGetBillsQuery()
     const { data: listUser } = useGetUsersQuery()
+    console.log((listCourses?.filter((course) => course?.cate_id?.name === 'fe')).length);
     const VND = new Intl.NumberFormat('vi-VN', {
         style: 'currency',
         currency: 'VND',
@@ -203,7 +204,7 @@ const Dashboard = () => {
     }
 
     let sumItem = SumCourt(Counts?.map((i) => i?.total));
-    console.log(listUser?.data?.name);
+
 
     return (
         <div className="w-full">
@@ -259,8 +260,7 @@ const Dashboard = () => {
                             <div className='lg:ml-[65%] xl:ml-[65%] sm:ml-[20%]'>
                                 <p className='text-white sm:text-[10px] md:text-[10px] lg:text-[17px] xl:text-[17px]'>Front-End</p>
                                 <h3 className='text-white xl:ml-[65%] lg:ml-[60%] sm:ml-[30%] lg:text-[17px]'>
-                                    {listCourses?.courses
-                                        ?.filter((course) => course?.cate_id?.name == 'fe').length}
+                                    {listCourses?.filter((course) => course?.cate_id?.name === 'fe') ? (listCourses?.filter((course) => course?.cate_id?.name === 'fe')).length : (0)}
                                 </h3>
 
                             </div>
@@ -289,8 +289,7 @@ const Dashboard = () => {
                             <div className='lg:ml-[65%] xl:ml-[65%] sm:ml-[20%]'>
                                 <p className='text-white sm:text-[10px] md:text-[10px] lg:text-[17px] xl:text-[17px]'>Back-End</p>
                                 <h3 className='text-white xl:ml-[65%] lg:ml-[60%] sm:ml-[30%] lg:text-[17px]'>
-                                    {listCourses?.courses
-                                        ?.filter((course) => course?.cate_id?.name == 'be').length}
+                                    {listCourses?.filter((course) => course?.cate_id?.name === 'be') ? (listCourses?.filter((course) => course?.cate_id?.name === 'be')).length : (0)}
                                 </h3>
 
                             </div>
@@ -320,8 +319,7 @@ const Dashboard = () => {
                             <div className='lg:ml-[65%] xl:ml-[65%] sm:ml-[20%]'>
                                 <p className='text-white sm:text-[10px] md:text-[10px] lg:text-[17px] xl:text-[17px]'>Khóa Pro</p>
                                 <h3 className='text-white xl:ml-[65%] lg:ml-[60%] sm:ml-[30%] lg:text-[17px]'>
-                                    {listCourses?.courses
-                                        ?.filter((course) => course?.cate_id?.name == 'pro').length}
+                                    {listCourses?.filter((course) => course?.cate_id?.name === 'fe') ? (listCourses?.filter((course) => course?.cate_id?.name === 'pro')).length : (0)}
                                 </h3>
 
                             </div>
