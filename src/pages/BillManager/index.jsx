@@ -1,18 +1,12 @@
-import { Breadcrumb, Button, Col, Input, Row, Space, Table } from 'antd';
-import { useEffect, useRef, useState } from 'react';
+import { Breadcrumb, Button, Input, Space, Table } from 'antd';
+import { useRef, useState } from 'react';
 import { SearchOutlined } from '@ant-design/icons';
 import Highlighter from 'react-highlight-words';
-import { useGetCoursesQuery } from '@/providers/apis/courseApi';
 import { useGetBillsQuery } from '@/providers/apis/billApi';
-import { useGetUsersQuery } from '@/providers/apis/userApi';
-
-export const dataBill = [
-    { id: 1, name: 'HTML CSS Pro', image: 'https://picsum.photos/100/50', quantity: 3 },
-    { id: 2, name: 'JS Pro', image: 'https://picsum.photos/100/50', quantity: 2 },
-    { id: 3, name: 'React Vue JS', image: 'https://picsum.photos/100/50', quantity: 1 },
-];
+import { formatMoneyInt } from '@/lib/utils';
 
 const BillManager = () => {
+    const { data: paymentData, isLoading } = useGetBillsQuery();
     const [searchText, setSearchText] = useState('');
     const [searchedColumn, setSearchedColumn] = useState('');
     const searchInput = useRef(null);
@@ -121,10 +115,10 @@ const BillManager = () => {
     });
     const columns = [
         {
-            title: 'STT',
-            dataIndex: 'id',
+            title: 'Mã hóa đơn',
+            dataIndex: 'transaction_id',
             key: 'id',
-            width: '5%',
+            width: '10%',
             textAlign: 'center',
         },
         {
@@ -135,37 +129,53 @@ const BillManager = () => {
             ...getColumnSearchProps('name'),
         },
         {
-            title: 'Ảnh',
-            dataIndex: 'image',
-            key: 'image',
-            width: '30%',
-            render: (_, item) => (
-                <Space>
-                    <img src={item.image} alt="" className="object-contain w-[250px] h-[100px]" />
-                </Space>
-            ),
+            title: 'Người mua',
+            dataIndex: 'username',
+            key: 'username',
+            width: '10%',
+            ...getColumnSearchProps('username'),
         },
 
         {
-            title: 'Số lượng',
-            dataIndex: 'quantity',
-            key: 'quantity',
-            width: '20%',
-            ...getColumnSearchProps('quantity'),
+            title: 'Đơn giá',
+            dataIndex: 'amount',
+            key: 'amount',
+            width: '10%',
+            ...getColumnSearchProps('amount'),
+            render: (price) => formatMoneyInt(price) + 'đ',
         },
+        {
+            title: 'Trạng Thái',
+            dataIndex: 'status',
+            key: 'status',
+            width: '10%',
+            ...getColumnSearchProps('status'),
+            render: (status) => {
+                const statusEnum = {
+                    SUCCESS: { color: 'PaleGreen', msg: 'Đã thanh toán' },
+                    PENDING: { color: 'green', msg: 'Đang xử lý' },
+                };
 
+                const { color, msg } = statusEnum[status];
+
+                return {
+                    props: {
+                        style: { background: color },
+                    },
+                    children: <p className="font-semibold">{msg}</p>,
+                };
+            },
+        },
         {
             title: 'Chi tiết',
-            dataIndex: 'detail',
+            dataIndex: 'transaction_id',
+            width: '5%',
             key: `detail`,
-            render: (_, id) => (
-                <Space size="middle">
-                    <a href={`/manager-bills/${id.id}`}>
-                        <button className="px-3 py-2 bg-green-600 text-white rounded">Xem</button>
-                    </a>
-                </Space>
+            render: (id) => (
+                <Button type="primary" href={`/manager-bills/${id}`} size="middle">
+                    Xem chi tiết
+                </Button>
             ),
-            width: '15%',
         },
     ];
 
@@ -178,7 +188,7 @@ const BillManager = () => {
                         title: 'Trang chủ',
                     },
                     {
-                        title: 'Bill Manager',
+                        title: 'Hoá đơn',
                     },
                 ]}
             />
@@ -193,12 +203,11 @@ const BillManager = () => {
                                 Danh sách đơn hàng
                             </p>
                         </div>
-                        <button className="rounded text-white px-3 bg-green-600">Biểu đồ</button>
                     </div>
                 </div>
                 <div className="bg-white mt-[30px]  sm:pt-[100px] md:pt-[150px] pt-[80px] rounded w-full">
                     <div className="px-[30px] ">
-                        <Table columns={columns} dataSource={dataBill} />
+                        <Table columns={columns} dataSource={paymentData?.data} loading={isLoading} />
                     </div>
                 </div>
             </div>

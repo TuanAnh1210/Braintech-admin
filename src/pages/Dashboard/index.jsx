@@ -286,9 +286,7 @@ const Dashboard = () => {
                                     Front-End
                                 </p>
                                 <h3 className="text-white xl:ml-[65%] lg:ml-[60%] sm:ml-[30%] lg:text-[17px]">
-                                    {listCourses?.filter((course) => course?.cate_id?.name === 'fe')
-                                        ? (listCourses?.filter((course) => course?.cate_id?.name === 'fe')).length
-                                        : 0}
+                                    {listCourses?.courses?.filter((course) => course?.cate_id?.name == 'fe').length}
                                 </h3>
                             </div>
                             <div className="mt-[30px] mx-[20px]  border-t-2 border-white  ">
@@ -338,9 +336,7 @@ const Dashboard = () => {
                                     Back-End
                                 </p>
                                 <h3 className="text-white xl:ml-[65%] lg:ml-[60%] sm:ml-[30%] lg:text-[17px]">
-                                    {listCourses?.filter((course) => course?.cate_id?.name === 'be')
-                                        ? (listCourses?.filter((course) => course?.cate_id?.name === 'be')).length
-                                        : 0}
+                                    {listCourses?.courses?.filter((course) => course?.cate_id?.name == 'be').length}
                                 </h3>
                             </div>
                             <div className="mt-[30px] mx-[20px]  border-t-2 border-white  ">
@@ -391,9 +387,7 @@ const Dashboard = () => {
                                     Khóa Pro
                                 </p>
                                 <h3 className="text-white xl:ml-[65%] lg:ml-[60%] sm:ml-[30%] lg:text-[17px]">
-                                    {listCourses?.filter((course) => course?.cate_id?.name === 'fe')
-                                        ? (listCourses?.filter((course) => course?.cate_id?.name === 'pro')).length
-                                        : 0}
+                                    {listCourses?.courses?.filter((course) => course?.cate_id?.name == 'pro').length}
                                 </h3>
                             </div>
                             <div className="mt-[30px] mx-[20px]  border-t-2 border-white  ">
@@ -415,6 +409,9 @@ const Dashboard = () => {
                                     <a href="#pablo" className="warning-link text-white sm:text-[10px] lg:text-[15px]">
                                         Tổng khóa học
                                     </a>
+                                    <a href="#pablo" className="warning-link text-white sm:text-[10px] lg:text-[15px]">
+                                        Tổng khóa học
+                                    </a>
                                 </div>
                             </div>
                         </div>
@@ -422,6 +419,16 @@ const Dashboard = () => {
                 </Col>
             </Row>
 
+            <div className=" relative p-[5px] mt-[100px] ">
+                <div className="static">
+                    <div className="bg-gray-600 absolute top-0 left-0  w-[95%] sm:h-32 md:h-32 h-[105px] ml-[30px] p-[15px] rounded ">
+                        <h4 className="text-white xl:text-[25px] lg:text-[25px] sm:text-[18px] md:text-[18px] mt-[10px] mb-[5px]">
+                            Doanh thu năm 2024
+                        </h4>
+                        <p className="text-white pb-[20px] mr-[20px] sm:text-[15px] md:text-[15px] text-[18px]">
+                            {' '}
+                            Tổng doanh thu: <span className="px-[5px] font-bold">{VND.format(sumItem)}</span>
+                        </p>
             <div className=" relative p-[5px] mt-[100px] ">
                 <div className="static">
                     <div className="bg-gray-600 absolute top-0 left-0  w-[95%] sm:h-32 md:h-32 h-[105px] ml-[30px] p-[15px] rounded ">

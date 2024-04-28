@@ -5,7 +5,9 @@ export const sttCourseApi = createApi({
     baseQuery: fetchBaseQuery({ baseUrl: 'http://localhost:8080/api' }),
     endpoints: (build) => ({
         getSttCourse: build.query({
-            query: () => '/sttCourse',
+            query: (timestamp) => {
+                return { url: `/sttCourse`, params: { ...timestamp }, method: 'GET' };
+            },
         }),
 
         addSttCourse: build.mutation({

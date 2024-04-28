@@ -5,9 +5,12 @@ export const billApi = createApi({
     baseQuery: fetchBaseQuery({ baseUrl: 'http://localhost:8080/api' }),
     endpoints: (build) => ({
         getBills: build.query({
-            query: () => '/bills',
+            query: () => '/payment',
+        }),
+        getBillById: build.query({
+            query: (id) => `/payment/${id}`,
         }),
     }),
 });
 
-export const { useGetBillsQuery } = billApi;
+export const { useGetBillsQuery, useGetBillByIdQuery } = billApi;

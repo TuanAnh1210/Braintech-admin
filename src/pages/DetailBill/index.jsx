@@ -1,37 +1,100 @@
-import React, { useEffect, useState } from 'react';
-import { Breadcrumb, Card, Table } from 'antd';
+/* eslint-disable react/prop-types */
+import { useEffect, useState } from 'react';
+import { Breadcrumb, Card, Row, Col, Descriptions, Button } from 'antd';
 import { useParams } from 'react-router-dom';
-import { dataBill } from '../BillManager';
+import { useGetBillByIdQuery } from '@/providers/apis/billApi';
+import { formatMoneyInt } from '@/lib/utils';
 
 const DetailBill = () => {
-    const [data, setData] = useState([]);
-    const [currentCourse, setCurrentCourse] = useState('');
     const { id } = useParams();
+    const { data: billDetail } = useGetBillByIdQuery(id);
+    const [courseData, setCourseData] = useState({});
+    const [userData, setUserData] = useState({});
+    const [categoryData, setCategoryData] = useState({});
 
-    const fetchData = () => {
-        fetch('https://jsonplaceholder.typicode.com/users')
-            .then((response) => response.json())
-            .then((json) => setData(json.slice(0, 10)));
-    };
+    const [billData, setBillData] = useState([]);
+
     useEffect(() => {
-        fetchData();
-        setCurrentCourse(dataBill.find((bill) => bill.id == id));
-    }, []);
+        if (billDetail?.data) {
+            const { course_info, user_info, category_info, ...rest } = billDetail.data;
+            setCourseData(course_info);
+            setUserData(user_info);
+            setCategoryData(category_info);
+            setBillData(rest);
+        }
+    }, [billDetail]);
 
-    const columns = [
-        { title: 'STT', dataIndex: 'id', key: 'id' },
-        { title: 'User', dataIndex: 'name', key: 'name' },
-        { title: 'Email', dataIndex: 'email', key: 'email' },
-        { title: 'Time', dataIndex: 'time', key: 'time', render: () => <p>20/1/2024</p> },
+    const userItems = [
         {
-            title: 'Content',
-            dataIndex: 'content',
-            key: 'content',
-            render: () => <p>Thanh toán khoá học lập trình C cơ bản</p>,
+            key: 1,
+            label: 'Họ Tên',
+            children: userData?.full_name,
         },
-        { title: 'code bill', dataIndex: 'codebill', key: 'codebill' },
+        {
+            key: 2,
+            label: 'Số Điện Thoại',
+            children: userData?.phone,
+        },
+        {
+            key: 3,
+            label: 'Email',
+            children: userData?.email,
+        },
     ];
-    const newData = data.filter((item) => item.id == currentCourse.id);
+
+    const courseItems = [
+        {
+            key: 1,
+            label: 'Tên khóa học',
+            children: courseData?.name,
+        },
+
+        {
+            key: 2,
+            label: 'Giá thành',
+            children: formatMoneyInt(courseData?.price) + 'đ',
+        },
+        {
+            key: 3,
+            label: 'Loại',
+            children: categoryData?.name,
+        },
+        {
+            key: 4,
+            label: 'Mô tả',
+            children: courseData?.description,
+        },
+    ];
+
+    const billItems = [
+        {
+            key: 1,
+            label: 'Mã giao dịch',
+            children: billData?.transaction_id,
+        },
+        {
+            key: 2,
+            label: 'Tổng số tiền',
+            children: formatMoneyInt(billData?.amount) + 'đ',
+        },
+
+        {
+            key: 3,
+            label: 'Liên kết',
+            children: <Button href={billData?.payment_url}>Kiểm tra</Button>,
+        },
+        {
+            key: 4,
+            label: 'Trạng Thái giao dịch',
+            children: billData?.status_message,
+        },
+        {
+            key: 5,
+            label: 'Nội dung giao dịch',
+            children: billData?.transaction_content,
+        },
+    ];
+
     return (
         <div className="w-full">
             <Breadcrumb
@@ -41,31 +104,39 @@ const DetailBill = () => {
                         title: 'Trang chủ',
                     },
                     {
-                        title: 'Bill Manager',
+                        href: '/manager-bills',
+                        title: 'Hóa đơn',
+                    },
+                    {
+                        title: 'Thông tin hóa đơn',
                     },
                 ]}
             />
-            <div className=" relative p-[5px] mt-[100px] ">
-                <div className="static">
-                    <div className="bg-gray-600 flex justify-between absolute top-0 left-0  w-[95%] sm:h-32 md:h-32 h-[105px] ml-[30px] p-[15px] rounded ">
-                        <div className="">
-                            <h4 className="text-white xl:text-[25px] lg:text-[25px] sm:text-[18px] md:text-[18px] mt-[10px] mb-[5px]">
-                                Hoá đơn: {currentCourse.name}
-                            </h4>
-                            <p className="text-white pb-[20px] mr-[20px] sm:text-[15px] md:text-[15px] text-[18px]">
-                                Hoá đơn chi tiết
-                            </p>
-                        </div>
-                    </div>
-                </div>
-                <div className="bg-white mt-[30px]  sm:pt-[100px] md:pt-[150px] pt-[80px] rounded w-full">
-                    <div className="px-[30px] ">
-                        <Table columns={columns} dataSource={newData} />
-                    </div>
-                </div>
+            <div className="relative p-[5px] mt-[100px]">
+                <Row className="h-[550px]" gutter={[16, 16]}>
+                    <Col span={14}>
+                        <Card>
+                            <CourseInfo items={courseItems} />
+                        </Card>
+                        <BillInfo items={billItems} />
+                    </Col>
+                    <Col span={10}>
+                        <Card>
+                            <UserInfo items={userItems} />
+                        </Card>
+                        <Button type="primary" href="/manager-bills" className=" font-bold mt-12" size="large">
+                            Quay về
+                        </Button>
+                    </Col>
+                </Row>
             </div>
         </div>
     );
 };
 
+const UserInfo = ({ items }) => <Descriptions layout="vertical" title="Thông tin người mua" items={items} />;
+
+const CourseInfo = ({ items }) => <Descriptions layout="vertical" title="Thông tin giao dịch" items={items} />;
+
+const BillInfo = ({ items }) => <Descriptions size="small" className="bg-white" bordered items={items} />;
 export default DetailBill;
