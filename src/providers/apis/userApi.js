@@ -5,7 +5,7 @@ export const userApi = createApi({
     baseQuery: fetchBaseQuery({ baseUrl: 'http://localhost:8080/api' }),
     endpoints: (build) => ({
         getUsers: build.query({
-            query: () => '/users',
+            query: () => '/user',
         }),
         authUser: build.mutation({
             query: (payload) => {

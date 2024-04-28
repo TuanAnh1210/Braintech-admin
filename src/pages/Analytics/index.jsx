@@ -1,40 +1,41 @@
-import React, { useRef, useState } from 'react';
-import { Layout, Table, Card, Row, Col, Input, Space, Button } from 'antd';
+/* eslint-disable react/prop-types */
+import { useEffect, useRef, useState } from 'react';
+import Highlighter from 'react-highlight-words';
+import { Layout, Table, Card, Input, Space, Button, Breadcrumb, Form, DatePicker } from 'antd';
+import dayjs from 'dayjs';
+import isBetween from 'dayjs/plugin/isBetween';
+
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearch } from '@fortawesome/free-solid-svg-icons';
-import Highlighter from 'react-highlight-words';
+
+import { useGetSttCourseQuery } from '@/providers/apis/sttCourseApi';
+import { useGetUsersQuery } from '@/providers/apis/userApi';
+import { useGetCoursesQuery } from '@/providers/apis/courseApi';
+import { formatMoneyInt } from '@/lib/utils';
+import { TIMEFRAMES } from './common';
+import { Overview } from './components';
 
 const { Content } = Layout;
+const { RangePicker } = DatePicker;
 
-const data = [
-    {
-        id: 1,
-        name: 'HTML, CSS Pro',
-        price: 120,
-        subcribers: 200,
-        image: 'https://picsum.photos/64/64',
-    },
-    {
-        id: 2,
-        name: 'React Native',
-        price: 200,
-        subcribers: 100,
-        image: 'https://picsum.photos/64/64',
-    },
-    {
-        id: 3,
-        name: 'Vue 3 Js',
-        price: 210,
-        subcribers: 70,
-        image: 'https://picsum.photos/64/64',
-    },
-];
+dayjs.extend(isBetween);
+
+const rangeFitler = (items, { fromDate, toDate }) => {
+    return items.filter((item) => dayjs(item.createdAt).isBetween(fromDate, toDate));
+};
 
 const Analytics = () => {
-    const [loading, setLoading] = useState(false);
+    const [timeStamp, setTimeStamp] = useState(TIMEFRAMES.thisMonth);
+    const { data: statusCourseResponse, isLoading } = useGetSttCourseQuery(timeStamp, { skip: !timeStamp });
+    const { data: userResponse } = useGetUsersQuery();
+    const { data: courseResponse } = useGetCoursesQuery();
+
     const [searchText, setSearchText] = useState('');
     const [searchedColumn, setSearchedColumn] = useState('');
-    const [courseData, setCourseData] = useState(data);
+    const [statCourseData, setStatCourseData] = useState([]);
+
+    const [userData, setUserData] = useState(userResponse?.data);
+
     const [sortedInfo, setSortedInfo] = useState({});
     const searchInput = useRef(null);
 
@@ -49,9 +50,25 @@ const Analytics = () => {
         setSearchText('');
     };
 
+    useEffect(() => {
+        if (typeof statusCourseResponse === 'object' && statusCourseResponse?.data) {
+            setStatCourseData(statusCourseResponse?.data);
+        }
+    }, [statusCourseResponse]);
+
+    // handle time range filter
+    useEffect(() => {
+        if (userResponse?.data) {
+            const original = userResponse.data.filter((u) => !u.isAdmin);
+            const filtered = rangeFitler(original, timeStamp);
+
+            setUserData({ original, filtered });
+        }
+    }, [timeStamp, userResponse, courseResponse]);
+
     // handle sort
     const handleSorted = (sortOrder, columnKey) => {
-        const sortedData = [...courseData].sort((a, b) => {
+        const sortedData = [...statCourseData].sort((a, b) => {
             if (sortOrder === 'ascend') {
                 return a[columnKey] - b[columnKey];
             } else {
@@ -60,7 +77,7 @@ const Analytics = () => {
         });
 
         setSortedInfo({ columnKey, order: sortOrder });
-        setCourseData(sortedData);
+        setStatCourseData(sortedData);
     };
 
     const getColumnSearchProps = (dataIndex) => ({
@@ -92,7 +109,7 @@ const Analytics = () => {
                             width: 90,
                         }}
                     >
-                        Search
+                        Xác nhận
                     </Button>
                     <Button
                         onClick={() => clearFilters && handleReset(clearFilters)}
@@ -112,10 +129,10 @@ const Analytics = () => {
                             setSearchedColumn(dataIndex);
                         }}
                     >
-                        Filter
+                        Lọc
                     </Button>
                     <Button type="link" size="small" onClick={() => close()}>
-                        close
+                        Đóng
                     </Button>
                 </Space>
             </div>
@@ -150,15 +167,15 @@ const Analytics = () => {
 
     // Table columns
     const columnCourse = [
-        { title: 'ID', dataIndex: 'id', key: 'id', width: '10%' },
+        { title: 'ID', dataIndex: '_id', key: 'id', width: '10%' },
         {
-            title: 'Name',
+            title: 'Tên Khóa Học',
             dataIndex: 'name',
             key: 'name',
             ...getColumnSearchProps('name'),
         },
         {
-            title: 'Price',
+            title: 'Đơn Giá',
             dataIndex: 'price',
             key: 'price',
             sorter: true,
@@ -169,55 +186,65 @@ const Analytics = () => {
                 },
             }),
             ...getColumnSearchProps('price'),
+            render: (price) => (price !== 0 ? formatMoneyInt(price) + 'đ' : 'Miễn Phí'),
         },
         {
-            title: 'Subcribers',
-            dataIndex: 'subcribers',
-            key: 'subcribers',
+            title: 'Doanh Thu',
+            dataIndex: 'revenue',
+            key: 'revenue',
             sorter: true,
-            sortOrder: sortedInfo.columnKey === 'subcribers' && sortedInfo.order,
+            sortOrder: sortedInfo.columnKey === 'revenue' && sortedInfo.order,
             onHeaderCell: () => ({
                 onClick: () => {
-                    handleSorted(sortedInfo.order === 'ascend' ? 'descend' : 'ascend', 'subcribers');
+                    handleSorted(sortedInfo.order === 'ascend' ? 'descend' : 'ascend', 'revenue');
+                },
+            }),
+            ...getColumnSearchProps('revenue'),
+            render: (price) => formatMoneyInt(price) + 'đ',
+        },
+        {
+            title: 'Học Viên',
+            dataIndex: 'subscribers',
+            key: 'subscribers',
+            sorter: true,
+            sortOrder: sortedInfo.columnKey === 'subscribers' && sortedInfo.order,
+            onHeaderCell: () => ({
+                onClick: () => {
+                    handleSorted(sortedInfo.order === 'ascend' ? 'descend' : 'ascend', 'subscribers');
                 },
             }),
         },
     ];
 
-    const overAll = {
-        totalRevenue: () => {
-            return courseData.reduce((total, course) => total + course.subcribers * course.price, 0);
-        },
-        totalCourses: courseData.length,
-        totalStudents: () => {
-            return courseData.reduce((total, course) => total + course.subcribers, 0);
-        },
+    const [form] = Form.useForm();
+
+    // Update range
+    const updateCourseData = (date) => {
+        let [fromDate, toDate] = date;
+        setTimeStamp({ fromDate: fromDate.valueOf(), toDate: toDate.valueOf() });
     };
+
     return (
         <Layout>
+            <Breadcrumb className="mb-4" items={[{ title: 'Trang chủ' }, { title: ' Thống kê' }]} />
             <Content>
-                <Row gutter={[16, 16]} className="mb-6">
-                    <Col span={8}>
-                        <div style={{ background: '#fff', padding: 24, textAlign: 'center' }}>
-                            <h3 className="text-2xl text-teal-600">Total Revenue</h3>
-                            <p className="text-base font-bold">$ {overAll.totalRevenue()}</p>
-                        </div>
-                    </Col>
-                    <Col span={8}>
-                        <div style={{ background: '#fff', padding: 24, textAlign: 'center' }}>
-                            <h3 className="text-2xl text-orange-600">Total Courses</h3>
-                            <p className="text-base font-bold">{overAll.totalCourses}</p>
-                        </div>
-                    </Col>
-                    <Col span={8}>
-                        <div style={{ background: '#fff', padding: 24, textAlign: 'center' }}>
-                            <h3 className="text-2xl text-sky-600">Total Students</h3>
-                            <p className="text-base font-bold">{overAll.totalStudents()}</p>
-                        </div>
-                    </Col>
-                </Row>
-                <Card title="Course Statistics">
-                    <Table loading={loading} dataSource={courseData} columns={columnCourse} />
+                <Overview userData={userData} statCourseData={statCourseData} courseData={courseResponse} />
+                <Card
+                    title={
+                        <Form
+                            className="mt-6"
+                            form={form}
+                            initialValues={{
+                                range_picker: [dayjs().startOf('month'), dayjs()],
+                            }}
+                        >
+                            <Form.Item name="range_picker" label="Thống Kê">
+                                <RangePicker onChange={updateCourseData} />
+                            </Form.Item>
+                        </Form>
+                    }
+                >
+                    <Table loading={isLoading} dataSource={statCourseData} columns={columnCourse} />
                 </Card>
             </Content>
         </Layout>
