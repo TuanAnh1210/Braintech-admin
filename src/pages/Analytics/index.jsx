@@ -55,10 +55,26 @@ const Analytics = () => {
             const data = billResponse.data.map((bill) => {
                 // eslint-disable-next-line no-unused-vars
                 const { course_info, user_info, category_info, ...rest } = bill;
-                return { ...course_info, ...user_info, ...rest };
+
+                return { course_info, user_info, ...rest };
             });
 
-            setStatCourseData(data);
+            const groupedData = data.reduce((a, b) => {
+                const i = a.findIndex((x) => x._id === b.course_info._id);
+                return (
+                    i === -1
+                        ? a.push({
+                              _id: b.course_info._id,
+                              subscribers: 1,
+                              price: b.course_info.price,
+                              name: b.course_info.name,
+                          })
+                        : a[i].subscribers++,
+                    a
+                );
+            }, []);
+
+            setStatCourseData(groupedData);
         }
     }, [billResponse]);
 
@@ -196,7 +212,7 @@ const Analytics = () => {
         },
         {
             title: 'Doanh Thu',
-            dataIndex: 'revenue',
+            dataIndex: 'price',
             key: 'revenue',
             sorter: true,
             sortOrder: sortedInfo.columnKey === 'revenue' && sortedInfo.order,
@@ -206,17 +222,19 @@ const Analytics = () => {
                 },
             }),
             ...getColumnSearchProps('revenue'),
-            render: (price) => formatMoneyInt(price) + 'đ',
+            render: (price, data) => {
+                return formatMoneyInt(price * data.subscribers) + 'đ';
+            },
         },
         {
             title: 'Học Viên',
-            dataIndex: 'full_name',
-            key: 'full_name',
+            dataIndex: 'subscribers',
+            key: 'subscribers',
             sorter: true,
             sortOrder: sortedInfo.columnKey === 'full_name' && sortedInfo.order,
             onHeaderCell: () => ({
                 onClick: () => {
-                    handleSorted(sortedInfo.order === 'ascend' ? 'descend' : 'ascend', 'full_name');
+                    handleSorted(sortedInfo.order === 'ascend' ? 'descend' : 'ascend', 'subscribers');
                 },
             }),
         },

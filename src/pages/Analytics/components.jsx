@@ -3,6 +3,7 @@ import { Row, Col } from 'antd';
 import { formatMoneyInt } from '@/lib/utils';
 
 export const Overview = ({ userData, courseData, billData, statusCourseData }) => {
+    console.log(billData);
     return (
         <Row gutter={[16, 16]}>
             <Col span={8}>
@@ -103,7 +104,8 @@ export const Overview = ({ userData, courseData, billData, statusCourseData }) =
                                 Tổng doanh thu
                             </p>
                             <h3 className="lg:text-[17px] lg:text-[26px] lg:text-bold">
-                                {formatMoneyInt(billData.reduce((pre, cur) => cur.amount + pre, 0)) + 'đ'}
+                                {formatMoneyInt(billData.reduce((pre, cur) => cur.price * cur.subscribers + pre, 0)) +
+                                    'đ'}
                             </h3>
                         </div>
                         <div className="mt-[30px] mx-[20px]  border-t-2 border-white  ">
