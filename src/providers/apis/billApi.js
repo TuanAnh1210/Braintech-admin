@@ -5,7 +5,9 @@ export const billApi = createApi({
     baseQuery: fetchBaseQuery({ baseUrl: 'http://localhost:8080/api' }),
     endpoints: (build) => ({
         getBills: build.query({
-            query: () => '/payment',
+            query: (timestamp) => {
+                return { url: `/payment`, params: { ...timestamp }, method: 'GET' };
+            },
         }),
         getBillById: build.query({
             query: (id) => `/payment/${id}`,

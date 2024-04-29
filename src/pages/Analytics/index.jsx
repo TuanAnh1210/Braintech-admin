@@ -3,22 +3,20 @@ import { useEffect, useRef, useState } from 'react';
 import Highlighter from 'react-highlight-words';
 import { Layout, Table, Card, Input, Space, Button, Breadcrumb, Form, DatePicker } from 'antd';
 import dayjs from 'dayjs';
-import isBetween from 'dayjs/plugin/isBetween';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearch } from '@fortawesome/free-solid-svg-icons';
 
-import { useGetSttCourseQuery } from '@/providers/apis/sttCourseApi';
 import { useGetUsersQuery } from '@/providers/apis/userApi';
 import { useGetCoursesQuery } from '@/providers/apis/courseApi';
+import { useGetBillsQuery } from '@/providers/apis/billApi';
 import { formatMoneyInt } from '@/lib/utils';
-import { TIMEFRAMES } from './common';
+import { TIMEFRAMES } from '@/lib/utils';
 import { Overview } from './components';
+import { useGetSttCourseQuery } from '@/providers/apis/sttCourseApi';
 
 const { Content } = Layout;
 const { RangePicker } = DatePicker;
-
-dayjs.extend(isBetween);
 
 const rangeFitler = (items, { fromDate, toDate }) => {
     return items.filter((item) => dayjs(item.createdAt).isBetween(fromDate, toDate));
@@ -26,13 +24,14 @@ const rangeFitler = (items, { fromDate, toDate }) => {
 
 const Analytics = () => {
     const [timeStamp, setTimeStamp] = useState(TIMEFRAMES.thisMonth);
-    const { data: statusCourseResponse, isLoading } = useGetSttCourseQuery(timeStamp, { skip: !timeStamp });
+    const { data: billResponse, isLoading } = useGetBillsQuery(timeStamp, { skip: !timeStamp });
     const { data: userResponse } = useGetUsersQuery();
     const { data: courseResponse } = useGetCoursesQuery();
+    const { data: statusCourseData } = useGetSttCourseQuery(timeStamp, { skip: !timeStamp });
 
     const [searchText, setSearchText] = useState('');
     const [searchedColumn, setSearchedColumn] = useState('');
-    const [statCourseData, setStatCourseData] = useState([]);
+    const [billData, setStatCourseData] = useState([]);
 
     const [userData, setUserData] = useState(userResponse?.data);
 
@@ -50,11 +49,18 @@ const Analytics = () => {
         setSearchText('');
     };
 
+    //! BAD CODE but will work
     useEffect(() => {
-        if (typeof statusCourseResponse === 'object' && statusCourseResponse?.data) {
-            setStatCourseData(statusCourseResponse?.data);
+        if (billResponse?.data) {
+            const data = billResponse.data.map((bill) => {
+                // eslint-disable-next-line no-unused-vars
+                const { course_info, user_info, category_info, ...rest } = bill;
+                return { ...course_info, ...user_info, ...rest };
+            });
+
+            setStatCourseData(data);
         }
-    }, [statusCourseResponse]);
+    }, [billResponse]);
 
     // handle time range filter
     useEffect(() => {
@@ -64,11 +70,11 @@ const Analytics = () => {
 
             setUserData({ original, filtered });
         }
-    }, [timeStamp, userResponse, courseResponse]);
+    }, [timeStamp, userResponse]);
 
     // handle sort
     const handleSorted = (sortOrder, columnKey) => {
-        const sortedData = [...statCourseData].sort((a, b) => {
+        const sortedData = [...billData].sort((a, b) => {
             if (sortOrder === 'ascend') {
                 return a[columnKey] - b[columnKey];
             } else {
@@ -204,13 +210,13 @@ const Analytics = () => {
         },
         {
             title: 'Học Viên',
-            dataIndex: 'subscribers',
-            key: 'subscribers',
+            dataIndex: 'full_name',
+            key: 'full_name',
             sorter: true,
-            sortOrder: sortedInfo.columnKey === 'subscribers' && sortedInfo.order,
+            sortOrder: sortedInfo.columnKey === 'full_name' && sortedInfo.order,
             onHeaderCell: () => ({
                 onClick: () => {
-                    handleSorted(sortedInfo.order === 'ascend' ? 'descend' : 'ascend', 'subscribers');
+                    handleSorted(sortedInfo.order === 'ascend' ? 'descend' : 'ascend', 'full_name');
                 },
             }),
         },
@@ -228,7 +234,12 @@ const Analytics = () => {
         <Layout>
             <Breadcrumb className="mb-4" items={[{ title: 'Trang chủ' }, { title: ' Thống kê' }]} />
             <Content>
-                <Overview userData={userData} statCourseData={statCourseData} courseData={courseResponse} />
+                <Overview
+                    userData={userData}
+                    statusCourseData={statusCourseData}
+                    billData={billData}
+                    courseData={courseResponse}
+                />
                 <Card
                     title={
                         <Form
@@ -244,7 +255,7 @@ const Analytics = () => {
                         </Form>
                     }
                 >
-                    <Table loading={isLoading} dataSource={statCourseData} columns={columnCourse} />
+                    <Table loading={isLoading} dataSource={billData} columns={columnCourse} />
                 </Card>
             </Content>
         </Layout>

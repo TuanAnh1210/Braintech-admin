@@ -2,7 +2,7 @@
 import { Row, Col } from 'antd';
 import { formatMoneyInt } from '@/lib/utils';
 
-export const Overview = ({ userData, courseData, statCourseData }) => {
+export const Overview = ({ userData, courseData, billData, statusCourseData }) => {
     return (
         <Row gutter={[16, 16]}>
             <Col span={8}>
@@ -55,7 +55,7 @@ export const Overview = ({ userData, courseData, statCourseData }) => {
                             <p className="sm:text-[10px] md:text-[10px] lg:text-[17px] xl:text-[17px]">
                                 Khóa học đang hoạt động
                             </p>
-                            <h3 className=" lg:text-[26px] lg:text-bold">{statCourseData?.length}</h3>
+                            <h3 className=" lg:text-[26px] lg:text-bold">{statusCourseData?.data?.length}</h3>
                         </div>
                         <div className="mt-[30px] mx-[20px]  border-t-2 border-white  ">
                             <div className=" flex flex-row pt-[10px] text-center items-center">
@@ -103,7 +103,7 @@ export const Overview = ({ userData, courseData, statCourseData }) => {
                                 Tổng doanh thu
                             </p>
                             <h3 className="lg:text-[17px] lg:text-[26px] lg:text-bold">
-                                {formatMoneyInt(statCourseData.reduce((pre, cur) => cur.revenue + pre, 0)) + 'đ'}
+                                {formatMoneyInt(billData.reduce((pre, cur) => cur.amount + pre, 0)) + 'đ'}
                             </h3>
                         </div>
                         <div className="mt-[30px] mx-[20px]  border-t-2 border-white  ">
