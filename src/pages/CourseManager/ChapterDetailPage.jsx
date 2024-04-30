@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { LeftOutlined, EditOutlined } from '@ant-design/icons';
+import { LeftOutlined, EditOutlined, LoadingOutlined } from '@ant-design/icons';
 import { Flex, Breadcrumb, Card, Tag, Tree, Empty } from 'antd';
 import { useNavigate, useParams } from 'react-router-dom';
 
@@ -17,7 +17,11 @@ const ChapterDetailPage = () => {
 
     const navigate = useNavigate();
 
-    const { data: chapter = { lessons: [] }, refetch } = useGetChapterByIdQuery(chapterId, {
+    const {
+        data: chapter = { lessons: [] },
+        refetch,
+        isLoading,
+    } = useGetChapterByIdQuery(chapterId, {
         skip: !chapterId,
     });
 
@@ -139,19 +143,28 @@ const ChapterDetailPage = () => {
                         </div>
                     }
                 >
-                    <h2 className="font-bold text-lg mb-6">Chương học: {chapter?.name}</h2>
+                    {isLoading ? (
+                        <div className="flex flex-col items-center justify-center pt-16 pb-12">
+                            <LoadingOutlined className="text-3xl" />
+                            <span className="mt-3">Đang tải...</span>
+                        </div>
+                    ) : (
+                        <>
+                            <h2 className="font-bold text-lg mb-6">Chương học: {chapter?.name}</h2>
 
-                    <Tree
-                        draggable
-                        blockNode
-                        rootClassName="chapters"
-                        onDragEnter={onDragEnter}
-                        onDrop={onDrop}
-                        treeData={gData}
-                        className="draggable-tree"
-                    />
+                            <Tree
+                                draggable
+                                blockNode
+                                rootClassName="chapters"
+                                onDragEnter={onDragEnter}
+                                onDrop={onDrop}
+                                treeData={gData}
+                                className="draggable-tree"
+                            />
 
-                    {gData.length === 0 && <Empty className="my-8" description="Chưa có dữ liệu" />}
+                            {gData.length === 0 && <Empty className="my-8" description="Chưa có dữ liệu" />}
+                        </>
+                    )}
                 </Card>
             </Flex>
 
