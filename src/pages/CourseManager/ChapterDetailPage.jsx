@@ -33,7 +33,9 @@ const ChapterDetailPage = () => {
 
                     <Flex align="flex-start">
                         <Tag color={'processing'}>
-                            {lesson?.source_type === 'cloudinary' ? 'Cloudinary' : 'Youtube'}
+                            {lesson?.source_type === 'cloudinary' && 'Cloudinary'}
+                            {lesson?.source_type === 'youtube' && 'Youtube'}
+                            {lesson?.source_type === 'upload' && 'Upload Video'}
                         </Tag>
                         <Tag color={lesson?.isPublic ? 'success' : 'warning'}>
                             {lesson?.isPublic ? 'Công khai' : 'Bản nháp'}
