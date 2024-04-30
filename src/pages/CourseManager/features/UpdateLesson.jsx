@@ -134,9 +134,9 @@ const UpdateLesson = ({ lesson, setLesson, refetch }) => {
             await updateLesson(lessonData);
             refetch();
             setLesson(null);
-            message.success('Thêm Bài Học Thành Công!');
+            message.success('Cập Nhật Bài Học Thành Công!');
         } catch (error) {
-            message.error('Thêm Bài Học Thất Bại!');
+            message.error('Cập Nhật Bài Học Thất Bại!');
             console.log(error);
         }
     };
