@@ -58,8 +58,9 @@ const CreateLesson = ({ refetch }) => {
                 },
             });
 
-            console.log('Upload thành công:', response.data.playback_url);
-            setUrl(response.data.playback_url);
+            const playback_url = response.data.playback_url;
+            form.setFieldsValue({ url_video: playback_url });
+            setUrl(playback_url);
         } catch (error) {
             console.error('Đã xảy ra lỗi:', error);
         }
@@ -163,7 +164,7 @@ const CreateLesson = ({ refetch }) => {
                 onCancel={() => setIsOpen(false)}
                 open={isOpen}
                 confirmLoading={isLoading}
-                // destroyOnClose={true}
+                destroyOnClose={true}
                 centered={true}
                 closable={false}
                 footer={null}

@@ -54,8 +54,9 @@ const UpdateLesson = ({ lesson, setLesson, refetch }) => {
                 },
             });
 
-            console.log('Upload thành công:', response.data.playback_url);
-            setUrl(response.data.playback_url);
+            const playback_url = response.data.playback_url;
+            form.setFieldsValue({ url_video: playback_url });
+            setUrl(playback_url);
         } catch (error) {
             console.error('Đã xảy ra lỗi:', error);
         }
@@ -125,8 +126,6 @@ const UpdateLesson = ({ lesson, setLesson, refetch }) => {
 
             await form.validateFields();
 
-            console.log({ ...form.getFieldValue() });
-
             const lessonData = {
                 lessonId: lesson._id,
                 ...form.getFieldValue(),
@@ -164,6 +163,7 @@ const UpdateLesson = ({ lesson, setLesson, refetch }) => {
                 isPublic: lesson.isPublic,
             });
             setUrl(lesson.url_video ? lesson.url_video : '');
+            setSourceType(lesson.source_type);
         }
     }, [form, lesson]);
 
