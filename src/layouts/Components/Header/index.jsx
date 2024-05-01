@@ -6,10 +6,15 @@ import { useEffect, useState } from 'react';
 import styles from './AdminHeader.module.scss';
 
 import facesImage from '@/assets/images/faces.jpg';
+import { useCookies } from 'react-cookie';
+import { useNavigate } from 'react-router-dom';
 
 const cx = classNames.bind(styles);
 
 function AdminHeader() {
+    const navigate = useNavigate();
+    const [cookies, setCookie] = useCookies(['cookieLoginStudent']);
+
     const [fullScreen, setFullScreen] = useState(false);
 
     const handleFullScreen = () => {
@@ -32,6 +37,9 @@ function AdminHeader() {
     };
 
     useEffect(() => {
+        if (Object.keys(cookies).length === 0 || cookies.cookieLoginStudent.isAdmin == false) {
+            window.location.href = 'http://localhost:3000/';
+        }
         const handleFullScreenChange = () => {
             if (document.fullscreenElement) {
                 setFullScreen(true);
@@ -96,18 +104,26 @@ function AdminHeader() {
                 <div className="cursor-pointer" onClick={handleScreen}>
                     {!fullScreen ? <FaExpand /> : <FaCompress />}
                 </div>
-
-                <div className="flex items-center gap-3 cursor-pointer">
-                    <img width={30} height={30} className="rounded-full" src={facesImage} alt="" />
-                    <div className="flex items-start flex-col">
-                        <span className="leading-5" style={{ fontSize: '12px', fontWeight: '600' }}>
-                            Juno Dev
-                        </span>
-                        <span className="leading-4" style={{ fontSize: '10px' }}>
-                            Web Developer
-                        </span>
+                {
+                    <div className="flex items-center gap-3 cursor-pointer">
+                        <img
+                            width={30}
+                            height={30}
+                            className="rounded-full"
+                            src={cookies?.cookieLoginStudent?.avatar}
+                            alt=""
+                        />
+                        <div className="flex items-start flex-col">
+                            <span className="leading-5" style={{ fontSize: '12px', fontWeight: '600' }}>
+                                {cookies?.cookieLoginStudent?.fullName}
+                            </span>
+                            <span className="leading-4" style={{ fontSize: '10px' }}>
+                                {cookies?.cookieLoginStudent?.email}
+                            </span>
+                        </div>
                     </div>
-                </div>
+                }
+
                 <FaGear className={cx('spin', 'cursor-pointer')} />
             </div>
         </div>

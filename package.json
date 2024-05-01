@@ -31,6 +31,7 @@
         "qs": "^6.11.2",
         "react": "^18.2.0",
         "react-bootstrap": "^2.7.4",
+        "react-cookie": "^7.1.4",
         "react-dom": "^18.2.0",
         "react-highlight-words": "^0.20.0",
         "react-icons": "^4.12.0",
@@ -40,8 +41,8 @@
         "react-slick": "^0.29.0",
         "read-excel-file": "^5.7.1",
         "slick-carousel": "^1.8.1",
-        "video.js": "^8.10.0",
-        "sweetalert2": "^11.10.7"
+        "sweetalert2": "^11.10.7",
+        "video.js": "^8.10.0"
     },
     "devDependencies": {
         "@types/react": "^18.0.28",
