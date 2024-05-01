@@ -37,9 +37,9 @@ function AdminHeader() {
     };
 
     useEffect(() => {
-        if (Object.keys(cookies).length === 0 || cookies.cookieLoginStudent.isAdmin == false) {
-            window.location.href = 'http://localhost:3000/';
-        }
+        // if (Object.keys(cookies).length === 0 || cookies.cookieLoginStudent.isAdmin == false) {
+        //     window.location.href = 'http://localhost:5173/';
+        // }
         const handleFullScreenChange = () => {
             if (document.fullscreenElement) {
                 setFullScreen(true);

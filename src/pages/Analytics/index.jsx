@@ -1,7 +1,8 @@
 /* eslint-disable react/prop-types */
 import { useEffect, useRef, useState } from 'react';
 import Highlighter from 'react-highlight-words';
-import { Layout, Table, Card, Input, Space, Button, Breadcrumb, Form, DatePicker } from 'antd';
+import { Layout, Table, Card, Input, Space, Button, Breadcrumb, Form, DatePicker, Row, Col } from 'antd';
+import isBetween from 'dayjs/plugin/isBetween';
 import dayjs from 'dayjs';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -12,28 +13,32 @@ import { useGetCoursesQuery } from '@/providers/apis/courseApi';
 import { useGetBillsQuery } from '@/providers/apis/billApi';
 import { formatMoneyInt } from '@/lib/utils';
 import { TIMEFRAMES } from '@/lib/utils';
-import { Overview } from './components';
-import { useGetSttCourseQuery } from '@/providers/apis/sttCourseApi';
-
+import { Overview } from './overview';
+import { CourseCategoryChart } from './charts';
 const { Content } = Layout;
 const { RangePicker } = DatePicker;
 
+dayjs.extend(isBetween);
+
 const rangeFitler = (items, { fromDate, toDate }) => {
-    return items.filter((item) => dayjs(item.createdAt).isBetween(fromDate, toDate));
+    return items.filter((item) => {
+        if (!item?.createdAt) return false;
+        return dayjs(item?.createdAt).isBetween(fromDate, toDate);
+    });
 };
 
 const Analytics = () => {
-    const [timeStamp, setTimeStamp] = useState(TIMEFRAMES.thisMonth);
-    const { data: billResponse, isLoading } = useGetBillsQuery(timeStamp, { skip: !timeStamp });
+    const [timeframe, setTimeframe] = useState(TIMEFRAMES.thisMonth);
+    const { data: billResponse, isLoading } = useGetBillsQuery(timeframe, { skip: !timeframe });
     const { data: userResponse } = useGetUsersQuery();
     const { data: courseResponse } = useGetCoursesQuery();
-    const { data: statusCourseData } = useGetSttCourseQuery(timeStamp, { skip: !timeStamp });
 
     const [searchText, setSearchText] = useState('');
     const [searchedColumn, setSearchedColumn] = useState('');
-    const [billData, setStatCourseData] = useState([]);
+    const [billData, setBillData] = useState([]);
 
     const [userData, setUserData] = useState(userResponse?.data);
+    const [courseData, setCourseData] = useState(courseResponse?.data);
 
     const [sortedInfo, setSortedInfo] = useState({});
     const searchInput = useRef(null);
@@ -51,8 +56,8 @@ const Analytics = () => {
 
     //! BAD CODE but will work
     useEffect(() => {
-        if (billResponse?.data) {
-            const data = billResponse.data.map((bill) => {
+        if (billResponse) {
+            const data = billResponse.map((bill) => {
                 // eslint-disable-next-line no-unused-vars
                 const { course_info, user_info, category_info, ...rest } = bill;
 
@@ -74,7 +79,7 @@ const Analytics = () => {
                 );
             }, []);
 
-            setStatCourseData(groupedData);
+            setBillData(groupedData);
         }
     }, [billResponse]);
 
@@ -82,11 +87,18 @@ const Analytics = () => {
     useEffect(() => {
         if (userResponse?.data) {
             const original = userResponse.data.filter((u) => !u.isAdmin);
-            const filtered = rangeFitler(original, timeStamp);
+            const filtered = rangeFitler(original, timeframe);
 
             setUserData({ original, filtered });
         }
-    }, [timeStamp, userResponse]);
+
+        if (courseResponse) {
+            const original = courseResponse;
+            const filtered = rangeFitler(original, timeframe);
+
+            setCourseData({ original, filtered });
+        }
+    }, [timeframe, userResponse, courseResponse]);
 
     // handle sort
     const handleSorted = (sortOrder, columnKey) => {
@@ -99,7 +111,7 @@ const Analytics = () => {
         });
 
         setSortedInfo({ columnKey, order: sortOrder });
-        setStatCourseData(sortedData);
+        setBillData(sortedData);
     };
 
     const getColumnSearchProps = (dataIndex) => ({
@@ -243,38 +255,43 @@ const Analytics = () => {
     const [form] = Form.useForm();
 
     // Update range
-    const updateCourseData = (date) => {
+    const updateTimeframe = (date) => {
         let [fromDate, toDate] = date;
-        setTimeStamp({ fromDate: fromDate.valueOf(), toDate: toDate.valueOf() });
+        setTimeframe({ fromDate: fromDate.valueOf(), toDate: toDate.endOf('day').valueOf() });
     };
 
     return (
         <Layout>
             <Breadcrumb className="mb-4" items={[{ title: 'Trang chủ' }, { title: ' Thống kê' }]} />
             <Content>
-                <Overview
-                    userData={userData}
-                    statusCourseData={statusCourseData}
-                    billData={billData}
-                    courseData={courseResponse}
-                />
-                <Card
-                    title={
-                        <Form
-                            className="mt-6"
-                            form={form}
-                            initialValues={{
-                                range_picker: [dayjs().startOf('month'), dayjs()],
-                            }}
+                <Overview userData={userData} billData={billData} courseData={courseData} />
+                <Row gutter={[16, 16]}>
+                    <Col span={16}>
+                        <Card
+                            title={
+                                <Form
+                                    className="mt-6"
+                                    form={form}
+                                    initialValues={{
+                                        range_picker: [dayjs().startOf('month'), dayjs()],
+                                    }}
+                                >
+                                    <Form.Item name="range_picker" label="Thống Kê">
+                                        <RangePicker onChange={updateTimeframe} />
+                                    </Form.Item>
+                                </Form>
+                            }
                         >
-                            <Form.Item name="range_picker" label="Thống Kê">
-                                <RangePicker onChange={updateCourseData} />
-                            </Form.Item>
-                        </Form>
-                    }
-                >
-                    <Table loading={isLoading} dataSource={billData} columns={columnCourse} />
-                </Card>
+                            <Table loading={isLoading} dataSource={billData} columns={columnCourse} />
+                        </Card>
+                    </Col>
+                    <Col span={8} className="relative h-100">
+                        <p className="text-black text-bold text-right absolute text-xl mt-2 ml-6 z-[100] left-0">
+                            Thông kê danh mục
+                        </p>
+                        <CourseCategoryChart courseData={courseData} />
+                    </Col>
+                </Row>
             </Content>
         </Layout>
     );

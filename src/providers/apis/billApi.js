@@ -8,6 +8,9 @@ export const billApi = createApi({
             query: (timestamp) => {
                 return { url: `/payment`, params: { ...timestamp }, method: 'GET' };
             },
+            transformResponse: (response) => {
+                return response.data;
+            },
         }),
         getBillById: build.query({
             query: (id) => `/payment/${id}`,

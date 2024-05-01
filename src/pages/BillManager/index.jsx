@@ -16,6 +16,8 @@ const BillManager = () => {
     const [searchedColumn, setSearchedColumn] = useState('');
     const searchInput = useRef(null);
 
+    console.log(paymentData);
+
     const updateTime = (date) => {
         let [fromDate, toDate] = date;
         setTimeStamp({ fromDate: fromDate.valueOf(), toDate: toDate.valueOf() });
@@ -133,14 +135,14 @@ const BillManager = () => {
         },
         {
             title: 'Khoá học',
-            dataIndex: 'name',
+            dataIndex: ['course_info', 'name'],
             key: 'name',
             width: '35%',
             ...getColumnSearchProps('name'),
         },
         {
             title: 'Người mua',
-            dataIndex: 'username',
+            dataIndex: ['user_info', 'full_name'],
             key: 'username',
             width: '10%',
             ...getColumnSearchProps('username'),
@@ -163,10 +165,11 @@ const BillManager = () => {
             render: (status) => {
                 const statusEnum = {
                     SUCCESS: { color: 'PaleGreen', msg: 'Đã thanh toán' },
-                    PENDING: { color: 'green', msg: 'Đang xử lý' },
+                    PENDING: { color: 'Gold', msg: 'Đang xử lý' },
+                    CANCEL: { color: 'Tomato', msg: 'Giao dịch bị lỗi' },
                 };
 
-                const { color, msg } = statusEnum[status];
+                const { color, msg } = statusEnum[status] ?? { color: 'Tomato', msg: 'Unknown' };
 
                 return {
                     props: {
@@ -230,7 +233,7 @@ const BillManager = () => {
                 </div>
                 <div className="bg-white mt-[30px]  sm:pt-[100px] md:pt-[150px] pt-[80px] rounded w-full">
                     <div className="px-[30px] ">
-                        <Table columns={columns} dataSource={paymentData?.data} loading={isLoading} />
+                        <Table columns={columns} dataSource={paymentData} loading={isLoading} />
                     </div>
                 </div>
             </div>

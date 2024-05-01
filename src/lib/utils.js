@@ -1,6 +1,5 @@
 import { message } from 'antd';
 import dayjs from 'dayjs';
-import isBetween from 'dayjs/plugin/isBetween';
 
 export const formatMoneyInt = (money = 0, type = '.') => {
     return String(money).replace(/(\d)(?=(\d{3})+(?!\d))/g, `$1${type}`);
@@ -24,7 +23,6 @@ export const filterNumericInput = (e) => {
 };
 
 const now = dayjs().locale('vn');
-dayjs.extend(isBetween);
 
 export const TIMEFRAMES = {
     all: {},

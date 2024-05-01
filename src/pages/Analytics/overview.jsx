@@ -2,8 +2,7 @@
 import { Row, Col } from 'antd';
 import { formatMoneyInt } from '@/lib/utils';
 
-export const Overview = ({ userData, courseData, billData, statusCourseData }) => {
-    console.log(billData);
+export const Overview = ({ userData, courseData, billData }) => {
     return (
         <Row gutter={[16, 16]}>
             <Col span={8}>
@@ -53,10 +52,8 @@ export const Overview = ({ userData, courseData, billData, statusCourseData }) =
                     </div>
                     <div className="bg-gray-600 h-[100%] mt-[20px] pt-[50px] pb-[10px]  rounded w-full">
                         <div className="text-white text-right px-4">
-                            <p className="sm:text-[10px] md:text-[10px] lg:text-[17px] xl:text-[17px]">
-                                Khóa học đang hoạt động
-                            </p>
-                            <h3 className=" lg:text-[26px] lg:text-bold">{statusCourseData?.data?.length}</h3>
+                            <p className="sm:text-[10px] md:text-[10px] lg:text-[17px] xl:text-[17px]">Khóa học mới</p>
+                            <h3 className=" lg:text-[26px] lg:text-bold">{courseData?.filtered?.length || 0}</h3>
                         </div>
                         <div className="mt-[30px] mx-[20px]  border-t-2 border-white  ">
                             <div className=" flex flex-row pt-[10px] text-center items-center">
@@ -74,7 +71,7 @@ export const Overview = ({ userData, courseData, billData, statusCourseData }) =
                                     />
                                 </svg>
                                 <a href="#pablo" className="warning-link text-white sm:text-[10px] lg:text-[15px]">
-                                    Tổng khóa học: {courseData?.length}
+                                    Tổng khóa học: {courseData?.original?.length}
                                 </a>
                             </div>
                         </div>
@@ -104,8 +101,9 @@ export const Overview = ({ userData, courseData, billData, statusCourseData }) =
                                 Tổng doanh thu
                             </p>
                             <h3 className="lg:text-[17px] lg:text-[26px] lg:text-bold">
-                                {formatMoneyInt(billData.reduce((pre, cur) => cur.price * cur.subscribers + pre, 0)) +
-                                    'đ'}
+                                {formatMoneyInt(
+                                    (billData || []).reduce((pre, cur) => cur.price * cur.subscribers + pre, 0),
+                                ) + 'đ'}
                             </h3>
                         </div>
                         <div className="mt-[30px] mx-[20px]  border-t-2 border-white  ">
