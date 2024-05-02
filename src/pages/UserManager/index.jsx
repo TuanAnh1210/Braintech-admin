@@ -134,16 +134,6 @@ function UserManager() {
             });
     };
 
-    const rowSelection = {
-        onChange: (selectedRowKeys, selectedRows) => {
-            console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
-        },
-        getCheckboxProps: (record) => ({
-            disabled: record.name === 'Disabled User',
-            name: record.name,
-        }),
-    };
-
     useEffect(() => {
         fetchData();
     }, []);
@@ -244,11 +234,7 @@ function UserManager() {
                     style={{ overflowX: 'auto' }}
                     className="bg-white p-3 rounded"
                     columns={columns}
-                    rowSelection={{
-                        ...rowSelection,
-                    }}
                     dataSource={data}
-                    pagination={tableParams.pagination}
                     loading={loading}
                     title={() => {
                         return <p style={{ fontWeight: 600, fontSize: '20px' }}>Danh sách tài khoản</p>;

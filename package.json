@@ -38,6 +38,7 @@
     "react-responsive-carousel": "^3.2.23",
     "react-router-dom": "^6.11.2",
     "react-slick": "^0.29.0",
+    "react-youtube": "^10.1.0",
     "read-excel-file": "^5.7.1",
     "recharts": "^2.12.6",
     "slick-carousel": "^1.8.1",
