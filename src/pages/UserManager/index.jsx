@@ -140,7 +140,6 @@ function UserManager() {
         },
         getCheckboxProps: (record) => ({
             disabled: record.name === 'Disabled User',
-            // Column configuration not to be checked
             name: record.name,
         }),
     };
@@ -156,33 +155,33 @@ function UserManager() {
             ...sorter,
         });
 
-        // `dataSource` is useless since `pageSize` changed
         if (pagination.pageSize !== tableParams.pagination?.pageSize) {
             setData([]);
         }
     };
     const onHandleDelete = async (id) => {
-
         Swal.fire({
-            title: "Do you want to save the changes?",
+            title: 'NGƯỜI DÙNG NÀY SẼ BỊ XÓA!!',
+            text: 'Bạn có chắc muốn xóa người dùng này chứ ?',
             showDenyButton: true,
-            showCancelButton: true,
-            confirmButtonText: "Save",
-            denyButtonText: `Don't save`
-          }).then((result) => {
+            confirmButtonText: 'Xóa',
+            showConfirmButton: true,
+            denyButtonText: `Hủy`,
+        }).then((result) => {
             if (result.isConfirmed) {
-                    axios.delete(`http://localhost:8080/api/user/delete/${id}`)
-                    .then(()=>{
-                        fetchData()
-                        Swal.fire("Saved!", "", "success")
+                axios
+                    .delete(`http://localhost:8080/api/user/delete/${id}`)
+                    .then(() => {
+                        fetchData();
+                        Swal.fire('Xóa thành công!', '', 'success');
                     })
-                    .catch(error=>console.log("ERROR_DELETE:",error))
+                    .catch((error) => console.log('ERROR_DELETE:', error));
             } else if (result.isDenied) {
-              Swal.fire("Changes are not saved", "", "info");
+                Swal.fire('Hủy thành công', '', 'info');
             }
-          })
-    }
-    const columns = [ 
+        });
+    };
+    const columns = [
         {
             title: 'Hình ảnh',
             dataIndex: 'avatar',
@@ -191,13 +190,19 @@ function UserManager() {
             },
         },
         {
+            title: 'Họ Tên',
+            dataIndex: 'full_name',
+            sorter: true,
+            ...getColumnSearchProps('full_name'),
+        },
+        {
             title: 'Email',
             dataIndex: 'email',
             sorter: true,
             ...getColumnSearchProps('email'),
         },
         {
-            title: 'Phone',
+            title: 'Số điện thoại',
             dataIndex: 'phone',
             sorter: true,
             ...getColumnSearchProps('phone'),
@@ -208,9 +213,8 @@ function UserManager() {
             render: (id) => {
                 return (
                     <div className="flex gap-3">
-                        {/* <Button type="primary">Cập nhật</Button> */}
                         <Button danger onClick={() => onHandleDelete(id)}>
-                            Khóa
+                            Xóa
                         </Button>
                     </div>
                 );
