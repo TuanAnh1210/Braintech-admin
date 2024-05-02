@@ -11,6 +11,7 @@ import { faSearch } from '@fortawesome/free-solid-svg-icons';
 import { useGetUsersQuery } from '@/providers/apis/userApi';
 import { useGetCoursesQuery } from '@/providers/apis/courseApi';
 import { useGetBillsQuery } from '@/providers/apis/billApi';
+
 import { formatMoneyInt } from '@/lib/utils';
 import { TIMEFRAMES } from '@/lib/utils';
 import { Overview } from './overview';
@@ -64,21 +65,23 @@ const Analytics = () => {
                 return { course_info, user_info, ...rest };
             });
 
-            const groupedData = data.reduce((a, b) => {
-                const i = a.findIndex((x) => x._id === b.course_info._id);
+            const groupedData = data.reduce((group, b) => {
+                const i = group.findIndex((item) => item._id === b.course_info._id);
                 return (
                     i === -1
-                        ? a.push({
+                        ? group.push({
                               _id: b.course_info._id,
                               subscribers: 1,
                               price: b.course_info.price,
                               name: b.course_info.name,
+                              chapters: b.course_info.chapters,
+                              totalLessons: b.course_info.totalLessons,
                           })
-                        : a[i].subscribers++,
-                    a
+                        : group[i].subscribers++,
+                    group
                 );
             }, []);
-
+            console.log(groupedData);
             setBillData(groupedData);
         }
     }, [billResponse]);
@@ -250,6 +253,31 @@ const Analytics = () => {
                 },
             }),
         },
+        {
+            title: 'Chương',
+            dataIndex: 'chapters',
+            key: 'chapters',
+            sorter: true,
+            sortOrder: sortedInfo.columnKey === 'full_name' && sortedInfo.order,
+            onHeaderCell: () => ({
+                onClick: () => {
+                    handleSorted(sortedInfo.order === 'ascend' ? 'descend' : 'ascend', 'chapters');
+                },
+            }),
+            render: (chapters) => chapters?.length,
+        },
+        {
+            title: 'Bài học',
+            dataIndex: 'totalLessons',
+            key: 'totalLessons',
+            sorter: true,
+            sortOrder: sortedInfo.columnKey === 'totalLessons' && sortedInfo.order,
+            onHeaderCell: () => ({
+                onClick: () => {
+                    handleSorted(sortedInfo.order === 'ascend' ? 'descend' : 'ascend', 'totalLessons');
+                },
+            }),
+        },
     ];
 
     const [form] = Form.useForm();
@@ -266,7 +294,7 @@ const Analytics = () => {
             <Content>
                 <Overview userData={userData} billData={billData} courseData={courseData} />
                 <Row gutter={[16, 16]}>
-                    <Col span={16}>
+                    <Col span={18} xl={18} md={24}>
                         <Card
                             title={
                                 <Form
@@ -285,8 +313,8 @@ const Analytics = () => {
                             <Table loading={isLoading} dataSource={billData} columns={columnCourse} />
                         </Card>
                     </Col>
-                    <Col span={8} className="relative h-100">
-                        <p className="text-black text-bold text-right absolute text-xl mt-2 ml-6 z-[100] left-0">
+                    <Col span={6} className="relative h-100" xl={6} md={0}>
+                        <p className="text-black text-bold text-right absolute text-lg mt-2 ml-6 z-[100] left-0">
                             Thông kê danh mục
                         </p>
                         <CourseCategoryChart courseData={courseData} />

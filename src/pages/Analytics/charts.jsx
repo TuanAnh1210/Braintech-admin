@@ -11,7 +11,6 @@ import {
 } from 'recharts';
 import { useGetCateQuery } from '@/providers/apis/cateApi';
 import { useMemo } from 'react';
-import { Flex, Spin } from 'antd';
 
 function getDuplicates(courseData, groupField = 'code', countName = 'courseCount') {
     const counts = {};
@@ -45,10 +44,8 @@ export const CourseCategoryChart = ({ courseData }) => {
         }
     }, [courseData]);
 
-    if (!categoryData) return <Loading />;
-
     return (
-        <ResponsiveContainer className="bg-white rounded" width="100%" height="100%">
+        <ResponsiveContainer className="bg-white rounded pt-4" width="100%" height="100%">
             <RadarChart cx="50%" cy="50%" outerRadius="80%" data={categoryData}>
                 <PolarGrid />
                 <PolarAngleAxis dataKey="subject" />
@@ -67,11 +64,3 @@ export const CourseCategoryChart = ({ courseData }) => {
         </ResponsiveContainer>
     );
 };
-
-const Loading = () => (
-    <Flex align="center" gap="middle">
-        <Spin size="small" />
-        <Spin />
-        <Spin size="large" />
-    </Flex>
-);
