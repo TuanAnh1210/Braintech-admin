@@ -2,7 +2,23 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react/prop-types */
 import { InfoCircleOutlined, CaretDownOutlined } from '@ant-design/icons';
-import { Form, Input, Select, Col, Row, Flex, Checkbox, Alert, Empty, message, Card, Space, Button, Modal } from 'antd';
+import {
+    Form,
+    Input,
+    Select,
+    Col,
+    Row,
+    Flex,
+    Checkbox,
+    Alert,
+    Empty,
+    message,
+    Card,
+    Space,
+    Button,
+    Modal,
+    Tooltip,
+} from 'antd';
 import { LoadingOutlined, LeftOutlined } from '@ant-design/icons';
 import { useParams } from 'react-router-dom';
 // import { useParams } from 'react-router-dom';
@@ -334,35 +350,45 @@ const CreateLesson = ({ refetch }) => {
                             <p className="text-xs text-center">File up to 50MB</p>
                         </Flex> */}
 
-                                    <Flex
-                                        vertical
-                                        className={classNames(
-                                            'relative border border-dashed rounded-md px-3 py-6 mb-6',
-                                        )}
-                                    >
-                                        <input
-                                            disabled
-                                            className="opacity-0 absolute inset-0 cursor-pointer"
-                                            // title="Chọn file bài tập"
-                                            title="Chưa làm xong phần này =)))"
-                                            // accept=".jpg,.jpeg,.png,.gif"
-                                            type="file"
-                                        />
-                                        <img width={48} height={48} className="mx-auto" src={documentImageSvg} alt="" />
-                                        <p className="mb-1 text-center">Tải lên bài tập (nếu có)</p>
-                                        <p className="text-xs text-center">File up to 50MB</p>
-                                    </Flex>
+                                    <Tooltip title="Chức năng đang phát triển">
+                                        <Flex
+                                            vertical
+                                            className={classNames(
+                                                'relative border border-dashed rounded-md px-3 py-6 mb-6 opacity-80 cursor-not-allowed',
+                                            )}
+                                        >
+                                            <input
+                                                disabled
+                                                className="opacity-0 absolute inset-0 cursor-pointer"
+                                                // title="Chọn file bài tập"
+                                                title="Chưa làm xong phần này =)))"
+                                                // accept=".jpg,.jpeg,.png,.gif"
+                                                type="file"
+                                            />
+                                            <img
+                                                width={48}
+                                                height={48}
+                                                className="mx-auto"
+                                                src={documentImageSvg}
+                                                alt=""
+                                            />
+                                            <p className="mb-1 text-center">Tải lên bài tập (nếu có)</p>
+                                            <p className="text-xs text-center">File up to 50MB</p>
+                                        </Flex>
+                                    </Tooltip>
 
-                                    <Flex
-                                        vertical
-                                        className={classNames(
-                                            'relative border border-dashed rounded-md p-3 mb-6 min-h-[200px]',
-                                        )}
-                                    >
-                                        <p className="text-center">Danh sách các file bài tập</p>
+                                    <Tooltip title="Chức năng đang phát triển">
+                                        <Flex
+                                            vertical
+                                            className={classNames(
+                                                'relative border border-dashed rounded-md p-3 mb-6 min-h-[200px] opacity-80 cursor-not-allowed',
+                                            )}
+                                        >
+                                            <p className="text-center">Danh sách các file bài tập</p>
 
-                                        <Empty className="mt-3" description="Chưa có dữ liệu" />
-                                    </Flex>
+                                            <Empty className="mt-3" description="Chưa có dữ liệu" />
+                                        </Flex>
+                                    </Tooltip>
                                 </Col>
                             </Row>
                         </Form>
