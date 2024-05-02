@@ -1,12 +1,12 @@
 import classNames from 'classnames/bind';
 import { CgSun } from 'react-icons/cg';
-import { FaGear, FaExpand, FaCompress, FaBell } from 'react-icons/fa6';
+import { FaGear, FaExpand, FaCompress, FaBell, FaRightFromBracket } from 'react-icons/fa6';
 import { useEffect, useState } from 'react';
 
 import styles from './AdminHeader.module.scss';
 
 import facesImage from '@/assets/images/faces.jpg';
-import { useCookies } from 'react-cookie';
+import { Cookies, useCookies } from 'react-cookie';
 import { useNavigate } from 'react-router-dom';
 
 const cx = classNames.bind(styles);
@@ -37,9 +37,9 @@ function AdminHeader() {
     };
 
     useEffect(() => {
-        // if (Object.keys(cookies).length === 0 || cookies.cookieLoginStudent.isAdmin == false) {
-        //     window.location.href = 'http://localhost:5173/';
-        // }
+        if (Object.keys(cookies).length === 0 || cookies.cookieLoginStudent.isAdmin == false) {
+            window.location.href = 'http://localhost:3000/';
+        }
         const handleFullScreenChange = () => {
             if (document.fullscreenElement) {
                 setFullScreen(true);
@@ -69,6 +69,12 @@ function AdminHeader() {
             handleExitFullScreen();
         }
     };
+    const _cookies = new Cookies(); // Tạo một instance mới của Cookies
+
+    const handleLogout = () => {
+        _cookies.remove('cookieLoginStudent');
+        window.location.reload();
+    };
 
     return (
         <div className={cx('header', 'h-[68px] border-b z-[999]')}>
@@ -89,9 +95,9 @@ function AdminHeader() {
                 </svg>
             </div>
             <div className="flex items-center gap-6 text-[#536485] text-lg">
-                <CgSun className="cursor-pointer text-[#ffa735] hover:rotate-180 duration-150" />
+                {/* <CgSun className="cursor-pointer text-[#ffa735] hover:rotate-180 duration-150" /> */}
 
-                <div className={classNames('relative cursor-pointer')}>
+                {/* <div className={classNames('relative cursor-pointer')}>
                     <FaBell />
                     <div className="absolute -right-1 -top-1">
                         <span className="relative flex w-2.5 h-2.5">
@@ -99,7 +105,7 @@ function AdminHeader() {
                             <span className="relative inline-flex rounded-full w-2.5 h-2.5 bg-sky-500"></span>
                         </span>
                     </div>
-                </div>
+                </div> */}
 
                 <div className="cursor-pointer" onClick={handleScreen}>
                     {!fullScreen ? <FaExpand /> : <FaCompress />}
@@ -124,7 +130,7 @@ function AdminHeader() {
                     </div>
                 }
 
-                <FaGear className={cx('spin', 'cursor-pointer')} />
+                <FaRightFromBracket title="Đăng xuất" className={cx('cursor-pointer')} onClick={handleLogout} />
             </div>
         </div>
     );
