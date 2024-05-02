@@ -157,6 +157,10 @@ const CourseManager = () => {
             },
         },
         {
+            title: 'Tổng bài học',
+            dataIndex: 'totalLessons',
+        },
+        {
             title: 'Giá khóa học',
             dataIndex: 'price',
             sorter: (a, b) => a.price - b.price,

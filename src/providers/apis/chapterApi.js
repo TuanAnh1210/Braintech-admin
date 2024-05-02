@@ -12,6 +12,7 @@ export const chapterApi = createApi({
                 return response.data;
             },
         }),
+
         createChapter: build.mutation({
             query: (payload) => {
                 return { url: `/create`, method: 'POST', body: payload };
