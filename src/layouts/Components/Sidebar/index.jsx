@@ -23,7 +23,7 @@ function AdminSidebar() {
             {/* bg-[#111c43] */}
             <div className="flex flex-col">
                 <div className="logo flex items-center justify-center border-b pb-4 p-4">
-                    <a href="http://localhost:3000/" className="flex items-center gap-3">
+                    <a href={import.meta.env.VITE_REACT_APP_APP_PATH} className="flex items-center gap-3">
                         <img width={35} style={{ borderRadius: '5px' }} src={logoImage} alt="" />
                         <div style={{ fontWeight: 600, fontSize: '20px' }}>
                             <span style={{ color: '#3dd5a2' }}>Brain</span>

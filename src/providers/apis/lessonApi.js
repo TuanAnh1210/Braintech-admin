@@ -2,7 +2,7 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
 export const lessonApi = createApi({
     reducerPath: 'lessonApi',
-    baseQuery: fetchBaseQuery({ baseUrl: 'http://localhost:8080/api/lessons' }),
+    baseQuery: fetchBaseQuery({ baseUrl: import.meta.env.VITE_REACT_APP_API_PATH + 'api/lessons' }),
     endpoints: (build) => ({
         createLesson: build.mutation({
             query: (payload) => {
