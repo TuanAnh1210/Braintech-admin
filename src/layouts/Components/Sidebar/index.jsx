@@ -23,13 +23,13 @@ function AdminSidebar() {
             {/* bg-[#111c43] */}
             <div className="flex flex-col">
                 <div className="logo flex items-center justify-center border-b pb-4 p-4">
-                    <Link to="/dashboard" className="flex items-center gap-3">
+                    <a href="http://localhost:3000/" className="flex items-center gap-3">
                         <img width={35} style={{ borderRadius: '5px' }} src={logoImage} alt="" />
                         <div style={{ fontWeight: 600, fontSize: '20px' }}>
                             <span style={{ color: '#3dd5a2' }}>Brain</span>
                             <span style={{ color: '#6666ff' }}>Tech</span>
                         </div>
-                    </Link>
+                    </a>
                 </div>
                 <div className="flex flex-row p-3 pt-6">
                     <div className={cx('nav')}>
