@@ -5,6 +5,7 @@ import Analytics from '@/pages/Analytics';
 import CommentManager from '@/pages/CommentManager';
 import DetailComment from '@/pages/DetailComment';
 import BillManager from '@/pages/BillManager';
+import DiscountCode from '@/pages/DiscountCode';
 
 const publicRoutes = [
     { path: 'dashboard', component: Analytics },
@@ -19,6 +20,7 @@ const publicRoutes = [
     { path: 'manager-comments/:id', component: DetailComment },
     { path: 'manager-bills', component: BillManager },
     { path: 'manager-bills/:id', component: DetailBill },
+    { path: 'manager-discount', component: DiscountCode },
 ];
 
 const privateRoutes = [];
