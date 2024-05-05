@@ -9,7 +9,6 @@ export const userApi = createApi({
         }),
         authUser: build.mutation({
             query: (payload) => {
-                console.log(payload);
                 return { url: '/user/auth', method: 'POST', body: payload };
             },
         }),
