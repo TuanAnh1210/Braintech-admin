@@ -3,11 +3,9 @@ import { useRef, useState } from 'react';
 import { SearchOutlined } from '@ant-design/icons';
 import Highlighter from 'react-highlight-words';
 import { useGetBillsQuery } from '@/providers/apis/billApi';
-import { formatMoneyInt } from '@/lib/utils';
 import { TIMEFRAMES } from '@/lib/utils';
-import dayjs from 'dayjs';
-
-const { RangePicker } = DatePicker;
+import moment from 'moment';
+import GiftRecipientSelect from '@/pages/DiscountCode/ReceiverCode';
 
 const DiscountCode = () => {
     const [timeStamp, setTimeStamp] = useState(TIMEFRAMES.thisMonth);
@@ -15,11 +13,7 @@ const DiscountCode = () => {
     const [searchText, setSearchText] = useState('');
     const [searchedColumn, setSearchedColumn] = useState('');
     const searchInput = useRef(null);
-
-    const updateTime = (date) => {
-        let [fromDate, toDate] = date;
-        setTimeStamp({ fromDate: fromDate.valueOf(), toDate: toDate.valueOf() });
-    };
+    const [isOpen, setIsOpen] = useState(false);
 
     const handleSearch = (selectedKeys, confirm, dataIndex) => {
         confirm();
@@ -123,51 +117,95 @@ const DiscountCode = () => {
                 text
             ),
     });
+
+    const users = [
+        {
+            id: 1,
+            username: 'Trung',
+            age: 10,
+        },
+        {
+            id: 2,
+            username: 'Trung 1',
+            age: 10,
+        },
+    ];
+    let discountCodes = [
+        {
+            codeName: 'SUMMER2024',
+            quantity: 100,
+            discountAmount: 10,
+            maxDiscountAmount: 5,
+            startDate: '2020-05-01',
+            endDate: '2025-05-01',
+            status: 'ACTIVE',
+        },
+        {
+            codeName: 'SUMMER2025',
+            quantity: 100,
+            discountAmount: 10,
+            maxDiscountAmount: 5,
+            startDate: '2020-05-01',
+            endDate: '2025-05-01',
+            status: 'ACTIVE',
+        },
+    ];
     const discountCodeColumns = [
         {
             title: 'Mã giảm giá',
-            dataIndex: 'transaction_id',
-            key: 'id',
-            width: '10%',
+            dataIndex: 'codeName',
+            key: 'codeName',
+            align: 'center',
+            ...getColumnSearchProps('codeName'),
+        },
+        {
+            title: 'Số lượng',
+            dataIndex: 'quantity',
+            key: 'quantity',
             align: 'center',
         },
         {
-            title: 'Số phần trăm',
-            dataIndex: ['course_info', 'name'],
-            key: 'name',
-            width: '35%',
-            // Đối với phần tìm kiếm, bạn có thể thêm thuộc tính search: true nếu cần
-            // search: true,
+            title: 'Số lượng giảm giá',
+            dataIndex: 'discountAmount',
+            key: 'discountAmount',
+            align: 'center',
         },
         {
-            title: 'Giá tiền',
-            dataIndex: ['user_info', 'full_name'],
-            key: 'username',
-            width: '10%',
-            // Đối với phần tìm kiếm, bạn có thể thêm thuộc tính search: true nếu cần
-            // search: true,
+            title: 'Giảm giá tối đa',
+            dataIndex: 'maxDiscountAmount',
+            key: 'maxDiscountAmount',
+            align: 'center',
         },
         {
-            title: 'Người nhận',
-            dataIndex: 'amount',
-            key: 'amount',
-            width: '10%',
-            // Đối với phần tìm kiếm, bạn có thể thêm thuộc tính search: true nếu cần
-            // search: true,
-            render: (price) => formatMoneyInt(price) + 'đ',
+            title: 'Ngày bắt đầu',
+            dataIndex: 'startDate',
+            key: 'startDate',
+            align: 'center',
+            render: (data) => {
+                let date = new Date(data).toLocaleDateString('vi-VN');
+                return <p>{date}</p>;
+            },
         },
         {
-            title: 'Trạng Thái',
+            title: 'Ngày kết thúc',
+            dataIndex: 'endDate',
+            key: 'endDate',
+            align: 'center',
+            render: (data) => {
+                let date = new Date(data).toLocaleDateString('vi-VN');
+                return <p>{date}</p>;
+            },
+        },
+        {
+            title: 'Trạng thái',
             dataIndex: 'status',
             key: 'status',
-            width: '10%',
-            // Đối với phần tìm kiếm, bạn có thể thêm thuộc tính search: true nếu cần
-            // search: true,
+            align: 'center',
+            ...getColumnSearchProps('status'),
             render: (status) => {
                 const statusEnum = {
-                    SUCCESS: { color: 'PaleGreen', msg: 'Đã thanh toán' },
-                    PENDING: { color: 'Gold', msg: 'Đang xử lý' },
-                    CANCEL: { color: 'Tomato', msg: 'Giao dịch bị lỗi' },
+                    ACTIVE: { color: 'PaleGreen', msg: 'Đang hoạt động' },
+                    INACTIVE: { color: 'Tomato', msg: 'Không hoạt động' },
                 };
                 const { color, msg } = statusEnum[status] ?? { color: 'Tomato', msg: 'Unknown' };
                 return {
@@ -179,31 +217,47 @@ const DiscountCode = () => {
             },
         },
         {
-            title: 'Chi tiết',
-            dataIndex: 'transaction_id',
-            width: '5%',
-            key: 'detail',
-            render: (id) => (
-                <Button type="primary" href={`/manager-bills/${id}`} size="middle">
-                    Xem chi tiết
-                </Button>
-            ),
+            title: 'Thao tác',
+            key: 'action',
+            align: 'center',
+            render: (data) => {
+                return {
+                    children: (
+                        <button
+                            className="text-blue-500 border-blue-500 border-2 bg-white rounded px-2 py-1 hover:bg-blue-500 hover:text-white"
+                            onClick={() => handleGift()}
+                        >
+                            Tặng
+                        </button>
+                    ),
+                };
+            },
         },
     ];
 
-    // const discountCodeExample = {
-    //     transaction_id: 'ABC123', // Mã giao dịch
-    //     course_info: {
-    //         name: 'DISCOUNT20', // Mã giảm giá
-    //     },
-    //     user_info: {
-    //         full_name: 'John Doe', // Tên người dùng
-    //     },
-    //     amount: 50000, // Giá tiền
-    //     status: 'SUCCESS', // Trạng thái (SUCCESS, PENDING, CANCEL)
-    // };
+    function handleGift() {
+        setIsOpen(true);
+    }
 
-    const [form] = Form.useForm();
+    function handleClose() {
+        setIsOpen(false);
+    }
+
+    function generateDiscountCode(newCode) {
+        discountCodes.push(newCode);
+    }
+
+    let newCode = {
+        codeName: 'NEW_CODE',
+        quantity: 50,
+        discountAmount: 5,
+        maxDiscountAmount: 2,
+        startDate: '2024-05-01',
+        endDate: '2026-05-01',
+        status: 'active',
+    };
+
+    generateDiscountCode(newCode);
 
     return (
         <div className="w-full">
@@ -231,9 +285,10 @@ const DiscountCode = () => {
                 </div>
                 <div className="bg-white mt-[30px]  sm:pt-[100px] md:pt-[150px] pt-[80px] rounded w-full">
                     <div className="px-[30px] ">
-                        <Table columns={discountCodeColumns} dataSource={paymentData} loading={isLoading} />
+                        <Table columns={discountCodeColumns} dataSource={discountCodes} loading={isLoading} />
                     </div>
                 </div>
+                {isOpen && <GiftRecipientSelect users={users} changeOpen={handleGift} changeClose={handleClose} />}
             </div>
         </div>
     );
