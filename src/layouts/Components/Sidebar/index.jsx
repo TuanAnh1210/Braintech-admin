@@ -14,7 +14,8 @@ function AdminSidebar() {
     const [cookies] = useCookies(['cookieLoginStudent']);
     const navItemAdmin = [
         { path: '/dashboard', label: 'Dashboard', icon: <FaHouseChimney className="text-lg" /> },
-        { path: '/manager-users', label: 'Tài khoản', icon: <FaUser className="text-lg" /> },
+        { path: '/manager-users', label: 'Học viên', icon: <FaUser className="text-lg" /> },
+        { path: '/manager-teachers', label: 'Giảng viên', icon: <FaUser className="text-lg" /> },
         { path: '/manager-courses', label: 'Khóa học', icon: <FaClapperboard className="text-lg" /> },
         { path: '/manager-comments', label: 'Bình luận', icon: <FaCommentDots className="text-lg" /> },
         { path: '/manager-bills', label: 'Hóa đơn', icon: <FaRegCreditCard className="text-lg" /> },
@@ -38,7 +39,7 @@ function AdminSidebar() {
                     </a>
                 </div>
                 <div className="flex flex-row p-3 pt-6">
-                    {cookies?.cookieLoginStudent?.isAdmin && (
+                    {(cookies?.cookieLoginStudent?.isAdmin && !cookies?.cookieLoginStudent?.isTeacher) && (
                         <div className={cx('nav')}>
                             {navItemAdmin.map((item, index) => {
                                 return (

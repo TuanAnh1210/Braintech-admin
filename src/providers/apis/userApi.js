@@ -12,7 +12,16 @@ export const userApi = createApi({
                 return { url: '/user/auth', method: 'POST', body: payload };
             },
         }),
+        getTeachers: build.query({
+            query: () => '/user/teachers'
+        }),
+        deleteuser: build.query({
+            query: (id) => {
+                return { url: `/user/delete/${id}`, method: 'DELETE' }
+            }
+        })
+
     }),
 });
 
-export const { useAuthUserMutation, useGetUsersQuery } = userApi;
+export const { useAuthUserMutation, useGetUsersQuery, useGetTeachersQuery, useDeleteuserQuery } = userApi;
