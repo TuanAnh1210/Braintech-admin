@@ -10,6 +10,7 @@ import { quizzApi } from './apis/quizzApi';
 import { lessonApi } from './apis/lessonApi';
 import courseReducer from './slices/courseSlice';
 import { chapterApi } from './apis/chapterApi';
+import { rateApi } from './apis/rateApi';
 
 export const store = configureStore({
     reducer: {
@@ -22,6 +23,7 @@ export const store = configureStore({
         [billApi.reducerPath]: billApi.reducer,
         [userApi.reducerPath]: userApi.reducer,
         [sttCourseApi.reducerPath]: sttCourseApi.reducer,
+        [rateApi.reducerPath]: rateApi.reducer,
     },
     middleware: (getDefaultMiddleware) =>
         getDefaultMiddleware().concat(
@@ -33,6 +35,7 @@ export const store = configureStore({
             chapterApi.middleware,
             sttCourseApi.middleware,
             billApi.middleware,
+            rateApi.middleware,
         ),
 });
 

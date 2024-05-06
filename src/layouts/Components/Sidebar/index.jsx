@@ -1,4 +1,4 @@
-import { FaUser, FaClapperboard, FaCommentDots, FaRegCreditCard, FaHouseChimney } from 'react-icons/fa6';
+import { FaUser, FaClapperboard, FaCommentDots, FaRegCreditCard, FaHouseChimney, FaStar } from 'react-icons/fa6';
 
 import { Link, NavLink } from 'react-router-dom';
 import classNames from 'classnames/bind';
@@ -15,6 +15,7 @@ function AdminSidebar() {
         { path: '/manager-users', label: 'Tài khoản', icon: <FaUser className="text-lg" /> },
         { path: '/manager-courses', label: 'Khóa học', icon: <FaClapperboard className="text-lg" /> },
         { path: '/manager-comments', label: 'Bình luận', icon: <FaCommentDots className="text-lg" /> },
+        { path: '/manager-rating', label: 'Đánh giá', icon: <FaStar className="text-lg" /> },
         { path: '/manager-bills', label: 'Hóa đơn', icon: <FaRegCreditCard className="text-lg" /> },
     ];
 
