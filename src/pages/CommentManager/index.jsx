@@ -35,11 +35,10 @@ const CommentManager = () => {
             setData([]);
         }
     };
-  
+
     const columns = [
-        { title: 'Khóa học', dataIndex: 'lessonName', key: 'lessonName' },
-        { title: 'Người bình luận', dataIndex: 'user', key: 'user' },
-        { title: 'Nội dung', dataIndex: 'text', key: 'text' },
+        { title: 'Tên bài học', dataIndex: 'lessonName', key: 'lessonName' },
+        { title: 'Tổng số bình luận', dataIndex: 'totalComments', key: 'totalComments' },
         { title: 'Chi tiết bình luận', dataIndex: 'detail', key: 'detail', render: (_, { _id }) => (<Link to={`/manager-comments/${_id}`}><Button type="primary">Chi tiết</Button></Link>) },
     ];
 

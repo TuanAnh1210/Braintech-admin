@@ -19,10 +19,13 @@ const DetailComment = () => {
         fetchData();
     }, []);
     const columns = [
-        { title: 'Khóa học', dataIndex: 'lessonName', key: 'lessonName' },
         { title: 'Nội dung', dataIndex: 'text', key: 'text' },
-        { title: 'Tên người dùng', dataIndex: 'user', key: 'user' },
-        { title: 'Số điện thoại', dataIndex: 'phone', key: 'phone' },
+        {
+            title: 'Tên người dùng',
+            dataIndex: 'user_id',
+            key: 'user',
+            render: (user) => user.full_name,
+        },
         {
             title: '',
             dataIndex: 'action',
@@ -56,7 +59,7 @@ const DetailComment = () => {
         <div className="w-full">
             <Breadcrumb className="mb-4" items={[{ title: 'Trang chủ' }, { title: 'Quản lý bình luận' }]} />
             <Card title="Quản lý bình luận">
-                <Table dataSource={Array(data)} columns={columns} />
+                <Table dataSource={data} columns={columns} />
             </Card>
         </div>
     );
