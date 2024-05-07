@@ -1,5 +1,5 @@
 import { FaUser, FaClapperboard, FaCommentDots, FaRegCreditCard, FaHouseChimney } from 'react-icons/fa6';
-
+import { MdOutlineDiscount } from 'react-icons/md';
 import { Link, NavLink } from 'react-router-dom';
 import classNames from 'classnames/bind';
 
@@ -16,6 +16,7 @@ function AdminSidebar() {
         { path: '/manager-courses', label: 'Khóa học', icon: <FaClapperboard className="text-lg" /> },
         { path: '/manager-comments', label: 'Bình luận', icon: <FaCommentDots className="text-lg" /> },
         { path: '/manager-bills', label: 'Hóa đơn', icon: <FaRegCreditCard className="text-lg" /> },
+        { path: '/manager-discount', label: 'Mã giảm giá', icon: <MdOutlineDiscount className="text-lg" /> },
     ];
 
     return (
