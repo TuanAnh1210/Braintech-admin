@@ -243,7 +243,12 @@ function TeacherManager() {
                     dataSource={data}
                     loading={loading}
                     title={() => {
-                        return <p style={{ fontWeight: 600, fontSize: '20px' }}>Danh sách giảng viên</p>;
+                        return (
+                            <div className="flex items-center justify-between">
+                                <p style={{ fontWeight: 600, fontSize: '20px' }}>Danh sách giảng viên</p>
+
+                            </div>
+                        );
                     }}
                     onChange={handleTableChange}
                 />

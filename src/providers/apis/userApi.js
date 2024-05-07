@@ -19,9 +19,14 @@ export const userApi = createApi({
             query: (id) => {
                 return { url: `/user/delete/${id}`, method: 'DELETE' }
             }
+        }),
+        updateRole: build.query({
+            query: (payload) => {
+                return { url: `/user/update/${payload._id}`, method: 'PUT', body: payload }
+            }
         })
 
     }),
 });
 
-export const { useAuthUserMutation, useGetUsersQuery, useGetTeachersQuery, useDeleteuserQuery } = userApi;
+export const { useAuthUserMutation, useGetUsersQuery, useGetTeachersQuery, useDeleteuserQuery, useUpdateRoleQuery } = userApi;
