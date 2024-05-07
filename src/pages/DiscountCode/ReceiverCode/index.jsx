@@ -23,7 +23,7 @@ const GiftRecipientSelect = ({ users, changeOpen, changeClose }) => {
                     >
                         <option value="">Chọn người nhận</option>
                         {users.map((user) => (
-                            <option value={user.id}>{user.username}</option>
+                            <option value={user.id}>{user.full_name}</option>
                         ))}
                     </select>
                     <div className="flex items-center justify-between mt-4">

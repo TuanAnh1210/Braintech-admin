@@ -6,6 +6,7 @@ import classNames from 'classnames/bind';
 import styles from './AdminSidebar.module.scss';
 
 import logoImage from '@/assets/images/logo.png';
+import CreateDiscountCode from '@/pages/DiscountCode/AddDiscountCode';
 
 const cx = classNames.bind(styles);
 
