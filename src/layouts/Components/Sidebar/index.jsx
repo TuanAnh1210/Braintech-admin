@@ -1,5 +1,5 @@
-import { FaUser, FaClapperboard, FaCommentDots, FaRegCreditCard, FaHouseChimney } from 'react-icons/fa6';
-import { MdOutlineDiscount } from 'react-icons/md';
+import { FaUser, FaClapperboard, FaCommentDots, FaRegCreditCard, FaHouseChimney, FaStar } from 'react-icons/fa6';
+
 import { Link, NavLink } from 'react-router-dom';
 import classNames from 'classnames/bind';
 
@@ -18,6 +18,7 @@ function AdminSidebar() {
         { path: '/manager-teachers', label: 'Giảng viên', icon: <FaUser className="text-lg" /> },
         { path: '/manager-courses', label: 'Khóa học', icon: <FaClapperboard className="text-lg" /> },
         { path: '/manager-comments', label: 'Bình luận', icon: <FaCommentDots className="text-lg" /> },
+        { path: '/manager-rating', label: 'Đánh giá', icon: <FaStar className="text-lg" /> },
         { path: '/manager-bills', label: 'Hóa đơn', icon: <FaRegCreditCard className="text-lg" /> },
         { path: '/manager-discount', label: 'Mã giảm giá', icon: <MdOutlineDiscount className="text-lg" /> },
     ];
@@ -40,7 +41,7 @@ function AdminSidebar() {
                     </a>
                 </div>
                 <div className="flex flex-row p-3 pt-6">
-                    {(cookies?.cookieLoginStudent?.isAdmin && !cookies?.cookieLoginStudent?.isTeacher) && (
+                    {cookies?.cookieLoginStudent?.isAdmin && !cookies?.cookieLoginStudent?.isTeacher && (
                         <div className={cx('nav')}>
                             {navItemAdmin.map((item, index) => {
                                 return (

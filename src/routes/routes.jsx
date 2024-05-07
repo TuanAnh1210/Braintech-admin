@@ -9,6 +9,7 @@ import BillManager from '@/pages/BillManager';
 import DiscountCode from '@/pages/DiscountCode';
 import MyStudents from '@/pages/MyStudents';
 import TeacherManager from '@/pages/TeacherManager';
+import RateManager from '@/pages/RateManager';
 
 const publicRoutes = [
     { path: 'dashboard', component: Analytics },
@@ -18,6 +19,9 @@ const publicRoutes = [
     { path: 'manager-courses/create', component: Course.CreateCoursePage },
     { path: 'manager-courses/:courseId', component: Course.CourseDetailPage },
     { path: 'manager-courses/:courseId/:chapterId', component: Course.ChapterDetailPage },
+
+    { path: 'manager-rating', component: RateManager },
+
     { path: 'manager-comments', component: CommentManager },
     { path: 'manager-comments/:id', component: DetailComment },
     { path: 'manager-bills', component: BillManager },

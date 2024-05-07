@@ -1,25 +1,25 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-import { Breadcrumb, Button, Image, Input, Space, Table } from 'antd';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { useGetContentRatingQuery } from '@/providers/apis/rateApi';
 import { faSearch } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { Breadcrumb, Button, Input, Space, Table } from 'antd';
+import { useRef, useState } from 'react';
+import { render } from 'react-dom';
 import Highlighter from 'react-highlight-words';
-import { useEffect, useRef, useState } from 'react';
-import axios from 'axios';
-import Swal from 'sweetalert2';
+import { FaStar } from 'react-icons/fa6';
 
-function UserManager() {
-    const [data, setData] = useState();
-    const [loading, setLoading] = useState(false);
+function RateManager() {
+    const { data: dataRating } = useGetContentRatingQuery();
+    const rates = dataRating?.rates;
     const [searchText, setSearchText] = useState('');
     const [searchedColumn, setSearchedColumn] = useState('');
+    const [dataRate, setData] = useState('');
+    const searchInput = useRef(null);
     const [tableParams, setTableParams] = useState({
         pagination: {
             current: 1,
             pageSize: 6,
         },
     });
-    const searchInput = useRef(null);
-
     const handleSearch = (selectedKeys, confirm, dataIndex) => {
         confirm();
         setSearchText(selectedKeys[0]);
@@ -117,128 +117,94 @@ function UserManager() {
             ),
     });
 
-    const fetchData = () => {
-        setLoading(true);
-        fetch(import.meta.env.VITE_REACT_APP_API_PATH + 'api/user')
-            .then((res) => res.json())
-            .then(({ data }) => {
-                setData(data);
-                setLoading(false);
-                setTableParams({
-                    ...tableParams,
-                    pagination: {
-                        ...tableParams.pagination,
-                        total: 200,
-                    },
-                });
-            });
-    };
-
-    useEffect(() => {
-        fetchData();
-    }, []);
-
-    const handleTableChange = (pagination, filters, sorter) => {
-        setTableParams({
-            pagination,
-            filters,
-            ...sorter,
-        });
-
-        if (pagination.pageSize !== tableParams.pagination?.pageSize) {
-            setData([]);
-        }
-    };
-    const onHandleDelete = async (id) => {
-        console.log(id);
-        Swal.fire({
-            title: 'Học viên này sẽ bị xóa!!',
-            text: 'Bạn có chắc muốn xóa học viên này chứ ?',
-            showDenyButton: true,
-            confirmButtonText: 'Xóa',
-            showConfirmButton: true,
-            denyButtonText: `Hủy`,
-        }).then((result) => {
-            if (result.isConfirmed) {
-                axios
-                    .delete(import.meta.env.VITE_REACT_APP_API_PATH + 'api/user/delete/' + id)
-                    .then(() => {
-                        fetchData();
-                        Swal.fire('Xóa thành công!', '', 'success');
-                    })
-                    .catch((error) => console.log('ERROR_DELETE:', error));
-            } else if (result.isDenied) {
-                Swal.fire('Hủy thành công', '', 'info');
-            }
-        });
+    const onChange = (pagination, filters, sorter, extra) => {
+        console.log('params', pagination, filters, sorter, extra);
     };
     const columns = [
         {
-            title: 'Hình ảnh',
-            dataIndex: 'avatar',
-            render: (picture) => {
-                return <Image width={40} className="rounded-full" src={picture} alt="" />;
-            },
-        },
-        {
-            title: 'Họ Tên',
-            dataIndex: 'full_name',
-            sorter: true,
-            ...getColumnSearchProps('full_name'),
-        },
-        {
-            title: 'Email',
-            dataIndex: 'email',
-            sorter: true,
-            ...getColumnSearchProps('email'),
-        },
-        {
-            title: 'Thao tác',
+            title: 'ID',
             dataIndex: '_id',
-            render: (id) => {
-                return (
-                    <div className="flex gap-3">
-                        <Button danger onClick={() => onHandleDelete(id)}>
-                            Xóa
-                        </Button>
-                    </div>
-                );
+            key: 'id',
+            sorter: (a, b) => a.id - b.id,
+            render: (id, record, index) => {
+                ++index;
+                return index;
             },
+            showSorterTooltip: false,
+        },
+        {
+            title: 'Họ tên',
+            dataIndex: ['user_id', 'full_name'],
+            sorter: true,
+            ...getColumnSearchProps('user_id'),
+        },
+        {
+            title: 'Khóa học',
+            dataIndex: ['course_id', 'name'],
+            ...getColumnSearchProps('course_id'),
+        },
+
+        {
+            title: 'Nội dung',
+            dataIndex: 'content',
+            ...getColumnSearchProps('content'),
+        },
+        {
+            title: 'Báo cáo',
+            dataIndex: 'isReported',
+            ...getColumnSearchProps('isReported'),
+            render: (isReported) => (isReported ? <Button danger>Có</Button> : <Button disabled>Không</Button>),
+        },
+        {
+            title: 'Điểm', 
+            dataIndex: 'rating',
+            defaultSortOrder: 'descend',
+
+            sorter: (a, b) => a.rating - b.rating,
+
+            ...getColumnSearchProps('rating'),
+
+            render: (rating) => (
+                <>
+                    <div className="flex">
+                        {[...Array(rating)].map((_, index) => (
+                            <FaStar size={20} color={'#ffc107'} key={index} />
+                        ))}
+                    </div>
+                </>
+            ),
         },
     ];
-
     return (
-        <div className="w-full">
-            <Breadcrumb
-                className="mb-5"
-                items={[
-                    {
-                        title: 'Trang chủ',
-                    },
-                    {
-                        title: 'Tài khoản',
-                    },
-                    {
-                        title: 'Quản lý học viên',
-                    },
-                ]}
-            />
+        <>
+            <div className="w-full">
+                <Breadcrumb
+                    className="mb-5"
+                    items={[
+                        {
+                            title: 'Trang chủ',
+                        },
 
-            <div className="overflow-x-auto min-w-[20px]">
-                <Table
-                    style={{ overflowX: 'auto' }}
-                    className="bg-white p-3 rounded"
-                    columns={columns}
-                    dataSource={data}
-                    loading={loading}
-                    title={() => {
-                        return <p style={{ fontWeight: 600, fontSize: '20px' }}>Danh sách học viên</p>;
-                    }}
-                    onChange={handleTableChange}
+                        {
+                            title: 'Quản lý đánh giá',
+                        },
+                    ]}
                 />
+                <div className="overflow-x-auto min-w-[20px]">
+                    <Table
+                        style={{ overflowX: 'auto' }}
+                        className="bg-white p-3 rounded"
+                        columns={columns}
+                        dataSource={rates}
+                        title={() => {
+                            return <p style={{ fontWeight: 600, fontSize: '20px' }}>Đánh giá của các khóa học</p>;
+                        }}
+                        onChange={onChange}
+                    />
+                </div>
             </div>
-        </div>
+        </>
     );
 }
 
-export default UserManager;
+export default RateManager;
