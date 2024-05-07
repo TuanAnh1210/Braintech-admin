@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { Breadcrumb, Button, Image, Input, Space, Table } from 'antd';
+import { Breadcrumb, Button, Image, Input, Space, Table, Popconfirm, message } from 'antd';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearch } from '@fortawesome/free-solid-svg-icons';
 import Highlighter from 'react-highlight-words';
@@ -7,7 +7,8 @@ import { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 
-function UserManager() {
+
+function TeacherManager() {
     const [data, setData] = useState();
     const [loading, setLoading] = useState(false);
     const [searchText, setSearchText] = useState('');
@@ -119,7 +120,7 @@ function UserManager() {
 
     const fetchData = () => {
         setLoading(true);
-        fetch(`http://localhost:8080/api/user/students`)
+        fetch(`http://localhost:8080/api/user/teachers`)
             .then((res) => res.json())
             .then(({ data }) => {
                 setData(data);
@@ -149,11 +150,20 @@ function UserManager() {
             setData([]);
         }
     };
+    const confirm = (e) => {
+        console.log(e);
+        message.success('Click on Yes');
+    };
+    const cancel = (e) => {
+        console.log(e);
+        message.error('Click on No');
+    };
     const onHandleDelete = async (id) => {
-        console.log(id);
+
+
         Swal.fire({
-            title: 'Học viên này sẽ bị xóa!!',
-            text: 'Bạn có chắc muốn xóa học viên này chứ ?',
+            title: 'Giảng viên này sẽ bị xóa!!',
+            text: 'Bạn có chắc muốn xóa giảng viên này chứ ?',
             showDenyButton: true,
             confirmButtonText: 'Xóa',
             showConfirmButton: true,
@@ -197,7 +207,8 @@ function UserManager() {
             dataIndex: '_id',
             render: (id) => {
                 return (
-                    <div className="flex gap-3">
+                    <div className="">
+
                         <Button danger onClick={() => onHandleDelete(id)}>
                             Xóa
                         </Button>
@@ -219,7 +230,7 @@ function UserManager() {
                         title: 'Tài khoản',
                     },
                     {
-                        title: 'Quản lý học viên',
+                        title: 'Quản lý giảng viên',
                     },
                 ]}
             />
@@ -232,7 +243,7 @@ function UserManager() {
                     dataSource={data}
                     loading={loading}
                     title={() => {
-                        return <p style={{ fontWeight: 600, fontSize: '20px' }}>Danh sách học viên</p>;
+                        return <p style={{ fontWeight: 600, fontSize: '20px' }}>Danh sách giảng viên</p>;
                     }}
                     onChange={handleTableChange}
                 />
@@ -241,4 +252,4 @@ function UserManager() {
     );
 }
 
-export default UserManager;
+export default TeacherManager;

@@ -6,8 +6,10 @@ import Highlighter from 'react-highlight-words';
 import { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
 import Swal from 'sweetalert2';
+import { useCookies } from 'react-cookie';
 
-function UserManager() {
+function MyStudents() {
+    const [cookies] = useCookies(['cookieLoginStudent']);
     const [data, setData] = useState();
     const [loading, setLoading] = useState(false);
     const [searchText, setSearchText] = useState('');
@@ -19,13 +21,12 @@ function UserManager() {
         },
     });
     const searchInput = useRef(null);
-
     const handleSearch = (selectedKeys, confirm, dataIndex) => {
         confirm();
         setSearchText(selectedKeys[0]);
         setSearchedColumn(dataIndex);
     };
-
+    
     const handleReset = (clearFilters) => {
         clearFilters();
         setSearchText('');
@@ -119,10 +120,12 @@ function UserManager() {
 
     const fetchData = () => {
         setLoading(true);
-        fetch(`http://localhost:8080/api/user/students`)
+        const API_URL = 'http://localhost:8080/api'
+        fetch(`${API_URL}/courses_teacher/all/student?teacherId=${cookies.cookieLoginStudent._id}`)
             .then((res) => res.json())
-            .then(({ data }) => {
-                setData(data);
+            .then(({newData}) => {
+                
+                setData(newData);
                 setLoading(false);
                 setTableParams({
                     ...tableParams,
@@ -150,10 +153,10 @@ function UserManager() {
         }
     };
     const onHandleDelete = async (id) => {
-        console.log(id);
+        console.log(id)
         Swal.fire({
-            title: 'Học viên này sẽ bị xóa!!',
-            text: 'Bạn có chắc muốn xóa học viên này chứ ?',
+            title: 'Sinh viên này sẽ bị xóa!!',
+            text: 'Bạn có chắc muốn xóa sinh viên này chứ ?',
             showDenyButton: true,
             confirmButtonText: 'Xóa',
             showConfirmButton: true,
@@ -161,7 +164,7 @@ function UserManager() {
         }).then((result) => {
             if (result.isConfirmed) {
                 axios
-                    .delete(`http://localhost:8080/api/user/delete/${id}`)
+                    .delete(`http://localhost:8080/api/sttCourse/${id}`)
                     .then(() => {
                         fetchData();
                         Swal.fire('Xóa thành công!', '', 'success');
@@ -176,8 +179,8 @@ function UserManager() {
         {
             title: 'Hình ảnh',
             dataIndex: 'avatar',
-            render: (picture) => {
-                return <Image width={40} className="rounded-full" src={picture} alt="" />;
+            render: (avatar) => {
+                return <Image width={40} className="rounded-full" src={avatar} alt="" />;
             },
         },
         {
@@ -191,6 +194,12 @@ function UserManager() {
             dataIndex: 'email',
             sorter: true,
             ...getColumnSearchProps('email'),
+        },
+        {
+            title: 'Khóa học',
+            dataIndex: 'course_id',
+            sorter: true,
+            ...getColumnSearchProps('course_id'),
         },
         {
             title: 'Thao tác',
@@ -219,7 +228,7 @@ function UserManager() {
                         title: 'Tài khoản',
                     },
                     {
-                        title: 'Quản lý học viên',
+                        title: 'Quản lý tài khoản',
                     },
                 ]}
             />
@@ -232,7 +241,7 @@ function UserManager() {
                     dataSource={data}
                     loading={loading}
                     title={() => {
-                        return <p style={{ fontWeight: 600, fontSize: '20px' }}>Danh sách học viên</p>;
+                        return <p style={{ fontWeight: 600, fontSize: '20px' }}>Quản lý sinh viên</p>;
                     }}
                     onChange={handleTableChange}
                 />
@@ -241,4 +250,4 @@ function UserManager() {
     );
 }
 
-export default UserManager;
+export default MyStudents;
