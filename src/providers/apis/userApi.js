@@ -13,7 +13,18 @@ export const userApi = createApi({
                 return { url: '/user/auth', method: 'POST', body: payload };
             },
         }),
+        getUser: build.query({
+            query: (_id) => {
+                console.log(_id);
+                return `/user/${_id}`;
+            },
+        }),
+        updateUser: build.mutation({
+            query: ({ userId, ...payload }) => {
+                return { url: `/user/${userId}/update`, method: 'PATCH', body: payload };
+            },
+        }),
     }),
 });
 
-export const { useAuthUserMutation, useGetUsersQuery } = userApi;
+export const { useAuthUserMutation, useGetUsersQuery, useGetUserQuery, useUpdateUserMutation } = userApi;

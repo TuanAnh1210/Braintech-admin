@@ -15,6 +15,7 @@ const DiscountCode = () => {
     const searchInput = useRef(null);
     const [isOpen, setIsOpen] = useState(false);
     const [isAddNew, setIsAddNew] = useState(false);
+    const [currentIdVoucer, setCurrentIdVoucher] = useState(null);
     const { data: allVouchers, isLoading, refetch } = useGetAllVoucherQuery();
     const { data: allUsers } = useGetUsersQuery();
     const [deleteVoucher] = useDeleteVoucherMutation();
@@ -121,8 +122,9 @@ const DiscountCode = () => {
                 text
             ),
     });
-    function handleGift() {
+    function handleGift(id) {
         setIsOpen(true);
+        setCurrentIdVoucher(id);
     }
 
     function handleClose() {
@@ -213,7 +215,7 @@ const DiscountCode = () => {
                 return {
                     children: (
                         <div className="">
-                            <Button type="primary" className="mr-2" onClick={() => handleGift()}>
+                            <Button type="primary" className="mr-2" onClick={() => handleGift(data._id)}>
                                 Tặng
                             </Button>
                             <Popconfirm
@@ -290,7 +292,12 @@ const DiscountCode = () => {
                     </div>
                 )}
                 {isOpen && (
-                    <GiftRecipientSelect users={allUsers.data} changeOpen={handleGift} changeClose={handleClose} />
+                    <GiftRecipientSelect
+                        users={allUsers.data}
+                        voucherId={currentIdVoucer}
+                        changeOpen={handleGift}
+                        changeClose={handleClose}
+                    />
                 )}
                 {isAddNew && <CreateDiscountCode />}
             </div>
