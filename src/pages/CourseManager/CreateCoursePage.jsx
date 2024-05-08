@@ -19,13 +19,15 @@ import {
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { useCreateCourseMutation } from '@/providers/apis/courseApi';
+import { useCreateCourseMutation } from '@/providers/apis/courseTeacherApi';
 import { useGetCateQuery } from '@/providers/apis/cateApi';
 
 import UploadThumbCourse from './components/UploadThumbCourse';
 import CourseMDXEditor from './components/CourseMDXEditor';
+import { useCookies } from 'react-cookie';
 
 const CreateCoursePage = () => {
+    const [cookies] = useCookies(['cookieLoginStudent']);
     const [isFree, setIsFree] = React.useState(false);
     const [isPublic, setIsPublic] = React.useState(false);
     const [enableCheckbox, setEnableCheckbox] = React.useState(false);
@@ -63,7 +65,10 @@ const CreateCoursePage = () => {
 
             const payload = { ...form.getFieldValue(), description: description, thumb: thumbnail.url };
 
-            await createCourse(payload);
+            await createCourse({
+                ...payload,
+                teacherId: cookies.cookieLoginStudent._id,
+            });
 
             message.success('Thêm khóa học thành công!');
         } catch (error) {
@@ -105,7 +110,6 @@ const CreateCoursePage = () => {
                 setIsPublic(false);
                 form.setFieldsValue({ isPublic: false });
             }
-            console.log(e);
         }
     }; // Bắt tất cả sự kiện thay đổi trong form
 

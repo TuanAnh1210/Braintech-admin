@@ -25,7 +25,7 @@ const CourseManager = () => {
     const { data: courses = [], isLoading } = useGetCoursesQuery(cookies?.cookieLoginStudent?._id, {
         refetchOnMountOrArgChange: true,
     });
-    console.log(courses)
+
     const { data: categories = [] } = useGetCateQuery();
     const categoriesFormat = categories.map((c) => ({ _id: c._id, text: c.name, value: c.code }));
 

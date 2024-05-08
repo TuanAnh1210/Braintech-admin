@@ -1,13 +1,19 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { Breadcrumb, Button, Image, Input, Space, Table, Popconfirm, message } from 'antd';
+import { Breadcrumb, Button, Image, Input, Space, Table, Popconfirm, message, Checkbox, Divider, Select, Modal } from 'antd';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearch } from '@fortawesome/free-solid-svg-icons';
 import Highlighter from 'react-highlight-words';
 import { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
 import Swal from 'sweetalert2';
+import ItemTeacher from './items';
+import { Link } from 'react-router-dom';
+import { useGetAllCoursesQuery } from '@/providers/apis/courseTeacherApi';
 
 
+const CheckboxGroup = Checkbox.Group;
+const plainOptions = ['Apple', 'Pear', 'Orange'];
+const defaultCheckedList = ['Apple', 'Orange'];
 function TeacherManager() {
     const [data, setData] = useState();
     const [loading, setLoading] = useState(false);
@@ -19,7 +25,18 @@ function TeacherManager() {
             pageSize: 6,
         },
     });
+    const { data: courses = [], isLoading } = useGetAllCoursesQuery({}, { refetchOnMountOrArgChange: true });
+
     const searchInput = useRef(null);
+    const [checkedList, setCheckedList] = useState(defaultCheckedList);
+    const checkAll = plainOptions.length === checkedList.length;
+    const indeterminate = checkedList.length > 0 && checkedList.length < plainOptions.length;
+    const onChange = (list) => {
+        setCheckedList(list);
+    };
+    const onCheckAllChange = (e) => {
+        setCheckedList(e.target.checked ? plainOptions : []);
+    };
 
     const handleSearch = (selectedKeys, confirm, dataIndex) => {
         confirm();
@@ -150,16 +167,21 @@ function TeacherManager() {
             setData([]);
         }
     };
-    const confirm = (e) => {
-        console.log(e);
-        message.success('Click on Yes');
+
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [idModal, setIdModal] = useState('');
+    const showModal = (id) => {
+        setIdModal(id)
+        setIsModalOpen(true);
     };
-    const cancel = (e) => {
-        console.log(e);
-        message.error('Click on No');
+    const handleOk = () => {
+        setIsModalOpen(false);
+    };
+
+    const handleCancel = () => {
+        setIsModalOpen(false);
     };
     const onHandleDelete = async (id) => {
-
 
         Swal.fire({
             title: 'Giảng viên này sẽ bị xóa!!',
@@ -209,15 +231,30 @@ function TeacherManager() {
                 return (
                     <div className="">
 
-                        <Button danger onClick={() => onHandleDelete(id)}>
+                        <Link to={`/manager-teachers/${id}`}><Button type="primary">Chi tiết</Button></Link>
+                        <Button danger onClick={() => onHandleDelete(id)} className='ml-[10px]'>
                             Xóa
                         </Button>
+                        {/* <div>
+                            <>
+                                <Button type="primary" onClick={() => showModal(id)}>
+                                    Open Modal
+                                </Button>
+                                <Modal title="Basic Modal" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
+
+                                    <ItemTeacher data={courses} idUser={idModal} />
+                                </Modal>
+                            </>
+
+                        </div> */}
                     </div>
                 );
             },
         },
     ];
-
+    const handleChange = (value) => {
+        console.log(1, value);
+    }
     return (
         <div className="w-full">
             <Breadcrumb
@@ -252,6 +289,8 @@ function TeacherManager() {
                     }}
                     onChange={handleTableChange}
                 />
+
+
             </div>
         </div>
     );

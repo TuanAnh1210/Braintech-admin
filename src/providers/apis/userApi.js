@@ -24,9 +24,14 @@ export const userApi = createApi({
             query: (payload) => {
                 return { url: `/user/update/${payload._id}`, method: 'PUT', body: payload }
             }
+        }),
+        updateCourseId: build.query({
+            query: (payload) => {
+                return { url: `/user/updatecourse/${payload.id}`, method: 'PUT', body: payload }
+            }
         })
 
     }),
 });
 
-export const { useAuthUserMutation, useGetUsersQuery, useGetTeachersQuery, useDeleteuserQuery, useUpdateRoleQuery } = userApi;
+export const { useAuthUserMutation, useGetUsersQuery, useGetTeachersQuery, useDeleteuserQuery, useUpdateRoleQuery, useUpdateCourseIdQuery } = userApi;

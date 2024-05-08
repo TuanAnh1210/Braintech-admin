@@ -13,13 +13,14 @@ import { useGetCateQuery } from '@/providers/apis/cateApi';
 
 import { formatMoneyInt } from '@/lib/utils';
 import { Link } from 'react-router-dom';
+import { useGetAllCoursesQuery } from '@/providers/apis/courseTeacherApi';
 
 const CourseManager = () => {
     const [searchText, setSearchText] = React.useState('');
     const [searchedColumn, setSearchedColumn] = React.useState('');
     const searchInput = React.useRef(null);
 
-    const { data: courses = [], isLoading } = useGetCoursesQuery({}, { refetchOnMountOrArgChange: true });
+    const { data: courses = [], isLoading } = useGetAllCoursesQuery({}, { refetchOnMountOrArgChange: true });
     const { data: categories = [] } = useGetCateQuery();
 
     const categoriesFormat = categories.map((c) => ({ _id: c._id, text: c.name, value: c.code }));

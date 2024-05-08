@@ -4,7 +4,7 @@ import { Button, Form, Input, Modal, Space, Flex, message, Checkbox, Alert } fro
 import { useParams } from 'react-router-dom';
 import React from 'react';
 
-import { useCreateChapterMutation } from '@/providers/apis/chapterApi';
+import { useCreateChapterMutation } from '@/providers/apis/chapterTeacherApi';
 
 const CreateChapter = ({ refetch }) => {
     const [isOpenModal, setIsOpenModal] = React.useState(false);
@@ -33,7 +33,6 @@ const CreateChapter = ({ refetch }) => {
                 ...form.getFieldValue(),
             };
 
-            console.log(chapterData);
 
             await createChapter(chapterData);
             handleCancel();

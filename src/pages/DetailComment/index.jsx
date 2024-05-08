@@ -12,6 +12,7 @@ const DetailComment = () => {
         fetch(`http://localhost:8080/api/comments/${id}`)
             .then((res) => res.json())
             .then(({ data }) => {
+
                 setData(data);
             });
     };
