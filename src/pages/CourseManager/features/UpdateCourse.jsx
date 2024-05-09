@@ -4,7 +4,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import React from 'react';
 import { Form, Input, Card, Select, message, notification, Space, Button, Col, Row, Checkbox, Alert, Flex } from 'antd';
 
-import { useGetCourseByIdQuery, useUpdateCourseMutation } from '@/providers/apis/courseApi';
+import { useGetCourseByIdQuery, useUpdateCourseMutation } from '@/providers/apis/courseTeacherApi';
 import { useGetCateQuery } from '@/providers/apis/cateApi';
 
 import UploadThumbCourse from '../components/UploadThumbCourse';
@@ -26,6 +26,8 @@ const UpdateCourse = () => {
         skip: !courseId,
         refetchOnMountOrArgChange: true,
     });
+    console.log(course?.teacherId
+    );
 
     const [form] = Form.useForm();
 

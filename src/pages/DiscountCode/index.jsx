@@ -2,8 +2,6 @@ import { Breadcrumb, Button, Input, Space, Table, Skeleton, Popconfirm, Flex, me
 import { useRef, useState } from 'react';
 import { SearchOutlined } from '@ant-design/icons';
 import Highlighter from 'react-highlight-words';
-import { useGetBillsQuery } from '@/providers/apis/billApi';
-import { TIMEFRAMES } from '@/lib/utils';
 import GiftRecipientSelect from '@/pages/DiscountCode/ReceiverCode';
 import CreateDiscountCode from '@/pages/DiscountCode/AddDiscountCode';
 import { useDeleteVoucherMutation, useGetAllVoucherQuery } from '@/providers/apis/voucherApi';

@@ -1,8 +1,8 @@
-import { useGetUserQuery, useUpdateUserMutation } from '@/providers/apis/userApi';
 import React, { useState } from 'react';
 import { useCookies } from 'react-cookie';
 import { useGetVoucherByIdQuery, useUpdateVoucherMutation } from '@/providers/apis/voucherApi';
 import { message } from 'antd';
+import { useGetUserQuery, useUpdateUserMutation } from '@/providers/apis/userApi';
 
 const GiftRecipientSelect = ({ users, voucherId, changeClose }) => {
     const [selectedUser, setSelectedUser] = useState({});

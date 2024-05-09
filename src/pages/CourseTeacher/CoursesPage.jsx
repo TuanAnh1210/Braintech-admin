@@ -8,21 +8,25 @@ import Highlighter from 'react-highlight-words';
 import classNames from 'classnames';
 import React from 'react';
 
-import { useGetCoursesQuery } from '@/providers/apis/courseApi';
+import { useGetCoursesQuery } from '@/providers/apis/courseTeacherApi';
 import { useGetCateQuery } from '@/providers/apis/cateApi';
 
 import { formatMoneyInt } from '@/lib/utils';
 import { Link } from 'react-router-dom';
-import { useGetAllCoursesQuery } from '@/providers/apis/courseTeacherApi';
+import { useCookies } from 'react-cookie';
+import ModalDeleteCourse from './Temp/ModalDeleteCourse';
 
 const CourseManager = () => {
     const [searchText, setSearchText] = React.useState('');
     const [searchedColumn, setSearchedColumn] = React.useState('');
+    const [cookies] = useCookies(['cookieLoginStudent']);
     const searchInput = React.useRef(null);
 
-    const { data: courses = [], isLoading } = useGetAllCoursesQuery({}, { refetchOnMountOrArgChange: true });
-    const { data: categories = [] } = useGetCateQuery();
+    const { data: courses = [], isLoading } = useGetCoursesQuery(cookies?.cookieLoginStudent?._id, {
+        refetchOnMountOrArgChange: true,
+    });
 
+    const { data: categories = [] } = useGetCateQuery();
     const categoriesFormat = categories.map((c) => ({ _id: c._id, text: c.name, value: c.code }));
 
     const handleSearch = (selectedKeys, confirm, dataIndex) => {
@@ -194,8 +198,9 @@ const CourseManager = () => {
                         Sửa
                     </Button>
                     <ModalDeleteCourse course={record} /> */}
+                    <ModalDeleteCourse courseId={_id} />
 
-                    <Link to={`/manager-courses/${_id}`}>
+                    <Link to={`/my-courses/${_id}`}>
                         <Button type="primary">Xem chi tiết</Button>
                     </Link>
                 </Space>
@@ -217,7 +222,7 @@ const CourseManager = () => {
                     return (
                         <div className="flex items-center justify-between">
                             <p style={{ fontWeight: 600, fontSize: '20px' }}>Danh sách khóa học</p>
-                            <Link to={'/manager-courses/create'}>
+                            <Link to={'/my-courses/create'}>
                                 <Button className="flex items-center" type="primary">
                                     <FormOutlined />
                                     Thêm khóa học

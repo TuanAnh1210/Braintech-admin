@@ -1,15 +1,16 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
-import { Button, Form, Input, Modal, Space, Flex, message, Checkbox, Alert } from 'antd';
+import { EditOutlined } from '@ant-design/icons';
+import { Form, Input, Modal, Space, Flex, message, Checkbox, Alert } from 'antd';
 import { useParams } from 'react-router-dom';
 import React from 'react';
 
-import { useCreateChapterMutation } from '@/providers/apis/chapterTeacherApi';
+import { useUpdateChapterMutation } from '@/providers/apis/chapterApi';
 
-const CreateChapter = ({ refetch }) => {
+const UpdateChapter = ({ chapter, refetch }) => {
     const [isOpenModal, setIsOpenModal] = React.useState(false);
 
-    const [createChapter, { isLoading }] = useCreateChapterMutation();
+    const [updateChapter, { isLoading }] = useUpdateChapterMutation();
 
     const { courseId } = useParams();
 
@@ -29,16 +30,16 @@ const CreateChapter = ({ refetch }) => {
             await form.validateFields();
 
             const chapterData = {
-                courses_id: courseId,
+                chapterId: chapter._id,
                 ...form.getFieldValue(),
             };
 
+            await updateChapter(chapterData);
 
-            await createChapter(chapterData);
             handleCancel();
             refetch();
-            form.resetFields();
-            message.success('Thêm Chương Học Thành Công!');
+            // form.resetFields();
+            message.success('Cập Nhật Chương Học Thành Công!');
         } catch (error) {
             console.log(error);
         }
@@ -47,14 +48,12 @@ const CreateChapter = ({ refetch }) => {
     return (
         <>
             <Space>
-                <Button onClick={handleShow} type="primary">
-                    Thêm chương mới
-                </Button>
+                <EditOutlined onClick={handleShow} className="text-green-500 ml-3 text-xl cursor-pointer" />
             </Space>
             <Modal
                 width={620}
                 onOk={handleSubmit}
-                title="Thêm Chương Mới"
+                title="Chỉnh sửa chương học"
                 onCancel={handleCancel}
                 open={isOpenModal}
                 confirmLoading={isLoading}
@@ -69,6 +68,11 @@ const CreateChapter = ({ refetch }) => {
                     className="w-full py-3"
                     requiredMark={'optional'}
                     autoComplete="off"
+                    initialValues={{
+                        name: chapter.name,
+                        isPublic: chapter.isPublic,
+                        isFree: chapter.isFree,
+                    }}
                 >
                     <Alert
                         className="mb-5"
@@ -91,7 +95,7 @@ const CreateChapter = ({ refetch }) => {
 
                     <Flex className="flex items-center gap-6">
                         <Form.Item name="isPublic" valuePropName="checked">
-                            <Checkbox onChange={() => console.log(true)}>Xuất bản</Checkbox>
+                            <Checkbox onChange={() => console.log(true)}>Xác nhận xuất bản</Checkbox>
                         </Form.Item>
                         {/* <Form.Item name={'isFree'} valuePropName="checked">
                             <Checkbox onChange={() => console.log(true)}>Chương học miễn phí</Checkbox>
@@ -103,4 +107,4 @@ const CreateChapter = ({ refetch }) => {
     );
 };
 
-export default CreateChapter;
+export default UpdateChapter;

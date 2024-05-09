@@ -1,43 +1,31 @@
 /* eslint-disable react/prop-types */
 import { InfoCircleOutlined, CaretDownOutlined, LoadingOutlined, LeftOutlined } from '@ant-design/icons';
-import {
-    Form,
-    Input,
-    Card,
-    Select,
-    message,
-    notification,
-    Space,
-    Breadcrumb,
-    Button,
-    Col,
-    Flex,
-    Row,
-    Checkbox,
-    Alert,
-} from 'antd';
+import { useParams, useNavigate } from 'react-router-dom';
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Form, Input, Card, Select, message, notification, Space, Button, Col, Row, Checkbox, Alert, Flex } from 'antd';
 
-import { useCreateCourseMutation } from '@/providers/apis/courseTeacherApi';
+import { useGetCourseByIdQuery, useUpdateCourseMutation } from '@/providers/apis/courseTeacherApi';
 import { useGetCateQuery } from '@/providers/apis/cateApi';
 
-import UploadThumbCourse from './components/UploadThumbCourse';
-import CourseMDXEditor from './components/CourseMDXEditor';
-import { useCookies } from 'react-cookie';
-
-const CreateCoursePage = () => {
-    const [cookies] = useCookies(['cookieLoginStudent']);
+import UploadThumbCourse from '../components/UploadThumbCourse';
+import CourseMDXEditor from '../components/CourseMDXEditor';
+const UpdateCourse = () => {
     const [isFree, setIsFree] = React.useState(false);
     const [isPublic, setIsPublic] = React.useState(false);
-    const [enableCheckbox, setEnableCheckbox] = React.useState(false);
+    const [enableCheckbox, setEnableCheckbox] = React.useState(true);
     const [description, setDescription] = React.useState('');
     const [thumbnail, setThumbnail] = React.useState(null);
 
-    const [createCourse, { isLoading }] = useCreateCourseMutation();
-    const { data: categories = [] } = useGetCateQuery();
-
+    const { courseId } = useParams();
     const navigate = useNavigate();
+
+    const [updateCourse, { isLoading }] = useUpdateCourseMutation();
+
+    const { data: categories = [] } = useGetCateQuery();
+    const { data: course } = useGetCourseByIdQuery(courseId, {
+        skip: !courseId,
+        refetchOnMountOrArgChange: true,
+    });
 
     const [form] = Form.useForm();
 
@@ -45,16 +33,8 @@ const CreateCoursePage = () => {
         try {
             form.submit();
 
-            if (!thumbnail) {
-                notification.warning({
-                    message: <b>Lỗi xử lý dữ liệu</b>,
-                    description: 'Hãy thực hiện tải lên ảnh bìa khóa học',
-                });
-                return null;
-            }
-
             if (!description) {
-                notification.warning({
+                notification.error({
                     message: <b>Lỗi xử lý dữ liệu</b>,
                     description: 'Hãy thực hiện nhập mô tả khóa học',
                 });
@@ -63,14 +43,15 @@ const CreateCoursePage = () => {
 
             await form.validateFields();
 
-            const payload = { ...form.getFieldValue(), description: description, thumb: thumbnail.url };
+            const payload = {
+                _id: courseId,
+                ...form.getFieldValue(),
+                description: description,
+                thumb: thumbnail ? thumbnail.url : course.thumb,
+            };
 
-            await createCourse({
-                ...payload,
-                teacherId: cookies.cookieLoginStudent._id,
-            });
-
-            message.success('Thêm khóa học thành công!');
+            await updateCourse(payload);
+            message.success('Cập nhật khóa học thành công!');
         } catch (error) {
             console.log(error);
         }
@@ -83,13 +64,13 @@ const CreateCoursePage = () => {
         setIsFree(isFree);
 
         // Cập nhật trạng thái của Form khi checkbox thay đổi
-        const value = isFree ? 0 : '';
-        form.setFieldsValue({ price: value, old_price: value });
+        const price = isFree ? 0 : course.price || '';
+        const old_price = isFree ? 0 : course.old_price || '';
+        form.setFieldsValue({ price: price, old_price: old_price });
     };
 
     const handleIsPublicChange = async (e) => {
         try {
-            if (!thumbnail || !description) return null;
             await form.validateFields();
             const isPublic = e.target.checked;
             setIsPublic(isPublic);
@@ -100,9 +81,8 @@ const CreateCoursePage = () => {
 
     const handleFormValuesChange = async () => {
         try {
-            if (!thumbnail || !description) return null;
+            if (!description) return;
             await form.validateFields();
-            setEnableCheckbox(true);
         } catch (e) {
             const enable = e.errorFields.length === 0;
             setEnableCheckbox(enable);
@@ -110,28 +90,34 @@ const CreateCoursePage = () => {
                 setIsPublic(false);
                 form.setFieldsValue({ isPublic: false });
             }
+            console.log(e);
         }
     }; // Bắt tất cả sự kiện thay đổi trong form
 
+    React.useEffect(() => {
+        if (form && course) {
+            form.setFieldsValue({
+                name: course.name,
+                price: course.price,
+                old_price: course.old_price,
+                cate_id: course.cate_id,
+                isFree: course.price === 0,
+                isPublic: course.isPublic,
+            });
+            setIsPublic(course.isPublic);
+            setIsFree(course.price === 0);
+            setDescription(course.description);
+        }
+    }, [form, course]);
+
     return (
         <div className="w-full">
-            <Breadcrumb
-                className="mb-4"
-                items={[
-                    { title: 'Trang chủ' },
-                    { title: 'Quản lý khóa học', href: '/manager-courses' },
-                    { title: 'Thêm mới' },
-                ]}
-            />
             <Card
                 title={
                     <Space className="flex items-center justify-between">
                         <Flex gap={10}>
-                            <LeftOutlined
-                                onClick={() => navigate(-1)}
-                                className="hover:-translate-x-0.5 duration-100 cursor-pointer"
-                            />
-                            <p>Thêm khóa học mới</p>
+                            <LeftOutlined onClick={() => navigate(-1)} className="cursor-pointer" />
+                            <p>Chỉnh sửa khóa học</p>
                         </Flex>
                         <Space>
                             <Button
@@ -139,7 +125,7 @@ const CreateCoursePage = () => {
                                 onClick={handleSubmit}
                                 type={isLoading ? 'default' : 'primary'}
                             >
-                                {isLoading ? <LoadingOutlined /> : <span>Xác nhận</span>}
+                                {isLoading ? <LoadingOutlined /> : <span>Lưu lại</span>}
                             </Button>
                         </Space>
                     </Space>
@@ -154,13 +140,9 @@ const CreateCoursePage = () => {
                         description={`Vui lòng đảm bảo rằng bạn đã điền đầy đủ thông tin trước khi xuất bản. Thông tin không đầy đủ có thể ảnh hưởng đến trải nghiệm của người dùng. Xin cảm ơn sự hợp tác của bạn!`}
                     />
                 ) : (
-                    <Alert
-                        showIcon
-                        type="success"
-                        description={`Hãy thực hiện bước cuối cùng để công khai khóa học!`}
-                    />
+                    <Alert showIcon type="info" description={`Hãy thực hiện bước cuối cùng để công khai khóa học!`} />
                 )}
-                <div className="flex gap-6 py-6">
+                <div className="flex gap-6 pt-6">
                     <Form
                         onValuesChange={handleFormValuesChange}
                         form={form}
@@ -174,7 +156,7 @@ const CreateCoursePage = () => {
                     >
                         <Row>
                             <Col className="pr-12" span={8}>
-                                <UploadThumbCourse thumbnail={thumbnail} setThumbnail={setThumbnail} />
+                                <UploadThumbCourse course={course} thumbnail={thumbnail} setThumbnail={setThumbnail} />
                             </Col>
                             <Col span={16}>
                                 <Form.Item
@@ -271,18 +253,23 @@ const CreateCoursePage = () => {
                                             Xác nhận xuất bản
                                         </Checkbox>
                                     </Form.Item>
-                                    <Form.Item valuePropName="checked">
+                                    <Form.Item name={'isFree'} valuePropName="checked">
                                         <Checkbox onChange={handleIsFreeChange}>Khóa học miễn phí</Checkbox>
                                     </Form.Item>
                                 </div>
                             </Col>
                         </Row>
-                        <CourseMDXEditor markdown={''} setDescription={setDescription} />
                     </Form>
                 </div>
+
+                {description ? (
+                    <CourseMDXEditor markdown={description} setDescription={setDescription} />
+                ) : (
+                    <div className="border p-3 rounded-md">Loading...</div>
+                )}
             </Card>
         </div>
     );
 };
 
-export default CreateCoursePage;
+export default UpdateCourse;

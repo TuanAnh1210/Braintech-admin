@@ -40,7 +40,7 @@ const CreateCoursePage = () => {
     const navigate = useNavigate();
 
     const [form] = Form.useForm();
-
+    
     const handleSubmit = async () => {
         try {
             form.submit();

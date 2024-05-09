@@ -1,16 +1,20 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { Breadcrumb, Button, Image, Input, Space, Table, Modal, Select, notification } from 'antd';
+import { Breadcrumb, Button, Image, Input, Space, Table, Popconfirm, message, Checkbox, Divider, Select, Modal } from 'antd';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearch } from '@fortawesome/free-solid-svg-icons';
 import Highlighter from 'react-highlight-words';
 import { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
 import Swal from 'sweetalert2';
-import { useUpdateRoleQuery } from '@/providers/apis/userApi';
+import ItemTeacher from './items';
+import { Link } from 'react-router-dom';
+import { useGetAllCoursesQuery } from '@/providers/apis/courseTeacherApi';
 
-const UserManager = () => {
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [user, setUser] = useState('');
+
+const CheckboxGroup = Checkbox.Group;
+const plainOptions = ['Apple', 'Pear', 'Orange'];
+const defaultCheckedList = ['Apple', 'Orange'];
+function TeacherManager() {
     const [data, setData] = useState();
     const [loading, setLoading] = useState(false);
     const [searchText, setSearchText] = useState('');
@@ -21,7 +25,18 @@ const UserManager = () => {
             pageSize: 6,
         },
     });
+    const { data: courses = [], isLoading } = useGetAllCoursesQuery({}, { refetchOnMountOrArgChange: true });
+
     const searchInput = useRef(null);
+    const [checkedList, setCheckedList] = useState(defaultCheckedList);
+    const checkAll = plainOptions.length === checkedList.length;
+    const indeterminate = checkedList.length > 0 && checkedList.length < plainOptions.length;
+    const onChange = (list) => {
+        setCheckedList(list);
+    };
+    const onCheckAllChange = (e) => {
+        setCheckedList(e.target.checked ? plainOptions : []);
+    };
 
     const handleSearch = (selectedKeys, confirm, dataIndex) => {
         confirm();
@@ -122,7 +137,7 @@ const UserManager = () => {
 
     const fetchData = () => {
         setLoading(true);
-        fetch(import.meta.env.VITE_REACT_APP_API_PATH + 'api/user')
+        fetch(`http://localhost:8080/api/user/teachers`)
             .then((res) => res.json())
             .then(({ data }) => {
                 setData(data);
@@ -152,11 +167,25 @@ const UserManager = () => {
             setData([]);
         }
     };
+
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [idModal, setIdModal] = useState('');
+    const showModal = (id) => {
+        setIdModal(id)
+        setIsModalOpen(true);
+    };
+    const handleOk = () => {
+        setIsModalOpen(false);
+    };
+
+    const handleCancel = () => {
+        setIsModalOpen(false);
+    };
     const onHandleDelete = async (id) => {
-        console.log(id);
+
         Swal.fire({
-            title: 'Học viên này sẽ bị xóa!!',
-            text: 'Bạn có chắc muốn xóa học viên này chứ ?',
+            title: 'Giảng viên này sẽ bị xóa!!',
+            text: 'Bạn có chắc muốn xóa giảng viên này chứ ?',
             showDenyButton: true,
             confirmButtonText: 'Xóa',
             showConfirmButton: true,
@@ -164,7 +193,7 @@ const UserManager = () => {
         }).then((result) => {
             if (result.isConfirmed) {
                 axios
-                    .delete(import.meta.env.VITE_REACT_APP_API_PATH + 'api/user/delete/' + id)
+                    .delete(`http://localhost:8080/api/user/delete/${id}`)
                     .then(() => {
                         fetchData();
                         Swal.fire('Xóa thành công!', '', 'success');
@@ -174,45 +203,6 @@ const UserManager = () => {
                 Swal.fire('Hủy thành công', '', 'info');
             }
         });
-    };
-
-    const showModal = () => {
-        setIsModalOpen(true);
-    };
-    const handleOk = () => {
-        setIsModalOpen(false);
-    };
-    const handleCancel = () => {
-        setIsModalOpen(false);
-    };
-    const onA = (id) => {
-        const user = data?.find(i => i._id === id)
-        setUser(user)
-    }
-    const handleChange = async (value) => {
-        try {
-            if (value === "true") {
-
-                const userUpdate = {
-                    ...user,
-                    isAdmin: true,
-                    isTeacher: true
-                }
-
-                await axios.put(`http://localhost:8080/api/user/update/${user?._id}`, userUpdate).then(() => {
-                    notification.success({
-                        message: 'Thông báo',
-                        description: "Vai trò của tài khoản đã thay đổi!",
-                        duration: 1.75,
-                    });
-                    fetchData()
-                })
-
-            } return;
-        } catch (error) {
-            console.log(error);
-        }
-
     };
     const columns = [
         {
@@ -239,42 +229,32 @@ const UserManager = () => {
             dataIndex: '_id',
             render: (id) => {
                 return (
-                    <div className="flex gap-3">
-                        <>
-                            <Button type="primary" onClick={showModal}>
-                                Chỉnh sửa
-                            </Button>
-                            <Modal title="Vai trò" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
-                                <Space wrap>
-                                    <Select
-                                        defaultValue="Học viên"
-                                        style={{
-                                            width: 150,
-                                        }}
-                                        onClick={onA(id)}
-                                        onChange={handleChange}
-                                        options={[
-                                            {
-                                                value: 'true',
-                                                label: 'Giảng viên',
+                    <div className="">
 
-                                            },
-                                        ]}
-                                    />
-
-
-                                </Space>
-                            </Modal>
-                        </>
-                        <Button danger onClick={() => onHandleDelete(id)} >
+                        <Link to={`/manager-teachers/${id}`}><Button type="primary">Chi tiết</Button></Link>
+                        <Button danger onClick={() => onHandleDelete(id)} className='ml-[10px]'>
                             Xóa
                         </Button>
+                        {/* <div>
+                            <>
+                                <Button type="primary" onClick={() => showModal(id)}>
+                                    Open Modal
+                                </Button>
+                                <Modal title="Basic Modal" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
+
+                                    <ItemTeacher data={courses} idUser={idModal} />
+                                </Modal>
+                            </>
+
+                        </div> */}
                     </div>
                 );
             },
         },
     ];
-
+    const handleChange = (value) => {
+        console.log(1, value);
+    }
     return (
         <div className="w-full">
             <Breadcrumb
@@ -287,7 +267,7 @@ const UserManager = () => {
                         title: 'Tài khoản',
                     },
                     {
-                        title: 'Quản lý học viên',
+                        title: 'Quản lý giảng viên',
                     },
                 ]}
             />
@@ -300,13 +280,20 @@ const UserManager = () => {
                     dataSource={data}
                     loading={loading}
                     title={() => {
-                        return <p style={{ fontWeight: 600, fontSize: '20px' }}>Danh sách học viên</p>;
+                        return (
+                            <div className="flex items-center justify-between">
+                                <p style={{ fontWeight: 600, fontSize: '20px' }}>Danh sách giảng viên</p>
+
+                            </div>
+                        );
                     }}
                     onChange={handleTableChange}
                 />
+
+
             </div>
         </div>
     );
 }
 
-export default UserManager;
+export default TeacherManager;

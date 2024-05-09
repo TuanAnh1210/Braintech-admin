@@ -1,16 +1,15 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { Breadcrumb, Button, Image, Input, Space, Table, Modal, Select, notification } from 'antd';
+import { Breadcrumb, Button, Image, Input, Space, Table } from 'antd';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearch } from '@fortawesome/free-solid-svg-icons';
 import Highlighter from 'react-highlight-words';
 import { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
 import Swal from 'sweetalert2';
-import { useUpdateRoleQuery } from '@/providers/apis/userApi';
+import { useCookies } from 'react-cookie';
 
-const UserManager = () => {
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [user, setUser] = useState('');
+function MyStudents() {
+    const [cookies] = useCookies(['cookieLoginStudent']);
     const [data, setData] = useState();
     const [loading, setLoading] = useState(false);
     const [searchText, setSearchText] = useState('');
@@ -22,13 +21,12 @@ const UserManager = () => {
         },
     });
     const searchInput = useRef(null);
-
     const handleSearch = (selectedKeys, confirm, dataIndex) => {
         confirm();
         setSearchText(selectedKeys[0]);
         setSearchedColumn(dataIndex);
     };
-
+    
     const handleReset = (clearFilters) => {
         clearFilters();
         setSearchText('');
@@ -122,10 +120,12 @@ const UserManager = () => {
 
     const fetchData = () => {
         setLoading(true);
-        fetch(import.meta.env.VITE_REACT_APP_API_PATH + 'api/user')
+        const API_URL = 'http://localhost:8080/api'
+        fetch(`${API_URL}/courses_teacher/all/student?teacherId=${cookies.cookieLoginStudent._id}`)
             .then((res) => res.json())
-            .then(({ data }) => {
-                setData(data);
+            .then(({newData}) => {
+                
+                setData(newData);
                 setLoading(false);
                 setTableParams({
                     ...tableParams,
@@ -153,10 +153,10 @@ const UserManager = () => {
         }
     };
     const onHandleDelete = async (id) => {
-        console.log(id);
+        console.log(id)
         Swal.fire({
-            title: 'Học viên này sẽ bị xóa!!',
-            text: 'Bạn có chắc muốn xóa học viên này chứ ?',
+            title: 'Sinh viên này sẽ bị xóa!!',
+            text: 'Bạn có chắc muốn xóa sinh viên này chứ ?',
             showDenyButton: true,
             confirmButtonText: 'Xóa',
             showConfirmButton: true,
@@ -164,7 +164,7 @@ const UserManager = () => {
         }).then((result) => {
             if (result.isConfirmed) {
                 axios
-                    .delete(import.meta.env.VITE_REACT_APP_API_PATH + 'api/user/delete/' + id)
+                    .delete(`http://localhost:8080/api/sttCourse/${id}`)
                     .then(() => {
                         fetchData();
                         Swal.fire('Xóa thành công!', '', 'success');
@@ -175,51 +175,12 @@ const UserManager = () => {
             }
         });
     };
-
-    const showModal = () => {
-        setIsModalOpen(true);
-    };
-    const handleOk = () => {
-        setIsModalOpen(false);
-    };
-    const handleCancel = () => {
-        setIsModalOpen(false);
-    };
-    const onA = (id) => {
-        const user = data?.find(i => i._id === id)
-        setUser(user)
-    }
-    const handleChange = async (value) => {
-        try {
-            if (value === "true") {
-
-                const userUpdate = {
-                    ...user,
-                    isAdmin: true,
-                    isTeacher: true
-                }
-
-                await axios.put(`http://localhost:8080/api/user/update/${user?._id}`, userUpdate).then(() => {
-                    notification.success({
-                        message: 'Thông báo',
-                        description: "Vai trò của tài khoản đã thay đổi!",
-                        duration: 1.75,
-                    });
-                    fetchData()
-                })
-
-            } return;
-        } catch (error) {
-            console.log(error);
-        }
-
-    };
     const columns = [
         {
             title: 'Hình ảnh',
             dataIndex: 'avatar',
-            render: (picture) => {
-                return <Image width={40} className="rounded-full" src={picture} alt="" />;
+            render: (avatar) => {
+                return <Image width={40} className="rounded-full" src={avatar} alt="" />;
             },
         },
         {
@@ -235,38 +196,18 @@ const UserManager = () => {
             ...getColumnSearchProps('email'),
         },
         {
+            title: 'Khóa học',
+            dataIndex: 'course_id',
+            sorter: true,
+            ...getColumnSearchProps('course_id'),
+        },
+        {
             title: 'Thao tác',
             dataIndex: '_id',
             render: (id) => {
                 return (
                     <div className="flex gap-3">
-                        <>
-                            <Button type="primary" onClick={showModal}>
-                                Chỉnh sửa
-                            </Button>
-                            <Modal title="Vai trò" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
-                                <Space wrap>
-                                    <Select
-                                        defaultValue="Học viên"
-                                        style={{
-                                            width: 150,
-                                        }}
-                                        onClick={onA(id)}
-                                        onChange={handleChange}
-                                        options={[
-                                            {
-                                                value: 'true',
-                                                label: 'Giảng viên',
-
-                                            },
-                                        ]}
-                                    />
-
-
-                                </Space>
-                            </Modal>
-                        </>
-                        <Button danger onClick={() => onHandleDelete(id)} >
+                        <Button danger onClick={() => onHandleDelete(id)}>
                             Xóa
                         </Button>
                     </div>
@@ -287,7 +228,7 @@ const UserManager = () => {
                         title: 'Tài khoản',
                     },
                     {
-                        title: 'Quản lý học viên',
+                        title: 'Quản lý tài khoản',
                     },
                 ]}
             />
@@ -300,7 +241,7 @@ const UserManager = () => {
                     dataSource={data}
                     loading={loading}
                     title={() => {
-                        return <p style={{ fontWeight: 600, fontSize: '20px' }}>Danh sách học viên</p>;
+                        return <p style={{ fontWeight: 600, fontSize: '20px' }}>Quản lý sinh viên</p>;
                     }}
                     onChange={handleTableChange}
                 />
@@ -309,4 +250,4 @@ const UserManager = () => {
     );
 }
 
-export default UserManager;
+export default MyStudents;

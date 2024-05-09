@@ -131,7 +131,7 @@ const ChaptersComponent = () => {
                 </div>
             ) : (
                 <>
-                    <h2 className="font-bold text-lg mb-6">Khóa học: {course?.name || ''}</h2>
+                    <h2 className="font-bold text-lg mb-6">Khóa học: {course?.name|| ''}</h2>
 
                     <Tree
                         draggable

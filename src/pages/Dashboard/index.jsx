@@ -419,6 +419,19 @@ const Dashboard = () => {
                 </Col>
             </Row>
 
+            {/* <div className=" relative p-[5px] mt-[100px] ">
+                <div className="static">
+                    <div className="bg-gray-600 absolute top-0 left-0  w-[95%] sm:h-32 md:h-32 h-[105px] ml-[30px] p-[15px] rounded ">
+                        <h4 className="text-white xl:text-[25px] lg:text-[25px] sm:text-[18px] md:text-[18px] mt-[10px] mb-[5px]">
+                            Doanh thu năm 2024
+                        </h4>
+                        <p className="text-white pb-[20px] mr-[20px] sm:text-[15px] md:text-[15px] text-[18px]">
+                            {' '}
+                            Tổng doanh thu: <span className="px-[5px] font-bold">{VND.format(sumItem)}</span>
+                        </p>
+                    </div>
+                </div>   
+            </div>      */}
             <div className=" relative p-[5px] mt-[100px] ">
                 <div className="static">
                     <div className="bg-gray-600 absolute top-0 left-0  w-[95%] sm:h-32 md:h-32 h-[105px] ml-[30px] p-[15px] rounded ">
@@ -453,4 +466,5 @@ const Dashboard = () => {
         </div>
     );
 };
+
 export default Dashboard;
