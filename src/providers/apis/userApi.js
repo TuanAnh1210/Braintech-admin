@@ -12,6 +12,11 @@ export const userApi = createApi({
                 return { url: '/user/auth', method: 'POST', body: payload };
             },
         }),
+        getUser: build.query({
+            query: (_id) => {
+                return `/user/${_id}`;
+            },
+        }),
         getTeachers: build.query({
             query: () => '/user/teachers',
         }),
@@ -30,14 +35,21 @@ export const userApi = createApi({
                 return { url: `/user/updatecourse/${payload.id}`, method: 'PUT', body: payload };
             },
         }),
+        updateUser: build.mutation({
+            query: ({ userId, ...payload }) => {
+                return { url: `/user/${userId}/update`, method: 'PATCH', body: payload };
+            },
+        }),
     }),
 });
 
 export const {
     useAuthUserMutation,
-    useGetUsersQuery,
-    useGetTeachersQuery,
     useDeleteuserQuery,
-    useUpdateRoleQuery,
+    useGetUserQuery,
+    useGetUsersQuery,
     useUpdateCourseIdQuery,
+    useUpdateRoleQuery,
+    useUpdateUserMutation,
+    useGetTeachersQuery,
 } = userApi;

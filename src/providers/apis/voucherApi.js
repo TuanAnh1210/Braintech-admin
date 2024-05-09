@@ -27,8 +27,18 @@ export const voucherApi = createApi({
                 return { url: `/${payload._id}`, method: 'DELETE' };
             },
         }),
+        updateVoucher: build.mutation({
+            query: ({ voucherId, ...payload }) => {
+                return { url: `/${voucherId}/update`, method: 'PATCH', body: payload };
+            },
+        }),
     }),
 });
 
-export const { useCreateVoucherMutation, useGetVoucherByIdQuery, useGetAllVoucherQuery, useDeleteVoucherMutation } =
-    voucherApi;
+export const {
+    useCreateVoucherMutation,
+    useGetVoucherByIdQuery,
+    useGetAllVoucherQuery,
+    useDeleteVoucherMutation,
+    useUpdateVoucherMutation,
+} = voucherApi;

@@ -1,27 +1,40 @@
-import { useGetUserQuery, useUpdateUserMutation } from '@/providers/apis/userApi';
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useCookies } from 'react-cookie';
+import { useGetVoucherByIdQuery, useUpdateVoucherMutation } from '@/providers/apis/voucherApi';
+import { message } from 'antd';
+import { useGetUserQuery, useUpdateUserMutation } from '@/providers/apis/userApi';
 
 const GiftRecipientSelect = ({ users, voucherId, changeClose }) => {
     const [selectedUser, setSelectedUser] = useState({});
-    const { data: currentUser } = useGetUserQuery(selectedUser._id);
+    const { data: currentUser, refetch } = useGetUserQuery(selectedUser._id);
+    const { data: currentVoucher } = useGetVoucherByIdQuery(voucherId);
     const [cookies, setCookie] = useCookies(['access_token']);
     const [updateUser] = useUpdateUserMutation();
+    const [updateVoucher] = useUpdateVoucherMutation();
 
     const handleCancel = () => changeClose();
 
     const handleConfirm = async () => {
-        let newObject = { ...currentUser.data };
-        const { vouchers, _id, ...others } = newObject;
+        let newObjectUser = { ...currentUser.data };
+        let newObjectVoucher = { ...currentVoucher };
+        const { vouchers, _id, ...others } = newObjectUser;
+        const { quantity, _id: id } = newObjectVoucher;
         const newUserUpdate = {
             userId: _id,
             vouchers: [...vouchers, voucherId],
             accessToken: cookies.access_token,
         };
 
-        updateUser(newUserUpdate);
+        const newVoucherUpdate = {
+            voucherId: id,
+            quantity: +quantity - 1,
+        };
+
         changeClose();
+        message.success('Tặng thành công mã nay!');
+        await updateUser(newUserUpdate);
+        await updateVoucher(newVoucherUpdate);
+        refetch();
     };
 
     return (

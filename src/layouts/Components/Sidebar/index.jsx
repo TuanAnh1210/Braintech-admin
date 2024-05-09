@@ -21,7 +21,7 @@ function AdminSidebar() {
         { path: '/manager-comments', label: 'Bình luận', icon: <FaCommentDots className="text-lg" /> },
         { path: '/manager-rating', label: 'Đánh giá', icon: <FaStar className="text-lg" /> },
         { path: '/manager-bills', label: 'Hóa đơn', icon: <FaRegCreditCard className="text-lg" /> },
-        { path: '/manager-discount', label: 'Mã giảm giá', icon: <MdOutlineDiscount className="text-lg" /> },
+        { path: '/manager-discount', label: 'Mã giảm giá', icon: <FaRegCreditCard className="text-lg" /> },
     ];
     const navItemTeacher = [
         { path: '/my-courses', label: 'Khóa học của tôi', icon: <FaClapperboard className="text-lg" /> },
