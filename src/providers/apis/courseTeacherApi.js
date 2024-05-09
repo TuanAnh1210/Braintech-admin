@@ -12,9 +12,25 @@ export const courseTeacherApi = createApi({
                 return response.courses;
             },
         }),
+        getAllCourses: build.query({
+            query: () => {
+                return '/all/teacher';
+            },
+            transformResponse: (response) => {
+                return response.courses;
+            },
+        }),
         getCourses: build.query({
             query: (teacherId) => {
                 return `/all?teacherId=${teacherId}`;
+            },
+            transformResponse: (response) => {
+                return response.courses;
+            },
+        }),
+        getCoursesTeacher: build.query({
+            query: (teacherId) => {
+                return `/teacher/${teacherId}`;
             },
             transformResponse: (response) => {
                 return response.courses;
@@ -38,9 +54,19 @@ export const courseTeacherApi = createApi({
                 return { url: `/${_id}/update`, method: 'PUT', body: payload };
             },
         }),
+        updateCourseID: build.mutation({
+            query: (payload) => {
+                return { url: `/update/${payload._id}`, method: 'PUT', body: payload };
+            },
+        }),
         deleteCourse: build.mutation({
             query: (payload) => {
                 return { url: `/${payload._id}/delete`, method: 'DELETE' };
+            },
+        }),
+        deleteCourseTeacher: build.mutation({
+            query: (id) => {
+                return { url: `/delete/${id}`, method: 'DELETE' };
             },
         }),
         uploadImage: build.mutation({
@@ -52,11 +78,15 @@ export const courseTeacherApi = createApi({
 });
 
 export const {
+    useUpdateCourseIDMutation,
+    useGetAllCoursesQuery,
     useGetStudentsQuery,
     useGetCoursesQuery,
+    useGetCoursesTeacherQuery,
     useGetCourseByIdQuery,
     useUploadImageMutation,
     useCreateCourseMutation,
     useUpdateCourseMutation,
     useDeleteCourseMutation,
+    useDeleteCourseTeacherMutation
 } = courseTeacherApi;

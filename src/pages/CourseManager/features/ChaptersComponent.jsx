@@ -6,7 +6,7 @@ import { Link, useParams } from 'react-router-dom';
 import { Flex, Card, Space, Empty, Tag, Tree } from 'antd';
 import React from 'react';
 
-import { useGetCourseByIdQuery } from '@/providers/apis/courseApi';
+import { useGetCourseByIdQuery } from '@/providers/apis/courseTeacherApi';
 
 import CreateChapter from './CreateChapter';
 import UpdateChapter from './UpdateChapter';
@@ -22,8 +22,8 @@ const ChaptersComponent = () => {
         skip: !courseId,
         refetchOnMountOrArgChange: true,
     });
-
-    const gchapters = course.chapters.map((chapter, index) => {
+    console.log(course)
+    const gchapters = course?.chapters?.map((chapter, index) => {
         const chapterId = chapter._id;
         return {
             key: chapterId,
@@ -56,7 +56,7 @@ const ChaptersComponent = () => {
     };
 
     React.useEffect(() => {
-        if (course.chapters.length > 0) {
+        if (course?.chapters?.length > 0) {
             setGData(gchapters);
         }
     }, [course]);
@@ -131,7 +131,7 @@ const ChaptersComponent = () => {
                 </div>
             ) : (
                 <>
-                    <h2 className="font-bold text-lg mb-6">Khóa học: {course.name}</h2>
+                    <h2 className="font-bold text-lg mb-6">Khóa học: {course?.name || ''}</h2>
 
                     <Tree
                         draggable
@@ -143,7 +143,7 @@ const ChaptersComponent = () => {
                         className="draggable-tree"
                     />
 
-                    {gData.length === 0 && <Empty className="mt-16" description="Chưa có dữ liệu" />}
+                    {gData?.length === 0 && <Empty className="mt-16" description="Chưa có dữ liệu" />}
 
                     {/* {course.chapters.map((chapter, index) => {
                             const lessons = chapter.lessons;

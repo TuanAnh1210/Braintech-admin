@@ -70,18 +70,18 @@ const Analytics = () => {
                 return (
                     i === -1
                         ? group.push({
-                              _id: b.course_info._id,
-                              subscribers: 1,
-                              price: b.course_info.price,
-                              name: b.course_info.name,
-                              chapters: b.course_info.chapters,
-                              totalLessons: b.course_info.totalLessons,
-                          })
+                            _id: b.course_info._id,
+                            subscribers: 1,
+                            price: b.course_info.price,
+                            name: b.course_info.name,
+                            chapters: b.course_info.chapters,
+                            totalLessons: b.course_info.totalLessons,
+                        })
                         : group[i].subscribers++,
                     group
                 );
             }, []);
-            console.log(groupedData);
+
             setBillData(groupedData);
         }
     }, [billResponse]);

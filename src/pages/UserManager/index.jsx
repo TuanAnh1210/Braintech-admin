@@ -1,13 +1,16 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { Breadcrumb, Button, Image, Input, Space, Table } from 'antd';
+import { Breadcrumb, Button, Image, Input, Space, Table, Modal, Select, notification } from 'antd';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearch } from '@fortawesome/free-solid-svg-icons';
 import Highlighter from 'react-highlight-words';
 import { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
 import Swal from 'sweetalert2';
+import { useUpdateRoleQuery } from '@/providers/apis/userApi';
 
-function UserManager() {
+const UserManager = () => {
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [user, setUser] = useState('');
     const [data, setData] = useState();
     const [loading, setLoading] = useState(false);
     const [searchText, setSearchText] = useState('');
@@ -172,6 +175,45 @@ function UserManager() {
             }
         });
     };
+
+    const showModal = () => {
+        setIsModalOpen(true);
+    };
+    const handleOk = () => {
+        setIsModalOpen(false);
+    };
+    const handleCancel = () => {
+        setIsModalOpen(false);
+    };
+    const onA = (id) => {
+        const user = data?.find(i => i._id === id)
+        setUser(user)
+    }
+    const handleChange = async (value) => {
+        try {
+            if (value === "true") {
+
+                const userUpdate = {
+                    ...user,
+                    isAdmin: true,
+                    isTeacher: true
+                }
+
+                await axios.put(`http://localhost:8080/api/user/update/${user?._id}`, userUpdate).then(() => {
+                    notification.success({
+                        message: 'Thông báo',
+                        description: "Vai trò của tài khoản đã thay đổi!",
+                        duration: 1.75,
+                    });
+                    fetchData()
+                })
+
+            } return;
+        } catch (error) {
+            console.log(error);
+        }
+
+    };
     const columns = [
         {
             title: 'Hình ảnh',
@@ -198,7 +240,33 @@ function UserManager() {
             render: (id) => {
                 return (
                     <div className="flex gap-3">
-                        <Button danger onClick={() => onHandleDelete(id)}>
+                        <>
+                            <Button type="primary" onClick={showModal}>
+                                Chỉnh sửa
+                            </Button>
+                            <Modal title="Vai trò" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
+                                <Space wrap>
+                                    <Select
+                                        defaultValue="Học viên"
+                                        style={{
+                                            width: 150,
+                                        }}
+                                        onClick={onA(id)}
+                                        onChange={handleChange}
+                                        options={[
+                                            {
+                                                value: 'true',
+                                                label: 'Giảng viên',
+
+                                            },
+                                        ]}
+                                    />
+
+
+                                </Space>
+                            </Modal>
+                        </>
+                        <Button danger onClick={() => onHandleDelete(id)} >
                             Xóa
                         </Button>
                     </div>

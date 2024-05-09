@@ -10,11 +10,13 @@ import DiscountCode from '@/pages/DiscountCode';
 import MyStudents from '@/pages/MyStudents';
 import TeacherManager from '@/pages/TeacherManager';
 import RateManager from '@/pages/RateManager';
+import DetailTeacher from '@/pages/DetailTeacher';
 
 const publicRoutes = [
     { path: 'dashboard', component: Analytics },
     { path: 'manager-users', component: UserManager },
     { path: 'manager-teachers', component: TeacherManager },
+    { path: 'manager-teachers/:id', component: DetailTeacher },
     { path: 'manager-courses', component: Course.CoursesPage },
     { path: 'manager-courses/create', component: Course.CreateCoursePage },
     { path: 'manager-courses/:courseId', component: Course.CourseDetailPage },
