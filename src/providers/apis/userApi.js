@@ -13,25 +13,31 @@ export const userApi = createApi({
             },
         }),
         getTeachers: build.query({
-            query: () => '/user/teachers'
+            query: () => '/user/teachers',
         }),
         deleteuser: build.query({
             query: (id) => {
-                return { url: `/user/delete/${id}`, method: 'DELETE' }
-            }
+                return { url: `/user/delete/${id}`, method: 'DELETE' };
+            },
         }),
         updateRole: build.query({
             query: (payload) => {
-                return { url: `/user/update/${payload._id}`, method: 'PUT', body: payload }
-            }
+                return { url: `/user/update/${payload._id}`, method: 'PUT', body: payload };
+            },
         }),
         updateCourseId: build.query({
             query: (payload) => {
-                return { url: `/user/updatecourse/${payload.id}`, method: 'PUT', body: payload }
-            }
-        })
-
+                return { url: `/user/updatecourse/${payload.id}`, method: 'PUT', body: payload };
+            },
+        }),
     }),
 });
 
-export const { useAuthUserMutation, useGetUsersQuery, useGetTeachersQuery, useDeleteuserQuery, useUpdateRoleQuery, useUpdateCourseIdQuery } = userApi;
+export const {
+    useAuthUserMutation,
+    useGetUsersQuery,
+    useGetTeachersQuery,
+    useDeleteuserQuery,
+    useUpdateRoleQuery,
+    useUpdateCourseIdQuery,
+} = userApi;

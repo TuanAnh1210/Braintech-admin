@@ -1,19 +1,24 @@
-import { Breadcrumb, Button, Input, Space, Table, Form, DatePicker, Card } from 'antd';
+import { Breadcrumb, Button, Input, Space, Table, Skeleton, Popconfirm, Flex, message } from 'antd';
 import { useRef, useState } from 'react';
 import { SearchOutlined } from '@ant-design/icons';
 import Highlighter from 'react-highlight-words';
 import { useGetBillsQuery } from '@/providers/apis/billApi';
 import { TIMEFRAMES } from '@/lib/utils';
-import moment from 'moment';
 import GiftRecipientSelect from '@/pages/DiscountCode/ReceiverCode';
+import CreateDiscountCode from '@/pages/DiscountCode/AddDiscountCode';
+import { useDeleteVoucherMutation, useGetAllVoucherQuery } from '@/providers/apis/voucherApi';
+import { useGetUsersQuery } from '@/providers/apis/userApi';
 
 const DiscountCode = () => {
-    const [timeStamp, setTimeStamp] = useState(TIMEFRAMES.thisMonth);
-    const { data: paymentData, isLoading } = useGetBillsQuery(timeStamp, { skip: !timeStamp });
     const [searchText, setSearchText] = useState('');
     const [searchedColumn, setSearchedColumn] = useState('');
     const searchInput = useRef(null);
     const [isOpen, setIsOpen] = useState(false);
+    const [isAddNew, setIsAddNew] = useState(false);
+    const [currentIdVoucer, setCurrentIdVoucher] = useState(null);
+    const { data: allVouchers, isLoading, refetch } = useGetAllVoucherQuery();
+    const { data: allUsers } = useGetUsersQuery();
+    const [deleteVoucher] = useDeleteVoucherMutation();
 
     const handleSearch = (selectedKeys, confirm, dataIndex) => {
         confirm();
@@ -117,39 +122,23 @@ const DiscountCode = () => {
                 text
             ),
     });
+    function handleGift(id) {
+        setIsOpen(true);
+        setCurrentIdVoucher(id);
+    }
 
-    const users = [
-        {
-            id: 1,
-            username: 'Trung',
-            age: 10,
-        },
-        {
-            id: 2,
-            username: 'Trung 1',
-            age: 10,
-        },
-    ];
-    let discountCodes = [
-        {
-            codeName: 'SUMMER2024',
-            quantity: 100,
-            discountAmount: 10,
-            maxDiscountAmount: 5,
-            startDate: '2020-05-01',
-            endDate: '2025-05-01',
-            status: 'ACTIVE',
-        },
-        {
-            codeName: 'SUMMER2025',
-            quantity: 100,
-            discountAmount: 10,
-            maxDiscountAmount: 5,
-            startDate: '2020-05-01',
-            endDate: '2025-05-01',
-            status: 'ACTIVE',
-        },
-    ];
+    function handleClose() {
+        setIsOpen(false);
+    }
+
+    const confirm = async (id) => {
+        await deleteVoucher({ _id: id });
+        message.success('Xóa voucher này thành công!');
+        refetch();
+    };
+    const cancel = (e) => {
+        message.error('Clicked on No');
+    };
     const discountCodeColumns = [
         {
             title: 'Mã giảm giá',
@@ -169,12 +158,14 @@ const DiscountCode = () => {
             dataIndex: 'discountAmount',
             key: 'discountAmount',
             align: 'center',
+            width: 10,
         },
         {
             title: 'Giảm giá tối đa',
             dataIndex: 'maxDiscountAmount',
             key: 'maxDiscountAmount',
             align: 'center',
+            width: 10,
         },
         {
             title: 'Ngày bắt đầu',
@@ -223,41 +214,27 @@ const DiscountCode = () => {
             render: (data) => {
                 return {
                     children: (
-                        <button
-                            className="text-blue-500 border-blue-500 border-2 bg-white rounded px-2 py-1 hover:bg-blue-500 hover:text-white"
-                            onClick={() => handleGift()}
-                        >
-                            Tặng
-                        </button>
+                        <div className="">
+                            <Button type="primary" className="mr-2" onClick={() => handleGift(data._id)}>
+                                Tặng
+                            </Button>
+                            <Popconfirm
+                                placement="topLeft"
+                                title="Bạn có chắc muôn xoá voucher này không?"
+                                description="Are you sure to delete this voucher?"
+                                onConfirm={() => confirm(data._id)}
+                                onCancel={cancel}
+                                okText="Yes"
+                                cancelText="No"
+                            >
+                                <Button danger>Delete</Button>
+                            </Popconfirm>
+                        </div>
                     ),
                 };
             },
         },
     ];
-
-    function handleGift() {
-        setIsOpen(true);
-    }
-
-    function handleClose() {
-        setIsOpen(false);
-    }
-
-    function generateDiscountCode(newCode) {
-        discountCodes.push(newCode);
-    }
-
-    let newCode = {
-        codeName: 'NEW_CODE',
-        quantity: 50,
-        discountAmount: 5,
-        maxDiscountAmount: 2,
-        startDate: '2024-05-01',
-        endDate: '2026-05-01',
-        status: 'active',
-    };
-
-    generateDiscountCode(newCode);
 
     return (
         <div className="w-full">
@@ -272,7 +249,8 @@ const DiscountCode = () => {
                     },
                 ]}
             />
-            <div className=" relative p-[5px] mt-[100px] ">
+
+            <div className="relative p-[5px] mt-[100px] ">
                 <div className="static">
                     <div className="bg-gray-600 flex justify-between absolute top-0 left-0  w-[95%] sm:h-32 md:h-32 h-[105px] ml-[30px] p-[15px] rounded ">
                         <div className="text-white ">
@@ -283,12 +261,45 @@ const DiscountCode = () => {
                         </div>
                     </div>
                 </div>
-                <div className="bg-white mt-[30px]  sm:pt-[100px] md:pt-[150px] pt-[80px] rounded w-full">
-                    <div className="px-[30px] ">
-                        <Table columns={discountCodeColumns} dataSource={discountCodes} loading={isLoading} />
-                    </div>
+                <div className="absolute top-[150px] right-10">
+                    <Flex gap="small" align="flex-start" vertical>
+                        <Flex gap="small" wrap>
+                            <Button onClick={() => setIsAddNew(true)} type="primary" size={'30'}>
+                                Thêm mới
+                            </Button>
+                        </Flex>
+                    </Flex>
                 </div>
-                {isOpen && <GiftRecipientSelect users={users} changeOpen={handleGift} changeClose={handleClose} />}
+                {allVouchers?.vouchers && allVouchers?.vouchers?.length >= 1 ? (
+                    <div className="bg-white mt-[30px]  sm:pt-[100px] md:pt-[150px] pt-[80px] rounded w-full">
+                        <div className="px-[30px] ">
+                            {isLoading ? (
+                                <Skeleton />
+                            ) : (
+                                <Table
+                                    columns={discountCodeColumns}
+                                    dataSource={allVouchers.vouchers}
+                                    loading={isLoading}
+                                />
+                            )}
+                        </div>
+                    </div>
+                ) : (
+                    <div className="bg-white mt-[30px]  sm:pt-[100px] md:pt-[150px] pt-[80px] rounded w-full">
+                        <div className="px-[30px] flex justify-center items-center">
+                            Hiện tại chưa có voucher nào !!!
+                        </div>
+                    </div>
+                )}
+                {isOpen && (
+                    <GiftRecipientSelect
+                        users={allUsers.data}
+                        voucherId={currentIdVoucer}
+                        changeOpen={handleGift}
+                        changeClose={handleClose}
+                    />
+                )}
+                {isAddNew && <CreateDiscountCode />}
             </div>
         </div>
     );

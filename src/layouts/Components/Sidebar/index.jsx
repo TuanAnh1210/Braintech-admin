@@ -7,6 +7,7 @@ import styles from './AdminSidebar.module.scss';
 
 import logoImage from '@/assets/images/logo.png';
 import { useCookies } from 'react-cookie';
+import CreateDiscountCode from '@/pages/DiscountCode/AddDiscountCode';
 
 const cx = classNames.bind(styles);
 
