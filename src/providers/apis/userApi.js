@@ -15,7 +15,6 @@ export const userApi = createApi({
         }),
         getUser: build.query({
             query: (_id) => {
-                console.log(_id);
                 return `/user/${_id}`;
             },
         }),

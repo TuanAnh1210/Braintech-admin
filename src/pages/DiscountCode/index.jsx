@@ -129,6 +129,7 @@ const DiscountCode = () => {
 
     function handleClose() {
         setIsOpen(false);
+        refetch();
     }
 
     const confirm = async (id) => {
