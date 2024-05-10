@@ -11,6 +11,7 @@ import MyStudents from '@/pages/MyStudents';
 import TeacherManager from '@/pages/TeacherManager';
 import RateManager from '@/pages/RateManager';
 import DetailTeacher from '@/pages/DetailTeacher';
+import CreateDiscountCode from '@/pages/DiscountCode/AddDiscountCode';
 
 const publicRoutes = [
     { path: 'dashboard', component: Analytics },
@@ -29,6 +30,7 @@ const publicRoutes = [
     { path: 'manager-bills', component: BillManager },
     { path: 'manager-bills/:id', component: DetailBill },
     { path: 'manager-discount', component: DiscountCode },
+    { path: 'manager-discount/add', component: CreateDiscountCode },
 ];
 
 const publicRoutesTeacher = [

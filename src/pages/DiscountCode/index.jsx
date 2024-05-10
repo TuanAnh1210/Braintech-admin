@@ -1,22 +1,25 @@
 import { Breadcrumb, Button, Input, Space, Table, Skeleton, Popconfirm, Flex, message } from 'antd';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { SearchOutlined } from '@ant-design/icons';
 import Highlighter from 'react-highlight-words';
 import GiftRecipientSelect from '@/pages/DiscountCode/ReceiverCode';
-import CreateDiscountCode from '@/pages/DiscountCode/AddDiscountCode';
 import { useDeleteVoucherMutation, useGetAllVoucherQuery } from '@/providers/apis/voucherApi';
 import { useGetUsersQuery } from '@/providers/apis/userApi';
+import { Link } from 'react-router-dom';
 
 const DiscountCode = () => {
     const [searchText, setSearchText] = useState('');
     const [searchedColumn, setSearchedColumn] = useState('');
     const searchInput = useRef(null);
     const [isOpen, setIsOpen] = useState(false);
-    const [isAddNew, setIsAddNew] = useState(false);
     const [currentIdVoucer, setCurrentIdVoucher] = useState(null);
     const { data: allVouchers, isLoading, refetch } = useGetAllVoucherQuery();
     const { data: allUsers } = useGetUsersQuery();
     const [deleteVoucher] = useDeleteVoucherMutation();
+
+    useEffect(() => {
+        refetch();
+    }, [refetch]);
 
     const handleSearch = (selectedKeys, confirm, dataIndex) => {
         confirm();
@@ -263,9 +266,11 @@ const DiscountCode = () => {
                 <div className="absolute top-[150px] right-10">
                     <Flex gap="small" align="flex-start" vertical>
                         <Flex gap="small" wrap>
-                            <Button onClick={() => setIsAddNew(true)} type="primary" size={'30'}>
-                                Thêm mới
-                            </Button>
+                            <Link to={'/manager-discount/add'}>
+                                <Button type="primary" size={'30'}>
+                                    Thêm mới
+                                </Button>
+                            </Link>
                         </Flex>
                     </Flex>
                 </div>
@@ -298,7 +303,6 @@ const DiscountCode = () => {
                         changeClose={handleClose}
                     />
                 )}
-                {isAddNew && <CreateDiscountCode />}
             </div>
         </div>
     );

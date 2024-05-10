@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useCookies } from 'react-cookie';
 import { useGetVoucherByIdQuery, useUpdateVoucherMutation } from '@/providers/apis/voucherApi';
 import { message } from 'antd';
@@ -13,6 +13,10 @@ const GiftRecipientSelect = ({ users, voucherId, changeClose }) => {
     const [updateVoucher] = useUpdateVoucherMutation();
 
     const handleCancel = () => changeClose();
+
+    useEffect(() => {
+        refetch();
+    }, [refetch]);
 
     const handleConfirm = async () => {
         let newObjectUser = { ...currentUser.data };
@@ -30,10 +34,13 @@ const GiftRecipientSelect = ({ users, voucherId, changeClose }) => {
             quantity: +quantity - 1,
         };
 
+        if (newObjectVoucher) {
+            await updateUser(newUserUpdate);
+            await updateVoucher(newVoucherUpdate);
+            message.success('Tặng thành công mã nay!');
+        }
+
         changeClose();
-        message.success('Tặng thành công mã nay!');
-        await updateUser(newUserUpdate);
-        await updateVoucher(newVoucherUpdate);
         refetch();
     };
 
