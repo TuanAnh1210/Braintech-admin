@@ -14,7 +14,7 @@ export const userApi = createApi({
         }),
         getUser: build.query({
             query: (_id) => {
-                return `/user/${_id}`;
+                return `/user/${_id || ''}`;
             },
         }),
         getTeachers: build.query({

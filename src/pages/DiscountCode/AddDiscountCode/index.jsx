@@ -1,3 +1,4 @@
+import { useCreateVoucherMutation } from '@/providers/apis/voucherApi';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -11,16 +12,16 @@ const CreateDiscountCode = () => {
         endDate: '',
         status: '',
     });
+    const [createVoucher, refetch] = useCreateVoucherMutation();
     const nav = useNavigate();
 
     const handleChange = (e) => {
         setNewCode({ ...newCode, [e.target.name]: e.target.value });
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
-        console.log('New Discount Code: ', newCode);
         setNewCode({
             codeName: '',
             quantity: 0,
@@ -30,7 +31,11 @@ const CreateDiscountCode = () => {
             endDate: '',
             status: '',
         });
-        nav('/manager-discount');
+        if (newCode) {
+            await createVoucher(newCode);
+            nav('/manager-discount');
+        }
+        refetch();
     };
     return (
         <div>
@@ -139,8 +144,8 @@ const CreateDiscountCode = () => {
                                     required
                                 >
                                     <option value="">Chọn một trạng thái</option>
-                                    <option value="active">Kích hoạt</option>
-                                    <option value="deactive">Vô hiệu hóa</option>
+                                    <option value="ACTIVE">Kích hoạt</option>
+                                    <option value="UNKNOWN">Vô hiệu hóa</option>
                                 </select>
                             </div>
                             <div className="flex items-center justify-center">
@@ -148,7 +153,7 @@ const CreateDiscountCode = () => {
                                     className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
                                     type="submit"
                                 >
-                                    Tạo Mã
+                                    Tạo Mới
                                 </button>
                             </div>
                         </form>
