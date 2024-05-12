@@ -2,27 +2,28 @@ import React, { useEffect, useState } from 'react';
 import { useCookies } from 'react-cookie';
 import { useGetVoucherByIdQuery, useUpdateVoucherMutation } from '@/providers/apis/voucherApi';
 import { message } from 'antd';
-import { useGetUserQuery, useUpdateUserMutation } from '@/providers/apis/userApi';
+import { useGetUserByIdQuery, useGetUsersQuery, useUpdateUserMutation } from '@/providers/apis/userApi';
 
-const GiftRecipientSelect = ({ users, voucherId, changeClose }) => {
+const GiftRecipientSelect = ({ voucherId, changeClose }) => {
     const [selectedUser, setSelectedUser] = useState({});
-    const { data: currentUser, refetch } = useGetUserQuery(selectedUser._id);
+    const { data: currentUser, refetch } = useGetUserByIdQuery(selectedUser._id);
     const { data: currentVoucher } = useGetVoucherByIdQuery(voucherId);
     const [cookies, setCookie] = useCookies(['access_token']);
     const [updateUser] = useUpdateUserMutation();
     const [updateVoucher] = useUpdateVoucherMutation();
+    const { data: allUsers } = useGetUsersQuery();
 
     const handleCancel = () => changeClose();
-
     useEffect(() => {
         refetch();
     }, [refetch]);
 
     const handleConfirm = async () => {
-        let newObjectUser = { ...currentUser.data };
+        let newObjectUser = { ...currentUser };
         let newObjectVoucher = { ...currentVoucher };
-        const { vouchers, _id, ...others } = newObjectUser;
+        const { vouchers, _id } = newObjectUser;
         const { quantity, _id: id } = newObjectVoucher;
+
         const newUserUpdate = {
             userId: _id,
             vouchers: [...vouchers, voucherId],
@@ -51,8 +52,8 @@ const GiftRecipientSelect = ({ users, voucherId, changeClose }) => {
                 <div className="w-full max-w-xs p-4 bg-white rounded-lg shadow-md">
                     <select className="w-full px-3 py-2 text-gray-700 bg-gray-200 rounded">
                         <option value="">Chọn người nhận</option>
-                        {users.map((user) => (
-                            <option value={user.id} onClick={() => setSelectedUser(user)}>
+                        {allUsers?.data.map((user) => (
+                            <option value={user} onClick={() => setSelectedUser(user)}>
                                 {user.full_name}
                             </option>
                         ))}
