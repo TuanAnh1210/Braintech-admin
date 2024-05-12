@@ -14,7 +14,6 @@ const DiscountCode = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [currentIdVoucer, setCurrentIdVoucher] = useState(null);
     const { data: allVouchers, isLoading, refetch } = useGetAllVoucherQuery();
-    const { data: allUsers } = useGetUsersQuery();
     const [deleteVoucher] = useDeleteVoucherMutation();
 
     useEffect(() => {
@@ -297,7 +296,6 @@ const DiscountCode = () => {
                 )}
                 {isOpen && (
                     <GiftRecipientSelect
-                        users={allUsers.data}
                         voucherId={currentIdVoucer}
                         changeOpen={handleGift}
                         changeClose={handleClose}
