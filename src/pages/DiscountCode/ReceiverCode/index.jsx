@@ -6,17 +6,23 @@ import { useGetUserByIdQuery, useGetUsersQuery, useUpdateUserMutation } from '@/
 
 const GiftRecipientSelect = ({ voucherId, changeClose }) => {
     const [selectedUser, setSelectedUser] = useState({});
-    const { data: currentUser, refetch } = useGetUserByIdQuery(selectedUser._id);
+    const { data: currentUser, refetch } = useGetUserByIdQuery(selectedUser._id, { refetchOnMountOrArgChange: true });
     const { data: currentVoucher } = useGetVoucherByIdQuery(voucherId);
     const [cookies, setCookie] = useCookies(['access_token']);
     const [updateUser] = useUpdateUserMutation();
     const [updateVoucher] = useUpdateVoucherMutation();
+    const [resultSearch, setResultSearch] = useState([]);
     const { data: allUsers } = useGetUsersQuery();
+    const [updateSucces, setUpdateSucces] = useState(false);
 
     const handleCancel = () => changeClose();
-    useEffect(() => {
-        refetch();
-    }, [refetch]);
+
+    // useEffect(() => {
+    //     if (updateSucces) {
+    //         refetch();
+    //         setUpdateSucces(false);
+    //     }
+    // }, [updateSucces, refetch]);
 
     const handleConfirm = async () => {
         let newObjectUser = { ...currentUser };
@@ -24,6 +30,9 @@ const GiftRecipientSelect = ({ voucherId, changeClose }) => {
         const { vouchers, _id } = newObjectUser;
         const { quantity, _id: id } = newObjectVoucher;
 
+        if (quantity == 0) {
+            return message.error('Mã giảm giá này đã hết. Xin thử cái khác!');
+        }
         const newUserUpdate = {
             userId: _id,
             vouchers: [...vouchers, voucherId],
@@ -38,11 +47,19 @@ const GiftRecipientSelect = ({ voucherId, changeClose }) => {
         if (newObjectVoucher) {
             await updateUser(newUserUpdate);
             await updateVoucher(newVoucherUpdate);
-            message.success('Tặng thành công mã nay!');
+            setUpdateSucces(true);
         }
-
+        message.success('Tặng thành công mã nay!');
         changeClose();
-        refetch();
+    };
+    const handleSearch = (value) => {
+        const results = allUsers?.data.filter((user) => {
+            return (
+                user.full_name.toLowerCase().indexOf(value.toLowerCase()) > -1 ||
+                user.email.toLowerCase().indexOf(value.toLowerCase()) > -1
+            );
+        });
+        setResultSearch(results);
     };
 
     return (
@@ -50,14 +67,35 @@ const GiftRecipientSelect = ({ voucherId, changeClose }) => {
             <div className="fixed inset-0 flex items-center justify-center z-50">
                 <div className="absolute inset-0 bg-black opacity-30 z-[-1]"></div>
                 <div className="w-full max-w-xs p-4 bg-white rounded-lg shadow-md">
-                    <select className="w-full px-3 py-2 text-gray-700 bg-gray-200 rounded">
-                        <option value="">Chọn người nhận</option>
-                        {allUsers?.data.map((user) => (
-                            <option value={user} onClick={() => setSelectedUser(user)}>
-                                {user.full_name}
-                            </option>
-                        ))}
-                    </select>
+                    <input
+                        type="text"
+                        className="p-2 outline-none border-2 rounded w-[300px]"
+                        placeholder="Nhập tên người tặng..."
+                        onChange={(e) => handleSearch(e.target.value)}
+                    />
+                    {resultSearch.length > 0 && (
+                        <p className="text-green-600 font-base my-2 font-bold">Có {resultSearch.length} kết quả</p>
+                    )}
+
+                    {resultSearch?.length > 0 ? (
+                        <select className="w-full px-3 py-2 mt-2 text-gray-700 bg-gray-200 rounded">
+                            <option value="">Chọn người nhận</option>
+                            {resultSearch.map((user) => (
+                                <option value={user} onClick={() => setSelectedUser(user)}>
+                                    {user.full_name}
+                                </option>
+                            ))}
+                        </select>
+                    ) : (
+                        <select className="w-full px-3 py-2 mt-2 text-gray-700 bg-gray-200 rounded">
+                            <option value="">Chọn người nhận</option>
+                            {allUsers?.data.map((user) => (
+                                <option value={user} onClick={() => setSelectedUser(user)}>
+                                    {user.full_name}
+                                </option>
+                            ))}
+                        </select>
+                    )}
                     <div className="flex items-center justify-between mt-4">
                         <button
                             onClick={handleCancel}

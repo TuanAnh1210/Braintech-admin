@@ -4,7 +4,6 @@ import { SearchOutlined } from '@ant-design/icons';
 import Highlighter from 'react-highlight-words';
 import GiftRecipientSelect from '@/pages/DiscountCode/ReceiverCode';
 import { useDeleteVoucherMutation, useGetAllVoucherQuery } from '@/providers/apis/voucherApi';
-import { useGetUsersQuery } from '@/providers/apis/userApi';
 import { Link } from 'react-router-dom';
 
 const DiscountCode = () => {
@@ -15,10 +14,14 @@ const DiscountCode = () => {
     const [currentIdVoucer, setCurrentIdVoucher] = useState(null);
     const { data: allVouchers, isLoading, refetch } = useGetAllVoucherQuery();
     const [deleteVoucher] = useDeleteVoucherMutation();
+    const [updateSucces, setUpdateSucces] = useState(false);
 
     useEffect(() => {
-        refetch();
-    }, [refetch]);
+        if (updateSucces) {
+            refetch();
+            setUpdateSucces(false);
+        }
+    }, [updateSucces, refetch]);
 
     const handleSearch = (selectedKeys, confirm, dataIndex) => {
         confirm();
@@ -129,6 +132,7 @@ const DiscountCode = () => {
 
     function handleClose() {
         setIsOpen(false);
+        setUpdateSucces(true);
         refetch();
     }
 
