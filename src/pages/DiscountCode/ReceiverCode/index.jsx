@@ -5,6 +5,7 @@ import { message } from 'antd';
 import { useGetUserByIdQuery, useGetUsersQuery, useUpdateUserMutation } from '@/providers/apis/userApi';
 
 const GiftRecipientSelect = ({ voucherId, changeClose }) => {
+    const [updateSucces, setUpdateSucces] = useState(false);
     const [selectedUser, setSelectedUser] = useState({});
     const { data: currentUser, refetch } = useGetUserByIdQuery(selectedUser._id, { refetchOnMountOrArgChange: true });
     const { data: currentVoucher } = useGetVoucherByIdQuery(voucherId);
@@ -13,16 +14,11 @@ const GiftRecipientSelect = ({ voucherId, changeClose }) => {
     const [updateVoucher] = useUpdateVoucherMutation();
     const [resultSearch, setResultSearch] = useState([]);
     const { data: allUsers } = useGetUsersQuery();
-    const [updateSucces, setUpdateSucces] = useState(false);
 
-    const handleCancel = () => changeClose();
-
-    // useEffect(() => {
-    //     if (updateSucces) {
-    //         refetch();
-    //         setUpdateSucces(false);
-    //     }
-    // }, [updateSucces, refetch]);
+    useEffect(() => {
+        refetch();
+        setUpdateSucces(false);
+    }, [updateSucces, refetch]);
 
     const handleConfirm = async () => {
         let newObjectUser = { ...currentUser };
@@ -30,9 +26,10 @@ const GiftRecipientSelect = ({ voucherId, changeClose }) => {
         const { vouchers, _id } = newObjectUser;
         const { quantity, _id: id } = newObjectVoucher;
 
-        if (quantity == 0) {
+        if (quantity <= 0) {
             return message.error('Mã giảm giá này đã hết. Xin thử cái khác!');
         }
+
         const newUserUpdate = {
             userId: _id,
             vouchers: [...vouchers, voucherId],
@@ -44,14 +41,18 @@ const GiftRecipientSelect = ({ voucherId, changeClose }) => {
             quantity: +quantity - 1,
         };
 
-        if (newObjectVoucher) {
-            await updateUser(newUserUpdate);
-            await updateVoucher(newVoucherUpdate);
+        if (newUserUpdate && newVoucherUpdate) {
+            await updateUser({ ...newUserUpdate });
             setUpdateSucces(true);
+            await updateVoucher({ ...newVoucherUpdate });
+            setUpdateSucces(false); // reset trạng thái sau khi cập nhật
         }
         message.success('Tặng thành công mã nay!');
         changeClose();
     };
+
+    const handleCancel = () => changeClose();
+
     const handleSearch = (value) => {
         const results = allUsers?.data.filter((user) => {
             return (
@@ -90,7 +91,7 @@ const GiftRecipientSelect = ({ voucherId, changeClose }) => {
                         <select className="w-full px-3 py-2 mt-2 text-gray-700 bg-gray-200 rounded">
                             <option value="">Chọn người nhận</option>
                             {allUsers?.data.map((user) => (
-                                <option value={user} onClick={() => setSelectedUser(user)}>
+                                <option value={user._id} onClick={() => setSelectedUser(user)}>
                                     {user.full_name}
                                 </option>
                             ))}
