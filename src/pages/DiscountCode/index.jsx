@@ -1,34 +1,66 @@
-import { Breadcrumb, Button, Input, Space, Table, Skeleton, Popconfirm, Flex, message } from 'antd';
+import {
+    Breadcrumb,
+    Button,
+    Input,
+    Space,
+    Table,
+    Modal,
+    Skeleton,
+    Popconfirm,
+    Flex,
+    message,
+    Select,
+    Avatar,
+} from 'antd';
 import { useEffect, useRef, useState } from 'react';
 import { SearchOutlined } from '@ant-design/icons';
 import Highlighter from 'react-highlight-words';
-import GiftRecipientSelect from '@/pages/DiscountCode/ReceiverCode';
-import { useDeleteVoucherMutation, useGetAllVoucherQuery } from '@/providers/apis/voucherApi';
-import { useGetUsersQuery } from '@/providers/apis/userApi';
+import {
+    useDeleteVoucherMutation,
+    useGetAllVoucherQuery,
+    useGetVoucherByIdQuery,
+    useUpdateVoucherMutation,
+} from '@/providers/apis/voucherApi';
 import { Link } from 'react-router-dom';
+import { useGetUserByIdQuery, useGetUsersQuery, useUpdateUserMutation } from '@/providers/apis/userApi';
+import { Option } from 'antd/es/mentions';
+import { useCookies } from 'react-cookie';
 
 const DiscountCode = () => {
     const [searchText, setSearchText] = useState('');
     const [searchedColumn, setSearchedColumn] = useState('');
     const searchInput = useRef(null);
-    const [isOpen, setIsOpen] = useState(false);
-    const [currentIdVoucer, setCurrentIdVoucher] = useState(null);
+    const [currentIdVoucher, setCurrentIdVoucher] = useState(null);
     const { data: allVouchers, isLoading, refetch } = useGetAllVoucherQuery();
     const [deleteVoucher] = useDeleteVoucherMutation();
+    const [open, setOpen] = useState(false);
+    const [cookies, setCookie] = useCookies(['access_token']);
+    const [selectedUser, setSelectedUser] = useState({});
+    const [resultSearch, setResultSearch] = useState([]);
+
+    const { data: allUsers } = useGetUsersQuery();
+    const { data: currentUser } = useGetUserByIdQuery(selectedUser, { refetchOnMountOrArgChange: true });
+    const { data: currentVoucher } = useGetVoucherByIdQuery(currentIdVoucher);
+    const [updateUser] = useUpdateUserMutation();
+    const [updateVoucher] = useUpdateVoucherMutation();
 
     useEffect(() => {
-        refetch();
-    }, [refetch]);
+        if (allUsers?.data) {
+            setResultSearch(allUsers.data);
+        }
+    }, [allUsers]);
 
     const handleSearch = (selectedKeys, confirm, dataIndex) => {
         confirm();
         setSearchText(selectedKeys[0]);
         setSearchedColumn(dataIndex);
     };
+
     const handleReset = (clearFilters) => {
         clearFilters();
         setSearchText('');
     };
+
     const getColumnSearchProps = (dataIndex) => ({
         filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters, close }) => (
             <div
@@ -122,24 +154,59 @@ const DiscountCode = () => {
                 text
             ),
     });
-    function handleGift(id) {
-        setIsOpen(true);
-        setCurrentIdVoucher(id);
-    }
 
-    function handleClose() {
-        setIsOpen(false);
+    const handleGift = (id) => {
+        setOpen(true);
+        setCurrentIdVoucher(id);
+    };
+    const handleFocus = () => {
+        setResultSearch(allUsers.data);
+    };
+
+    const handleOk = async () => {
+        let newObjectUser = { ...currentUser };
+        let newObjectVoucher = { ...currentVoucher };
+        const { vouchers, _id } = newObjectUser;
+        const { quantity, _id: id } = newObjectVoucher;
+
+        if (quantity <= 0) {
+            return message.error('Mã giảm giá này đã hết. Xin thử cái khác!');
+        }
+
+        const newUserUpdate = {
+            userId: _id,
+            vouchers: [...vouchers, currentIdVoucher],
+            accessToken: cookies.access_token,
+        };
+
+        const newVoucherUpdate = {
+            voucherId: id,
+            quantity: +quantity - 1,
+        };
+
+        if (newUserUpdate && newVoucherUpdate) {
+            await updateUser(newUserUpdate);
+            await updateVoucher(newVoucherUpdate);
+            message.success('Tặng thành công mã nay!');
+        }
+        setOpen(false);
         refetch();
-    }
+    };
+
+    const handleCancel = () => {
+        setOpen(false);
+    };
 
     const confirm = async (id) => {
         await deleteVoucher({ _id: id });
         message.success('Xóa voucher này thành công!');
         refetch();
     };
+
     const cancel = (e) => {
         message.error('Clicked on No');
     };
+
     const discountCodeColumns = [
         {
             title: 'Mã giảm giá',
@@ -215,10 +282,12 @@ const DiscountCode = () => {
             render: (data) => {
                 return {
                     children: (
-                        <div className="">
-                            <Button type="primary" className="mr-2" onClick={() => handleGift(data._id)}>
-                                Tặng
-                            </Button>
+                        <div className="space-x-2">
+                            <Space>
+                                <Button type="primary" onClick={() => handleGift(data._id)}>
+                                    Tặng
+                                </Button>
+                            </Space>
                             <Popconfirm
                                 placement="topLeft"
                                 title="Bạn có chắc muôn xoá voucher này không?"
@@ -237,6 +306,22 @@ const DiscountCode = () => {
         },
     ];
 
+    const onChange = (value) => {
+        setSelectedUser(value);
+    };
+
+    const onSearch = (value) => {
+        if (value !== '' || value !== null) {
+            const filteredUsers = allUsers.data.filter(
+                (user) =>
+                    user.full_name.toLowerCase().includes(value.toLowerCase()) ||
+                    user.email.toLowerCase().includes(value.toLowerCase()),
+            );
+            setResultSearch(filteredUsers);
+        } else {
+            setResultSearch(allUsers?.data);
+        }
+    };
     return (
         <div className="w-full">
             <Breadcrumb
@@ -273,34 +358,94 @@ const DiscountCode = () => {
                         </Flex>
                     </Flex>
                 </div>
-                {allVouchers?.vouchers && allVouchers?.vouchers?.length >= 1 ? (
-                    <div className="bg-white mt-[30px]  sm:pt-[100px] md:pt-[150px] pt-[80px] rounded w-full">
-                        <div className="px-[30px] ">
-                            {isLoading ? (
-                                <Skeleton />
-                            ) : (
-                                <Table
-                                    columns={discountCodeColumns}
-                                    dataSource={allVouchers.vouchers}
-                                    loading={isLoading}
-                                />
-                            )}
+                <div>
+                    {allVouchers?.vouchers && allVouchers?.vouchers?.length >= 1 ? (
+                        <div className="bg-white mt-[30px]  sm:pt-[100px] md:pt-[150px] pt-[80px] rounded w-full">
+                            <div className="px-[30px] ">
+                                {isLoading ? (
+                                    <Skeleton />
+                                ) : (
+                                    <Table
+                                        columns={discountCodeColumns}
+                                        dataSource={allVouchers.vouchers}
+                                        loading={isLoading}
+                                    />
+                                )}
+                            </div>
                         </div>
-                    </div>
-                ) : (
-                    <div className="bg-white mt-[30px]  sm:pt-[100px] md:pt-[150px] pt-[80px] rounded w-full">
-                        <div className="px-[30px] flex justify-center items-center">
-                            Hiện tại chưa có voucher nào !!!
+                    ) : (
+                        <div className="bg-white mt-[30px]  sm:pt-[100px] md:pt-[150px] pt-[80px] rounded w-full">
+                            <div className="px-[30px] flex justify-center items-center">
+                                Hiện tại chưa có voucher nào !!!
+                            </div>
                         </div>
-                    </div>
-                )}
-                {isOpen && (
+                    )}
+                </div>
+                <>
+                    <Modal
+                        open={open}
+                        title="Tặng voucher"
+                        onOk={handleOk}
+                        onCancel={handleCancel}
+                        footer={(_, { OkBtn, CancelBtn }) => (
+                            <>
+                                <CancelBtn />
+                                <OkBtn />
+                            </>
+                        )}
+                    >
+                        <Select
+                            showSearch
+                            placeholder="Chọn người nhận voucher"
+                            className="flex h-[50px]"
+                            onChange={onChange}
+                            onSearch={onSearch}
+                            onFocus={handleFocus}
+                            filterOption={false}
+                        >
+                            {resultSearch.map((user) => (
+                                <Select.Option key={user._id} value={user._id} onClick={() => setSelectedUser(user)}>
+                                    {resultSearch.map((user) => (
+                                        <Option>
+                                            <div style={{ display: 'flex', alignItems: 'center' }}>
+                                                <Avatar
+                                                    src={`https://picsum.photos/seed/${user._id}/40/40`}
+                                                    alt={user.full_name}
+                                                    className="h-10 w-10 object-fit"
+                                                />
+                                                <div className="">
+                                                    <p style={{ marginLeft: 8 }}>{user.full_name}</p>
+                                                    <span style={{ marginLeft: 8, fontSize: '10px' }}>
+                                                        {user.email}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </Option>
+                                    ))}
+                                    <div style={{ display: 'flex', alignItems: 'center' }}>
+                                        <Avatar
+                                            src={`https://picsum.photos/seed/${user._id}/40/40`}
+                                            alt={user.full_name}
+                                            className="h-10 w-10 object-fit"
+                                        />
+                                        <div className="">
+                                            <p style={{ marginLeft: 8 }}>{user.full_name}</p>
+                                            <span style={{ marginLeft: 8, fontSize: '10px' }}>{user.email}</span>
+                                        </div>
+                                    </div>
+                                </Select.Option>
+                            ))}
+                        </Select>
+                    </Modal>
+                </>
+
+                {/* {isOpen && (
                     <GiftRecipientSelect
                         voucherId={currentIdVoucer}
                         changeOpen={handleGift}
                         changeClose={handleClose}
                     />
-                )}
+                )} */}
             </div>
         </div>
     );
