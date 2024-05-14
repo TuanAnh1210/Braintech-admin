@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 
 const CommentManager = () => {
     const [data, setData] = useState([])
+    console.log(data);
     const [tableParams, setTableParams] = useState({
         pagination: {
             current: 1,
@@ -35,7 +36,7 @@ const CommentManager = () => {
             setData([]);
         }
     };
-  
+
     const columns = [
         { title: 'Khóa học', dataIndex: 'lessonName', key: 'lessonName' },
         { title: 'Người bình luận', dataIndex: 'user', key: 'user' },
