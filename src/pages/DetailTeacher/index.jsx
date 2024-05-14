@@ -208,7 +208,7 @@ const DetailTeacher = () => {
         },
         { title: 'Tên khóa học', dataIndex: 'name', key: 'name', ...getColumnSearchProps('name'), },
         {
-            title: 'Ngày tạo', dataIndex: 'createdAt', ...getColumnSearchProps('createdAt'), render: (updatedAt) => {
+            title: 'Ngày tạo', dataIndex: 'createdAt', key: 'createdAt', ...getColumnSearchProps('createdAt'), render: (updatedAt) => {
                 const formattedDate = format(updatedAt, 'dd/MM/yyyy');
                 const formattedTime = format(updatedAt, 'HH:mm:ss');
                 return <div>{`${formattedDate}  - ${formattedTime}`}</div>;
@@ -220,7 +220,7 @@ const DetailTeacher = () => {
             key: 'action',
             render: (_, { _id }) => (
                 <Button danger onClick={() => onHandleDelete(_id)}>
-                    Xóa
+                    Hủy quyền
                 </Button>
             ),
         },
@@ -241,6 +241,7 @@ const DetailTeacher = () => {
         {
             title: 'Ngày tạo',
             dataIndex: 'createdAt',
+            key: 'createdAt',
             ...getColumnSearchProps('createdAt'),
             render: (updatedAt) => {
                 const formattedDate = format(updatedAt, 'dd/MM/yyyy');

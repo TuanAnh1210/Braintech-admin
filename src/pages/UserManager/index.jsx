@@ -12,6 +12,7 @@ const UserManager = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [user, setUser] = useState('');
     const [data, setData] = useState();
+    const [valueData, setValueData] = useState('');
     const [loading, setLoading] = useState(false);
     const [searchText, setSearchText] = useState('');
     const [searchedColumn, setSearchedColumn] = useState('');
@@ -179,19 +180,10 @@ const UserManager = () => {
     const showModal = () => {
         setIsModalOpen(true);
     };
-    const handleOk = () => {
-        setIsModalOpen(false);
-    };
-    const handleCancel = () => {
-        setIsModalOpen(false);
-    };
-    const onA = (id) => {
-        const user = data?.find(i => i._id === id)
-        setUser(user)
-    }
-    const handleChange = async (value) => {
+    const handleOk = async () => {
+        console.log(valueData);
         try {
-            if (value === "true") {
+            if (valueData === "true") {
 
                 const userUpdate = {
                     ...user,
@@ -208,10 +200,21 @@ const UserManager = () => {
                     fetchData()
                 })
 
+                setIsModalOpen(false);
             } return;
         } catch (error) {
             console.log(error);
         }
+    };
+    const handleCancel = () => {
+        setIsModalOpen(false);
+    };
+    const onA = (id) => {
+        const user = data?.find(i => i._id === id)
+        setUser(user)
+    }
+    const handleChange = (value) => {
+        setValueData(value)
 
     };
     const columns = [
@@ -225,12 +228,14 @@ const UserManager = () => {
         {
             title: 'Họ Tên',
             dataIndex: 'full_name',
+            key: 'full_name',
             sorter: true,
             ...getColumnSearchProps('full_name'),
         },
         {
             title: 'Email',
             dataIndex: 'email',
+            key: 'email',
             sorter: true,
             ...getColumnSearchProps('email'),
         },
@@ -244,7 +249,7 @@ const UserManager = () => {
                             <Button type="primary" onClick={showModal}>
                                 Chỉnh sửa
                             </Button>
-                            <Modal title="Vai trò" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
+                            <Modal title="Vai trò" open={isModalOpen} onOk={handleOk} onCancel={handleCancel} maskClosabler={true}>
                                 <Space wrap>
                                     <Select
                                         defaultValue="Học viên"
