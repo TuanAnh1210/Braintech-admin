@@ -11,6 +11,7 @@ import {
     message,
     Select,
     Avatar,
+    Switch,
 } from 'antd';
 import { useEffect, useRef, useState } from 'react';
 import { SearchOutlined } from '@ant-design/icons';
@@ -37,6 +38,9 @@ const DiscountCode = () => {
     const [cookies, setCookie] = useCookies(['access_token']);
     const [selectedUser, setSelectedUser] = useState({});
     const [resultSearch, setResultSearch] = useState([]);
+    const [voucherStatus, setVoucherStatus] = useState({});
+
+    const selectRef = useRef(null);
 
     const { data: allUsers } = useGetUsersQuery();
     const { data: currentUser } = useGetUserByIdQuery(selectedUser, { refetchOnMountOrArgChange: true });
@@ -207,13 +211,20 @@ const DiscountCode = () => {
         message.error('Clicked on No');
     };
 
+    const handleChangeState = (checked, id) => {
+        setVoucherStatus((prevState) => ({
+            ...prevState,
+            [id]: checked,
+        }));
+    };
+
     const discountCodeColumns = [
         {
             title: 'Mã giảm giá',
             dataIndex: 'codeName',
             key: 'codeName',
             align: 'center',
-            ...getColumnSearchProps('codeName'),
+            // add search props here if needed
         },
         {
             title: 'Số lượng',
@@ -260,19 +271,18 @@ const DiscountCode = () => {
             dataIndex: 'status',
             key: 'status',
             align: 'center',
-            ...getColumnSearchProps('status'),
-            render: (status) => {
-                const statusEnum = {
-                    ACTIVE: { color: 'PaleGreen', msg: 'Đang hoạt động' },
-                    INACTIVE: { color: 'Tomato', msg: 'Không hoạt động' },
-                };
-                const { color, msg } = statusEnum[status] ?? { color: 'Tomato', msg: 'Unknown' };
-                return {
-                    props: {
-                        style: { background: color },
-                    },
-                    children: <p className="font-semibold">{msg}</p>,
-                };
+            render: (status, record) => {
+                const isActive = voucherStatus[record._id];
+                return (
+                    <Switch
+                        className="bg-red-600"
+                        checked={isActive}
+                        onChange={(checked) => handleChangeState(checked, record._id)}
+                        checkedChildren="Kích hoạt"
+                        unCheckedChildren="Chưa kích hoạt"
+                        defaultChecked={true}
+                    />
+                );
             },
         },
         {
@@ -280,28 +290,29 @@ const DiscountCode = () => {
             key: 'action',
             align: 'center',
             render: (data) => {
-                return {
-                    children: (
-                        <div className="space-x-2">
-                            <Space>
-                                <Button type="primary" onClick={() => handleGift(data._id)}>
-                                    Tặng
-                                </Button>
-                            </Space>
-                            <Popconfirm
-                                placement="topLeft"
-                                title="Bạn có chắc muôn xoá voucher này không?"
-                                description="Are you sure to delete this voucher?"
-                                onConfirm={() => confirm(data._id)}
-                                onCancel={cancel}
-                                okText="Yes"
-                                cancelText="No"
-                            >
-                                <Button danger>Delete</Button>
-                            </Popconfirm>
-                        </div>
-                    ),
-                };
+                const isDisabled = !voucherStatus[data._id];
+                return (
+                    <div className="space-x-2">
+                        <Space>
+                            <Button type="primary" onClick={() => handleGift(data._id)} disabled={isDisabled}>
+                                Tặng
+                            </Button>
+                        </Space>
+                        <Popconfirm
+                            placement="topLeft"
+                            title="Bạn có chắc muốn xoá voucher này không?"
+                            description="Are you sure to delete this voucher?"
+                            onConfirm={() => confirm(data._id)}
+                            onCancel={cancel}
+                            okText="Yes"
+                            cancelText="No"
+                        >
+                            <Button danger disabled={isDisabled}>
+                                Xoá
+                            </Button>
+                        </Popconfirm>
+                    </div>
+                );
             },
         },
     ];
@@ -438,14 +449,16 @@ const DiscountCode = () => {
                         </Select>
                     </Modal>
                 </>
-
-                {/* {isOpen && (
-                    <GiftRecipientSelect
-                        voucherId={currentIdVoucer}
-                        changeOpen={handleGift}
-                        changeClose={handleClose}
-                    />
-                )} */}
+                <div className="absolute bottom-5 right-[200px]">
+                    <Space>
+                        <Button>
+                            <h4 className="text-small font-bold text-blue-600">
+                                Tổng có {allVouchers?.vouchers.length}{' '}
+                                {allVouchers?.vouchers.length > 1 ? 'vouchers' : 'voucher'}
+                            </h4>
+                        </Button>
+                    </Space>
+                </div>
             </div>
         </div>
     );
