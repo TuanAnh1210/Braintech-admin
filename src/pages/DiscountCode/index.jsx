@@ -378,7 +378,7 @@ const DiscountCode = () => {
                                 ) : (
                                     <Table
                                         columns={discountCodeColumns}
-                                        dataSource={allVouchers.vouchers}
+                                        dataSource={allVouchers?.vouchers}
                                         loading={isLoading}
                                     />
                                 )}
@@ -408,7 +408,7 @@ const DiscountCode = () => {
                         <Select
                             showSearch
                             placeholder="Chọn người nhận voucher"
-                            className="flex h-[50px]"
+                            className="flex h-[60px]"
                             onChange={onChange}
                             onSearch={onSearch}
                             onFocus={handleFocus}
@@ -435,12 +435,14 @@ const DiscountCode = () => {
                                     ))}
                                     <div style={{ display: 'flex', alignItems: 'center' }}>
                                         <Avatar
-                                            src={`https://picsum.photos/seed/${user._id}/40/40`}
-                                            alt={user.full_name}
+                                            src={`https://picsum.photos/seed/${user?._id}/40/40`}
+                                            alt={user?.full_name}
                                             className="h-10 w-10 object-fit"
                                         />
                                         <div className="">
-                                            <p style={{ marginLeft: 8 }}>{user.full_name}</p>
+                                            <p style={{ marginLeft: 8, fontSize: '16px', paddingTop: 5 }}>
+                                                {user.full_name}
+                                            </p>
                                             <span style={{ marginLeft: 8, fontSize: '10px' }}>{user.email}</span>
                                         </div>
                                     </div>

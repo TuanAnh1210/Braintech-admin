@@ -1,5 +1,6 @@
 import { useCreateVoucherMutation } from '@/providers/apis/voucherApi';
-import React, { useState } from 'react';
+import { message } from 'antd';
+import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
 const CreateDiscountCode = () => {
@@ -12,8 +13,13 @@ const CreateDiscountCode = () => {
         endDate: '',
         status: '',
     });
+
     const [createVoucher, refetch] = useCreateVoucherMutation();
     const nav = useNavigate();
+
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, []);
 
     const handleChange = (e) => {
         setNewCode({ ...newCode, [e.target.name]: e.target.value });
@@ -33,6 +39,7 @@ const CreateDiscountCode = () => {
         });
         if (newCode) {
             await createVoucher(newCode);
+            message.success('Tạo mới voucher thành công !!');
             nav('/manager-discount');
         }
         refetch();
