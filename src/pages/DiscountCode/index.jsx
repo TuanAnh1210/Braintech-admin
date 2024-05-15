@@ -358,6 +358,17 @@ const DiscountCode = () => {
                         </div>
                     </div>
                 </div>
+                <div className="absolute top-[150px] left-10">
+                    <Flex gap="small" align="flex-start" vertical>
+                        <Flex gap="small" wrap>
+                            <Link to={'/manager-discount/gift-voucher'}>
+                                <Button type="primary" size={'30'}>
+                                    Voucher được tặng
+                                </Button>
+                            </Link>
+                        </Flex>
+                    </Flex>
+                </div>
                 <div className="absolute top-[150px] right-10">
                     <Flex gap="small" align="flex-start" vertical>
                         <Flex gap="small" wrap>
