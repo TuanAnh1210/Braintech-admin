@@ -123,7 +123,7 @@ const UserManager = () => {
 
     const fetchData = () => {
         setLoading(true);
-        fetch(`http://localhost:8080/api/user/students`)
+        fetch(import.meta.env.VITE_REACT_APP_API_PATH + 'api/user')
             .then((res) => res.json())
             .then(({ data }) => {
                 setData(data);
@@ -165,7 +165,7 @@ const UserManager = () => {
         }).then((result) => {
             if (result.isConfirmed) {
                 axios
-                    .delete(`http://localhost:8080/api/user/delete/${id}`)
+                    .delete(import.meta.env.VITE_REACT_APP_API_PATH + 'api/user/delete/' + id)
                     .then(() => {
                         fetchData();
                         Swal.fire('Xóa thành công!', '', 'success');
