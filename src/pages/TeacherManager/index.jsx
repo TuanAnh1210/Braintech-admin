@@ -1,5 +1,18 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { Breadcrumb, Button, Image, Input, Space, Table, Popconfirm, message, Checkbox, Divider, Select, Modal } from 'antd';
+import {
+    Breadcrumb,
+    Button,
+    Image,
+    Input,
+    Space,
+    Table,
+    Popconfirm,
+    message,
+    Checkbox,
+    Divider,
+    Select,
+    Modal,
+} from 'antd';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearch } from '@fortawesome/free-solid-svg-icons';
 import Highlighter from 'react-highlight-words';
@@ -9,7 +22,6 @@ import Swal from 'sweetalert2';
 import ItemTeacher from './items';
 import { Link } from 'react-router-dom';
 import { useGetAllCoursesQuery } from '@/providers/apis/courseTeacherApi';
-
 
 const CheckboxGroup = Checkbox.Group;
 const plainOptions = ['Apple', 'Pear', 'Orange'];
@@ -137,7 +149,7 @@ function TeacherManager() {
 
     const fetchData = () => {
         setLoading(true);
-        fetch(`http://localhost:8080/api/user/teachers`)
+        fetch(`http://localhost:8080/api/user/all/teachers`)
             .then((res) => res.json())
             .then(({ data }) => {
                 setData(data);
@@ -171,7 +183,7 @@ function TeacherManager() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [idModal, setIdModal] = useState('');
     const showModal = (id) => {
-        setIdModal(id)
+        setIdModal(id);
         setIsModalOpen(true);
     };
     const handleOk = () => {
@@ -182,7 +194,6 @@ function TeacherManager() {
         setIsModalOpen(false);
     };
     const onHandleDelete = async (id) => {
-
         Swal.fire({
             title: 'Giảng viên này sẽ bị xóa!!',
             text: 'Bạn có chắc muốn xóa giảng viên này chứ ?',
@@ -230,9 +241,10 @@ function TeacherManager() {
             render: (id) => {
                 return (
                     <div className="">
-
-                        <Link to={`/manager-teachers/${id}`}><Button type="primary">Chi tiết</Button></Link>
-                        <Button danger onClick={() => onHandleDelete(id)} className='ml-[10px]'>
+                        <Link to={`/manager-teachers/${id}`}>
+                            <Button type="primary">Chi tiết</Button>
+                        </Link>
+                        <Button danger onClick={() => onHandleDelete(id)} className="ml-[10px]">
                             Xóa
                         </Button>
                         {/* <div>
@@ -254,7 +266,7 @@ function TeacherManager() {
     ];
     const handleChange = (value) => {
         console.log(1, value);
-    }
+    };
     return (
         <div className="w-full">
             <Breadcrumb
@@ -283,14 +295,11 @@ function TeacherManager() {
                         return (
                             <div className="flex items-center justify-between">
                                 <p style={{ fontWeight: 600, fontSize: '20px' }}>Danh sách giảng viên</p>
-
                             </div>
                         );
                     }}
                     onChange={handleTableChange}
                 />
-
-
             </div>
         </div>
     );

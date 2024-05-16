@@ -122,7 +122,7 @@ const UserManager = () => {
 
     const fetchData = () => {
         setLoading(true);
-        fetch(import.meta.env.VITE_REACT_APP_API_PATH + 'api/user')
+        fetch(import.meta.env.VITE_REACT_APP_API_PATH + 'api/user/all/students')
             .then((res) => res.json())
             .then(({ data }) => {
                 setData(data);
@@ -186,33 +186,31 @@ const UserManager = () => {
         setIsModalOpen(false);
     };
     const onA = (id) => {
-        const user = data?.find(i => i._id === id)
-        setUser(user)
-    }
+        const user = data?.find((i) => i._id === id);
+        setUser(user);
+    };
     const handleChange = async (value) => {
         try {
-            if (value === "true") {
-
+            if (value === 'true') {
                 const userUpdate = {
                     ...user,
                     isAdmin: true,
-                    isTeacher: true
-                }
+                    isTeacher: true,
+                };
 
                 await axios.put(`http://localhost:8080/api/user/update/${user?._id}`, userUpdate).then(() => {
                     notification.success({
                         message: 'Thông báo',
-                        description: "Vai trò của tài khoản đã thay đổi!",
+                        description: 'Vai trò của tài khoản đã thay đổi!',
                         duration: 1.75,
                     });
-                    fetchData()
-                })
-
-            } return;
+                    fetchData();
+                });
+            }
+            return;
         } catch (error) {
             console.log(error);
         }
-
     };
     const columns = [
         {
@@ -257,16 +255,13 @@ const UserManager = () => {
                                             {
                                                 value: 'true',
                                                 label: 'Giảng viên',
-
                                             },
                                         ]}
                                     />
-
-
                                 </Space>
                             </Modal>
                         </>
-                        <Button danger onClick={() => onHandleDelete(id)} >
+                        <Button danger onClick={() => onHandleDelete(id)}>
                             Xóa
                         </Button>
                     </div>
@@ -307,6 +302,6 @@ const UserManager = () => {
             </div>
         </div>
     );
-}
+};
 
 export default UserManager;
