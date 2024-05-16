@@ -88,16 +88,27 @@ const GiftedVouchers = () => {
     ];
 
     return (
-        <div className="w-full">
-            <div className="relative flex flex-col items-center justify-center p-4 bg-white rounded-lg shadow-md">
-                <button
-                    className="absolute top-1 left-1 bg-red-500 hover:bg-blue-700 text-white py-1 px-2 rounded focus:outline-none focus:shadow-outline"
-                    onClick={() => nav(-1)}
-                >
-                    <Link to="/manager-discount"></Link>
-                    Trở lại
-                </button>
+        <div className="w-full p-4">
+            <div className="flex flex-col items-start justify-center bg-white rounded-lg shadow-md p-8">
+                <h1 className="text-2xl font-bold mb-2">Quản Lý Voucher</h1>
+                <div className="mb-8">
+                    <button
+                        className="flex items-center bg-red-500 hover:bg-red-700 text-white py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                        onClick={() => nav(-1)}
+                    >
+                        <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M11 19l-7-7 7-7m8 14l-7-7 7-7"
+                            />
+                        </svg>
+                        Trở lại
+                    </button>
+                </div>
                 <Table
+                    className="self-start"
                     columns={voucherColumns}
                     dataSource={allVouchers?.vouchers}
                     rowKey={(record) => record._id}

@@ -54,6 +54,16 @@ const DiscountCode = () => {
         }
     }, [allUsers]);
 
+    useEffect(() => {
+        if (allVouchers?.vouchers && allVouchers?.vouchers.length > 0) {
+            const initialStatus = allVouchers?.vouchers.reduce((acc, voucher) => {
+                acc[voucher._id] = voucher.status === 'ACTIVE';
+                return acc;
+            }, {});
+            setVoucherStatus(initialStatus);
+        }
+    }, [allVouchers?.vouchers]);
+
     const handleSearch = (selectedKeys, confirm, dataIndex) => {
         confirm();
         setSearchText(selectedKeys[0]);
@@ -211,51 +221,75 @@ const DiscountCode = () => {
         message.error('Clicked on No');
     };
 
-    const handleChangeState = (checked, id) => {
+    const formatCurrency = (value) => {
+        return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value);
+    };
+
+    const handleChangeState = async (checked, id) => {
         setVoucherStatus((prevState) => ({
             ...prevState,
             [id]: checked,
         }));
+        const newState = {
+            voucherId: id,
+            status: checked ? 'ACTIVE' : 'UNKNOWN',
+        };
+        if (newState) {
+            await updateVoucher(newState);
+        }
+        refetch();
     };
 
     const discountCodeColumns = [
+        {
+            title: 'STT',
+            key: 'id',
+            align: 'center',
+            width: 2,
+            render: (data, _, index) => {
+                return <p>{index + 1}</p>;
+            },
+        },
         {
             title: 'Mã giảm giá',
             dataIndex: 'codeName',
             key: 'codeName',
             align: 'center',
-            // add search props here if needed
+            width: 20,
+            ...getColumnSearchProps('codeName'),
         },
         {
             title: 'Số lượng',
             dataIndex: 'quantity',
             key: 'quantity',
             align: 'center',
+            width: 5,
         },
         {
-            title: 'Số lượng giảm giá',
+            title: 'Giảm giá (%)',
             dataIndex: 'discountAmount',
             key: 'discountAmount',
             align: 'center',
-            width: 10,
+            width: 5,
         },
         {
-            title: 'Giảm giá tối đa',
+            title: 'Giảm tối đa (Vnd)',
             dataIndex: 'maxDiscountAmount',
             key: 'maxDiscountAmount',
             align: 'center',
-            width: 10,
+            width: 5,
+            render: (value) => formatCurrency(value),
         },
-        {
-            title: 'Ngày bắt đầu',
-            dataIndex: 'startDate',
-            key: 'startDate',
-            align: 'center',
-            render: (data) => {
-                let date = new Date(data).toLocaleDateString('vi-VN');
-                return <p>{date}</p>;
-            },
-        },
+        // {
+        //     title: 'Ngày hiệu lực',
+        //     dataIndex: 'startDate',
+        //     key: 'startDate',
+        //     align: 'center',
+        //     render: (data) => {
+        //         let date = new Date(data).toLocaleDateString('vi-VN');
+        //         return <p>{date}</p>;
+        //     },
+        // },
         {
             title: 'Ngày kết thúc',
             dataIndex: 'endDate',
@@ -272,17 +306,26 @@ const DiscountCode = () => {
             key: 'status',
             align: 'center',
             render: (status, record) => {
-                const isActive = voucherStatus[record._id];
+                const isActive = (voucherStatus && voucherStatus[record._id]) || false;
+                console.log('isActive', isActive);
                 return (
                     <Switch
                         className="bg-red-600"
                         checked={isActive}
                         onChange={(checked) => handleChangeState(checked, record._id)}
-                        checkedChildren="Kích hoạt"
-                        unCheckedChildren="Chưa kích hoạt"
-                        defaultChecked={true}
+                        checkedChildren="Active"
+                        unCheckedChildren="Stop"
                     />
                 );
+            },
+        },
+        {
+            title: 'Điều kiện áp dụng',
+            dataIndex: 'conditionAmount',
+            key: 'conditionAmount',
+            align: 'center',
+            render: (conditionAmount = '0') => {
+                return <p>{formatCurrency(conditionAmount) || 0}</p>;
             },
         },
         {
@@ -340,6 +383,7 @@ const DiscountCode = () => {
                 items={[
                     {
                         title: 'Trang chủ',
+                        href: '/dashboard',
                     },
                     {
                         title: 'Mã giảm giá',
@@ -465,7 +509,7 @@ const DiscountCode = () => {
                 <div className="absolute bottom-5 right-[200px]">
                     <Space>
                         <Button>
-                            <h4 className="text-small font-bold text-blue-600">
+                            <h4 className="text-small text-blue-600">
                                 Tổng có {allVouchers?.vouchers.length}{' '}
                                 {allVouchers?.vouchers.length > 1 ? 'vouchers' : 'voucher'}
                             </h4>
