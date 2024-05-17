@@ -16,6 +16,7 @@ import { formatMoneyInt } from '@/lib/utils';
 import { TIMEFRAMES } from '@/lib/utils';
 import { Overview } from './overview';
 import { CourseCategoryChart } from './charts';
+import { useGetAllCoursesQuery } from '@/providers/apis/courseTeacherApi';
 const { Content } = Layout;
 const { RangePicker } = DatePicker;
 
@@ -32,14 +33,14 @@ const Analytics = () => {
     const [timeframe, setTimeframe] = useState(TIMEFRAMES.thisMonth);
     const { data: billResponse, isLoading } = useGetBillsQuery(timeframe, { skip: !timeframe });
     const { data: userResponse } = useGetUsersQuery();
-    const { data: courseResponse } = useGetCoursesQuery();
-
+    //const { data: courseTeacher } = useGetCoursesQuery();
+    const { data: courseTeacher } = useGetAllCoursesQuery()
     const [searchText, setSearchText] = useState('');
     const [searchedColumn, setSearchedColumn] = useState('');
     const [billData, setBillData] = useState([]);
 
     const [userData, setUserData] = useState(userResponse?.data);
-    const [courseData, setCourseData] = useState(courseResponse?.data);
+    const [courseData, setCourseData] = useState(courseTeacher?.data);
 
     const [sortedInfo, setSortedInfo] = useState({});
     const searchInput = useRef(null);
@@ -95,13 +96,13 @@ const Analytics = () => {
             setUserData({ original, filtered });
         }
 
-        if (courseResponse) {
-            const original = courseResponse;
+        if (courseTeacher) {
+            const original = courseTeacher;
             const filtered = rangeFitler(original, timeframe);
 
             setCourseData({ original, filtered });
         }
-    }, [timeframe, userResponse, courseResponse]);
+    }, [timeframe, userResponse, courseTeacher]);
 
     // handle sort
     const handleSorted = (sortOrder, columnKey) => {

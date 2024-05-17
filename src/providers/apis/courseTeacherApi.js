@@ -88,5 +88,5 @@ export const {
     useCreateCourseMutation,
     useUpdateCourseMutation,
     useDeleteCourseMutation,
-    useDeleteCourseTeacherMutation
+    useDeleteCourseTeacherMutation,
 } = courseTeacherApi;

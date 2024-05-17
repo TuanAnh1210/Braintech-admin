@@ -13,6 +13,9 @@ import DetailTeacher from '@/pages/DetailTeacher';
 import CreateDiscountCode from '@/pages/DiscountCode/AddDiscountCode';
 import UserManager from '@/pages/UserManager';
 
+import GiftedVouchers from '@/pages/DiscountCode/GiftedVouchers';
+
+
 const publicRoutes = [
     { path: 'dashboard', component: Analytics },
     { path: 'manager-users', component: UserManager },
@@ -31,6 +34,7 @@ const publicRoutes = [
     { path: 'manager-bills/:id', component: DetailBill },
     { path: 'manager-discount', component: DiscountCode },
     { path: 'manager-discount/add', component: CreateDiscountCode },
+    { path: 'manager-discount/gift-voucher', component: GiftedVouchers },
 ];
 
 const publicRoutesTeacher = [

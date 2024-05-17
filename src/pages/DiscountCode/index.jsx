@@ -54,6 +54,16 @@ const DiscountCode = () => {
         }
     }, [allUsers]);
 
+    useEffect(() => {
+        if (allVouchers?.vouchers && allVouchers?.vouchers.length > 0) {
+            const initialStatus = allVouchers?.vouchers.reduce((acc, voucher) => {
+                acc[voucher._id] = voucher.status === 'ACTIVE';
+                return acc;
+            }, {});
+            setVoucherStatus(initialStatus);
+        }
+    }, [allVouchers?.vouchers]);
+
     const handleSearch = (selectedKeys, confirm, dataIndex) => {
         confirm();
         setSearchText(selectedKeys[0]);
@@ -211,51 +221,75 @@ const DiscountCode = () => {
         message.error('Clicked on No');
     };
 
-    const handleChangeState = (checked, id) => {
+    const formatCurrency = (value) => {
+        return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value);
+    };
+
+    const handleChangeState = async (checked, id) => {
         setVoucherStatus((prevState) => ({
             ...prevState,
             [id]: checked,
         }));
+        const newState = {
+            voucherId: id,
+            status: checked ? 'ACTIVE' : 'UNKNOWN',
+        };
+        if (newState) {
+            await updateVoucher(newState);
+        }
+        refetch();
     };
 
     const discountCodeColumns = [
+        {
+            title: 'STT',
+            key: 'id',
+            align: 'center',
+            width: 2,
+            render: (data, _, index) => {
+                return <p>{index + 1}</p>;
+            },
+        },
         {
             title: 'Mã giảm giá',
             dataIndex: 'codeName',
             key: 'codeName',
             align: 'center',
-            // add search props here if needed
+            width: 20,
+            ...getColumnSearchProps('codeName'),
         },
         {
             title: 'Số lượng',
             dataIndex: 'quantity',
             key: 'quantity',
             align: 'center',
+            width: 5,
         },
         {
-            title: 'Số lượng giảm giá',
+            title: 'Giảm giá (%)',
             dataIndex: 'discountAmount',
             key: 'discountAmount',
             align: 'center',
-            width: 10,
+            width: 5,
         },
         {
-            title: 'Giảm giá tối đa',
+            title: 'Giảm tối đa (Vnd)',
             dataIndex: 'maxDiscountAmount',
             key: 'maxDiscountAmount',
             align: 'center',
-            width: 10,
+            width: 5,
+            render: (value) => formatCurrency(value),
         },
-        {
-            title: 'Ngày bắt đầu',
-            dataIndex: 'startDate',
-            key: 'startDate',
-            align: 'center',
-            render: (data) => {
-                let date = new Date(data).toLocaleDateString('vi-VN');
-                return <p>{date}</p>;
-            },
-        },
+        // {
+        //     title: 'Ngày hiệu lực',
+        //     dataIndex: 'startDate',
+        //     key: 'startDate',
+        //     align: 'center',
+        //     render: (data) => {
+        //         let date = new Date(data).toLocaleDateString('vi-VN');
+        //         return <p>{date}</p>;
+        //     },
+        // },
         {
             title: 'Ngày kết thúc',
             dataIndex: 'endDate',
@@ -272,17 +306,26 @@ const DiscountCode = () => {
             key: 'status',
             align: 'center',
             render: (status, record) => {
-                const isActive = voucherStatus[record._id];
+                const isActive = (voucherStatus && voucherStatus[record._id]) || false;
+                console.log('isActive', isActive);
                 return (
                     <Switch
                         className="bg-red-600"
                         checked={isActive}
                         onChange={(checked) => handleChangeState(checked, record._id)}
-                        checkedChildren="Kích hoạt"
-                        unCheckedChildren="Chưa kích hoạt"
-                        defaultChecked={true}
+                        checkedChildren="Active"
+                        unCheckedChildren="Stop"
                     />
                 );
+            },
+        },
+        {
+            title: 'Điều kiện áp dụng',
+            dataIndex: 'conditionAmount',
+            key: 'conditionAmount',
+            align: 'center',
+            render: (conditionAmount = '0') => {
+                return <p>{formatCurrency(conditionAmount) || 0}</p>;
             },
         },
         {
@@ -340,6 +383,7 @@ const DiscountCode = () => {
                 items={[
                     {
                         title: 'Trang chủ',
+                        href: '/dashboard',
                     },
                     {
                         title: 'Mã giảm giá',
@@ -357,6 +401,17 @@ const DiscountCode = () => {
                             <p>Discount Code</p>
                         </div>
                     </div>
+                </div>
+                <div className="absolute top-[150px] left-10">
+                    <Flex gap="small" align="flex-start" vertical>
+                        <Flex gap="small" wrap>
+                            <Link to={'/manager-discount/gift-voucher'}>
+                                <Button type="primary" size={'30'}>
+                                    Voucher được tặng
+                                </Button>
+                            </Link>
+                        </Flex>
+                    </Flex>
                 </div>
                 <div className="absolute top-[150px] right-10">
                     <Flex gap="small" align="flex-start" vertical>
@@ -378,7 +433,7 @@ const DiscountCode = () => {
                                 ) : (
                                     <Table
                                         columns={discountCodeColumns}
-                                        dataSource={allVouchers.vouchers}
+                                        dataSource={allVouchers?.vouchers}
                                         loading={isLoading}
                                     />
                                 )}
@@ -408,7 +463,7 @@ const DiscountCode = () => {
                         <Select
                             showSearch
                             placeholder="Chọn người nhận voucher"
-                            className="flex h-[50px]"
+                            className="flex h-[60px]"
                             onChange={onChange}
                             onSearch={onSearch}
                             onFocus={handleFocus}
@@ -435,12 +490,14 @@ const DiscountCode = () => {
                                     ))}
                                     <div style={{ display: 'flex', alignItems: 'center' }}>
                                         <Avatar
-                                            src={`https://picsum.photos/seed/${user._id}/40/40`}
-                                            alt={user.full_name}
+                                            src={`https://picsum.photos/seed/${user?._id}/40/40`}
+                                            alt={user?.full_name}
                                             className="h-10 w-10 object-fit"
                                         />
                                         <div className="">
-                                            <p style={{ marginLeft: 8 }}>{user.full_name}</p>
+                                            <p style={{ marginLeft: 8, fontSize: '16px', paddingTop: 5 }}>
+                                                {user.full_name}
+                                            </p>
                                             <span style={{ marginLeft: 8, fontSize: '10px' }}>{user.email}</span>
                                         </div>
                                     </div>
@@ -452,7 +509,7 @@ const DiscountCode = () => {
                 <div className="absolute bottom-5 right-[200px]">
                     <Space>
                         <Button>
-                            <h4 className="text-small font-bold text-blue-600">
+                            <h4 className="text-small text-blue-600">
                                 Tổng có {allVouchers?.vouchers.length}{' '}
                                 {allVouchers?.vouchers.length > 1 ? 'vouchers' : 'voucher'}
                             </h4>
