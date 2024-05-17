@@ -1,14 +1,19 @@
-import React, { useEffect, useState } from 'react';
-import { Breadcrumb, Button, Card, Image, Table, notification } from 'antd';
+import React, { useEffect, useRef, useState } from 'react';
+import { Breadcrumb, Button, Card, Image, Input, Space, Table, notification } from 'antd';
 import { useNavigate, useParams } from 'react-router-dom';
 import { format } from 'date-fns';
 import Swal from 'sweetalert2';
 import axios from 'axios';
 import { useGetAllCoursesQuery, useGetCoursesTeachersQuery } from '@/providers/apis/courseTeacherApi';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import Highlighter from 'react-highlight-words';
+import { faSearch } from '@fortawesome/free-solid-svg-icons';
 
 
 const DetailTeacher = () => {
     const { id } = useParams();
+    const [searchText, setSearchText] = useState('');
+    const [searchedColumn, setSearchedColumn] = useState('');
     const [loading, setLoading] = useState(false);
     const { data: courses } = useGetCoursesTeachersQuery(id)
     const [data1, setData] = useState([]);
@@ -30,6 +35,104 @@ const DetailTeacher = () => {
     useEffect(() => {
         fetchData();
     }, []);
+    const searchInput = useRef(null);
+
+    const handleSearch = (selectedKeys, confirm, dataIndex) => {
+        confirm();
+        setSearchText(selectedKeys[0]);
+        setSearchedColumn(dataIndex);
+    };
+
+    const handleReset = (clearFilters) => {
+        clearFilters();
+        setSearchText('');
+    };
+
+    const getColumnSearchProps = (dataIndex) => ({
+        filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters, close }) => (
+            <div
+                style={{
+                    padding: 8,
+                }}
+                onKeyDown={(e) => e.stopPropagation()}
+            >
+                <Input
+                    ref={searchInput}
+                    spellCheck={false}
+                    placeholder={`Search ${dataIndex}`}
+                    value={selectedKeys[0]}
+                    onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+                    onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
+                    style={{
+                        marginBottom: 8,
+                        display: 'block',
+                    }}
+                />
+                <Space>
+                    <Button
+                        type="primary"
+                        onClick={() => handleSearch(selectedKeys, confirm, dataIndex)}
+                        icon={''} // <SearchOutlined />
+                        size="small"
+                        style={{
+                            width: 90,
+                        }}
+                    >
+                        Search
+                    </Button>
+                    <Button
+                        onClick={() => clearFilters && handleReset(clearFilters)}
+                        size="small"
+                        style={{
+                            width: 90,
+                        }}
+                    >
+                        Reset
+                    </Button>
+                    <Button
+                        type="link"
+                        size="small"
+                        onClick={() => {
+                            confirm({ closeDropdown: false });
+                            setSearchText(selectedKeys[0]);
+                            setSearchedColumn(dataIndex);
+                        }}
+                    >
+                        Filter
+                    </Button>
+                    <Button type="link" size="small" onClick={() => close()}>
+                        close
+                    </Button>
+                </Space>
+            </div>
+        ),
+        filterIcon: (filtered) => (
+            <FontAwesomeIcon
+                icon={faSearch}
+                style={{
+                    color: filtered ? '#1890ff' : undefined,
+                }}
+            />
+        ),
+        onFilter: (value, record) => record[dataIndex].toString().toLowerCase().includes(value.toLowerCase()),
+        onFilterDropdownOpenChange: (visible) => {
+            if (visible) setTimeout(() => searchInput.current?.select(), 100);
+        },
+        render: (text) =>
+            searchedColumn === dataIndex ? (
+                <Highlighter
+                    highlightStyle={{
+                        backgroundColor: '#ffc069',
+                        padding: 0,
+                    }}
+                    searchWords={[searchText]}
+                    autoEscape
+                    textToHighlight={text ? text.toString() : ''}
+                />
+            ) : (
+                text
+            ),
+    });
     const onHandleDelete = async (ids) => {
         Swal.fire({
             title: 'Quyền quản lý khóa học!!',
@@ -103,9 +206,9 @@ const DetailTeacher = () => {
                 );
             },
         },
-        { title: 'Tên khóa học', dataIndex: 'name', key: 'name' },
+        { title: 'Tên khóa học', dataIndex: 'name', key: 'name', ...getColumnSearchProps('name'), },
         {
-            title: 'Ngày tạo', dataIndex: 'createdAt', render: (updatedAt) => {
+            title: 'Ngày tạo', dataIndex: 'createdAt', key: 'createdAt', ...getColumnSearchProps('createdAt'), render: (updatedAt) => {
                 const formattedDate = format(updatedAt, 'dd/MM/yyyy');
                 const formattedTime = format(updatedAt, 'HH:mm:ss');
                 return <div>{`${formattedDate}  - ${formattedTime}`}</div>;
@@ -117,7 +220,7 @@ const DetailTeacher = () => {
             key: 'action',
             render: (_, { _id }) => (
                 <Button danger onClick={() => onHandleDelete(_id)}>
-                    Xóa
+                    Hủy quyền
                 </Button>
             ),
         },
@@ -134,10 +237,12 @@ const DetailTeacher = () => {
                 );
             },
         },
-        { title: 'Tên khóa học', dataIndex: 'name', key: 'name' },
+        { title: 'Tên khóa học', dataIndex: 'name', key: 'name', ...getColumnSearchProps('name') },
         {
             title: 'Ngày tạo',
             dataIndex: 'createdAt',
+            key: 'createdAt',
+            ...getColumnSearchProps('createdAt'),
             render: (updatedAt) => {
                 const formattedDate = format(updatedAt, 'dd/MM/yyyy');
                 const formattedTime = format(updatedAt, 'HH:mm:ss');

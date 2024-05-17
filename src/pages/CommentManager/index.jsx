@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 
 const CommentManager = () => {
     const [data, setData] = useState([])
+    console.log(data);
     const [tableParams, setTableParams] = useState({
         pagination: {
             current: 1,
