@@ -307,7 +307,6 @@ const DiscountCode = () => {
             align: 'center',
             render: (status, record) => {
                 const isActive = (voucherStatus && voucherStatus[record._id]) || false;
-                console.log('isActive', isActive);
                 return (
                     <Switch
                         className="bg-red-600"
