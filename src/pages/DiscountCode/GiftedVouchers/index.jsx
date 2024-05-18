@@ -1,16 +1,22 @@
-import React, { useState, useEffect } from 'react';
-import { Table, Avatar, Button, Space, message } from 'antd';
-import { useGetUsersQuery } from '@/providers/apis/userApi';
+import React from 'react';
+import { Table, Avatar } from 'antd';
+import { useNavigate } from 'react-router-dom';
 import { useGetAllVoucherQuery } from '@/providers/apis/voucherApi';
-import { Link, useNavigate } from 'react-router-dom';
+import { useGetUsersQuery } from '@/providers/apis/userApi';
 
 const GiftedVouchers = () => {
-    const { data: allVouchers, isLoading: vouchersLoading, refetch: refetchVouchers } = useGetAllVoucherQuery();
+    const { data: allVouchers, isLoading: vouchersLoading } = useGetAllVoucherQuery();
     const { data: allUsers, isLoading: usersLoading } = useGetUsersQuery();
     const nav = useNavigate();
 
     const getRecipients = (voucherId) => {
-        return allUsers?.data.find((user) => user.vouchers.includes(voucherId)) || [];
+        if (!allUsers || !allUsers.data) return [];
+        return allUsers.data
+            .filter((user) => user.vouchers.some((voucher) => voucher._id === voucherId))
+            .map((user) => {
+                const voucherCount = user.vouchers.filter((voucher) => voucher._id === voucherId).length;
+                return { ...user, voucherCount };
+            });
     };
 
     const voucherColumns = [
@@ -85,6 +91,13 @@ const GiftedVouchers = () => {
             dataIndex: 'email',
             key: 'email',
         },
+        {
+            title: 'Số lượng voucher',
+            dataIndex: 'voucherCount',
+            key: 'voucherCount',
+            align: 'center',
+            render: (count) => <span>{count}</span>,
+        },
     ];
 
     return (
@@ -117,7 +130,7 @@ const GiftedVouchers = () => {
                         expandedRowRender: (record) => (
                             <Table
                                 columns={userColumns}
-                                dataSource={allUsers?.data}
+                                dataSource={getRecipients(record._id)}
                                 rowKey={(recipient) => recipient._id}
                                 pagination={false}
                                 loading={usersLoading}
