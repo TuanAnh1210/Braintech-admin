@@ -26,7 +26,13 @@ import { Link } from 'react-router-dom';
 import { useGetUserByIdQuery, useGetUsersQuery, useUpdateUserMutation } from '@/providers/apis/userApi';
 import { Option } from 'antd/es/mentions';
 import { useCookies } from 'react-cookie';
+import { io } from 'socket.io-client';
 
+const ENDPOINT = 'http://localhost:2096';
+const socket = io(ENDPOINT, {
+    secure: false, // sử dụng SSL/TLS
+    port: 2096,
+});
 const DiscountCode = () => {
     const [searchText, setSearchText] = useState('');
     const [searchedColumn, setSearchedColumn] = useState('');
@@ -174,6 +180,36 @@ const DiscountCode = () => {
         setResultSearch(allUsers.data);
     };
 
+    const sendNotification = (id) => {
+        socket.emit('sendNotification', {
+            userId: id,
+            message: 'Bạn đã được tặng một voucher! Vào trang cá nhân để kiểm tra',
+        });
+    };
+
+    const addNoti = async (newUserUpdate, newVoucherUpdate) => {
+        console.log(newUserUpdate, 'newUserUpdate');
+        console.log(newVoucherUpdate, 'newVoucherUpdate');
+
+        const content = `Bạn được tặng mã giảm giá <strong>${newUserUpdate.vouchers[0].codeName}</strong>`;
+        const info = `Giảm tối đa ${newUserUpdate.vouchers[0].maxDiscountAmount}`;
+        const user_id = newUserUpdate.userId;
+
+        const response = await fetch(import.meta.env.VITE_REACT_APP_API_PATH + 'api/noti/addNoti', {
+            method: 'POST', // or 'PUT'
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                content,
+                info,
+                user_id,
+            }),
+        });
+
+        console.log(response, 'response');
+    };
+
     const handleOk = async () => {
         let newObjectUser = { ...currentUser };
         let newObjectVoucher = { ...currentVoucher };
@@ -189,7 +225,9 @@ const DiscountCode = () => {
             vouchers: [...vouchers, currentIdVoucher],
             accessToken: cookies.access_token,
         };
-        console.log(id);
+
+        console.log(_id, '_id');
+
         const newVoucherUpdate = {
             voucherId: id,
             quantity: +quantity - 1,
@@ -197,7 +235,12 @@ const DiscountCode = () => {
         if (newUserUpdate && newVoucherUpdate) {
             await updateUser(newUserUpdate);
             await updateVoucher(newVoucherUpdate);
-            message.success('Tặng thành công mã nay!');
+            message.success('Tặng thành công mã này!');
+
+            // Gửi thông báo cho học viên , đừng ai đụng gì tới phần này
+            sendNotification(_id);
+            await addNoti(newUserUpdate, newVoucherUpdate);
+            return;
         }
         setOpen(false);
         refetch();
