@@ -1,32 +1,80 @@
-import { Breadcrumb, Button, Input, Space, Table, Skeleton, Popconfirm, Flex, message } from 'antd';
-import { useRef, useState } from 'react';
+import {
+    Breadcrumb,
+    Button,
+    Input,
+    Space,
+    Table,
+    Modal,
+    Skeleton,
+    Popconfirm,
+    Flex,
+    message,
+    Select,
+    Avatar,
+    Switch,
+} from 'antd';
+import { useEffect, useRef, useState } from 'react';
 import { SearchOutlined } from '@ant-design/icons';
 import Highlighter from 'react-highlight-words';
-import GiftRecipientSelect from '@/pages/DiscountCode/ReceiverCode';
-import CreateDiscountCode from '@/pages/DiscountCode/AddDiscountCode';
-import { useDeleteVoucherMutation, useGetAllVoucherQuery } from '@/providers/apis/voucherApi';
-import { useGetUsersQuery } from '@/providers/apis/userApi';
+import {
+    useDeleteVoucherMutation,
+    useGetAllVoucherQuery,
+    useGetVoucherByIdQuery,
+    useUpdateVoucherMutation,
+} from '@/providers/apis/voucherApi';
+import { Link } from 'react-router-dom';
+import { useGetUserByIdQuery, useGetUsersQuery, useUpdateUserMutation } from '@/providers/apis/userApi';
+import { Option } from 'antd/es/mentions';
+import { useCookies } from 'react-cookie';
 
 const DiscountCode = () => {
     const [searchText, setSearchText] = useState('');
     const [searchedColumn, setSearchedColumn] = useState('');
     const searchInput = useRef(null);
-    const [isOpen, setIsOpen] = useState(false);
-    const [isAddNew, setIsAddNew] = useState(false);
-    const [currentIdVoucer, setCurrentIdVoucher] = useState(null);
+    const [currentIdVoucher, setCurrentIdVoucher] = useState(null);
     const { data: allVouchers, isLoading, refetch } = useGetAllVoucherQuery();
-    const { data: allUsers } = useGetUsersQuery();
     const [deleteVoucher] = useDeleteVoucherMutation();
+    const [open, setOpen] = useState(false);
+    const [cookies, setCookie] = useCookies(['access_token']);
+    const [selectedUser, setSelectedUser] = useState({});
+    const [resultSearch, setResultSearch] = useState([]);
+    const [voucherStatus, setVoucherStatus] = useState({});
+
+    const selectRef = useRef(null);
+
+    const { data: allUsers } = useGetUsersQuery();
+    const { data: currentUser } = useGetUserByIdQuery(selectedUser, { refetchOnMountOrArgChange: true });
+    const { data: currentVoucher } = useGetVoucherByIdQuery(currentIdVoucher);
+    const [updateUser] = useUpdateUserMutation();
+    const [updateVoucher] = useUpdateVoucherMutation();
+
+    useEffect(() => {
+        if (allUsers?.data) {
+            setResultSearch(allUsers.data);
+        }
+    }, [allUsers]);
+
+    useEffect(() => {
+        if (allVouchers?.vouchers && allVouchers?.vouchers.length > 0) {
+            const initialStatus = allVouchers?.vouchers.reduce((acc, voucher) => {
+                acc[voucher._id] = voucher.status === 'ACTIVE';
+                return acc;
+            }, {});
+            setVoucherStatus(initialStatus);
+        }
+    }, [allVouchers?.vouchers]);
 
     const handleSearch = (selectedKeys, confirm, dataIndex) => {
         confirm();
         setSearchText(selectedKeys[0]);
         setSearchedColumn(dataIndex);
     };
+
     const handleReset = (clearFilters) => {
         clearFilters();
         setSearchText('');
     };
+
     const getColumnSearchProps = (dataIndex) => ({
         filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters, close }) => (
             <div
@@ -120,30 +168,94 @@ const DiscountCode = () => {
                 text
             ),
     });
-    function handleGift(id) {
-        setIsOpen(true);
-        setCurrentIdVoucher(id);
-    }
 
-    function handleClose() {
-        setIsOpen(false);
+    const handleGift = (id) => {
+        setOpen(true);
+        setCurrentIdVoucher(id);
+    };
+    const handleFocus = () => {
+        setResultSearch(allUsers.data);
+    };
+
+    const handleOk = async () => {
+        let newObjectUser = { ...currentUser };
+        let newObjectVoucher = { ...currentVoucher };
+        const { vouchers, _id } = newObjectUser;
+        const { quantity, _id: id } = newObjectVoucher;
+
+        if (quantity <= 0) {
+            return message.error('Mã giảm giá này đã hết. Xin thử cái khác!');
+        }
+
+        const newUserUpdate = {
+            userId: _id,
+            vouchers: [...vouchers, currentIdVoucher],
+            accessToken: cookies.access_token,
+        };
+
+        const newVoucherUpdate = {
+            voucherId: id,
+            quantity: +quantity - 1,
+        };
+
+        if (newUserUpdate && newVoucherUpdate) {
+            await updateUser(newUserUpdate);
+            await updateVoucher(newVoucherUpdate);
+            message.success('Tặng thành công mã nay!');
+        }
+        setOpen(false);
         refetch();
-    }
+    };
+
+    const handleCancel = () => {
+        setOpen(false);
+    };
 
     const confirm = async (id) => {
         await deleteVoucher({ _id: id });
         message.success('Xóa voucher này thành công!');
         refetch();
     };
+
     const cancel = (e) => {
         message.error('Clicked on No');
     };
+
+    const formatCurrency = (value) => {
+        return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value);
+    };
+
+    const handleChangeState = async (checked, id) => {
+        setVoucherStatus((prevState) => ({
+            ...prevState,
+            [id]: checked,
+        }));
+        const newState = {
+            voucherId: id,
+            status: checked ? 'ACTIVE' : 'UNKNOWN',
+        };
+        if (newState) {
+            await updateVoucher(newState);
+        }
+        refetch();
+    };
+
     const discountCodeColumns = [
+        {
+            title: 'STT',
+            key: 'id',
+            align: 'center',
+            width: 2,
+            render: (data, _, index) => {
+                return <p>{index + 1}</p>;
+            },
+        },
         {
             title: 'Mã giảm giá',
             dataIndex: 'codeName',
             key: 'codeName',
             align: 'center',
+            width: 20,
             ...getColumnSearchProps('codeName'),
         },
         {
@@ -151,31 +263,33 @@ const DiscountCode = () => {
             dataIndex: 'quantity',
             key: 'quantity',
             align: 'center',
+            width: 5,
         },
         {
-            title: 'Số lượng giảm giá',
+            title: 'Giảm giá (%)',
             dataIndex: 'discountAmount',
             key: 'discountAmount',
             align: 'center',
-            width: 10,
+            width: 5,
         },
         {
-            title: 'Giảm giá tối đa',
+            title: 'Giảm tối đa (Vnd)',
             dataIndex: 'maxDiscountAmount',
             key: 'maxDiscountAmount',
             align: 'center',
-            width: 10,
+            width: 5,
+            render: (value) => formatCurrency(value),
         },
-        {
-            title: 'Ngày bắt đầu',
-            dataIndex: 'startDate',
-            key: 'startDate',
-            align: 'center',
-            render: (data) => {
-                let date = new Date(data).toLocaleDateString('vi-VN');
-                return <p>{date}</p>;
-            },
-        },
+        // {
+        //     title: 'Ngày hiệu lực',
+        //     dataIndex: 'startDate',
+        //     key: 'startDate',
+        //     align: 'center',
+        //     render: (data) => {
+        //         let date = new Date(data).toLocaleDateString('vi-VN');
+        //         return <p>{date}</p>;
+        //     },
+        // },
         {
             title: 'Ngày kết thúc',
             dataIndex: 'endDate',
@@ -191,19 +305,26 @@ const DiscountCode = () => {
             dataIndex: 'status',
             key: 'status',
             align: 'center',
-            ...getColumnSearchProps('status'),
-            render: (status) => {
-                const statusEnum = {
-                    ACTIVE: { color: 'PaleGreen', msg: 'Đang hoạt động' },
-                    INACTIVE: { color: 'Tomato', msg: 'Không hoạt động' },
-                };
-                const { color, msg } = statusEnum[status] ?? { color: 'Tomato', msg: 'Unknown' };
-                return {
-                    props: {
-                        style: { background: color },
-                    },
-                    children: <p className="font-semibold">{msg}</p>,
-                };
+            render: (status, record) => {
+                const isActive = (voucherStatus && voucherStatus[record._id]) || false;
+                return (
+                    <Switch
+                        className="bg-red-600"
+                        checked={isActive}
+                        onChange={(checked) => handleChangeState(checked, record._id)}
+                        checkedChildren="Active"
+                        unCheckedChildren="Stop"
+                    />
+                );
+            },
+        },
+        {
+            title: 'Điều kiện áp dụng',
+            dataIndex: 'conditionAmount',
+            key: 'conditionAmount',
+            align: 'center',
+            render: (conditionAmount = '0') => {
+                return <p>{formatCurrency(conditionAmount) || 0}</p>;
             },
         },
         {
@@ -211,30 +332,49 @@ const DiscountCode = () => {
             key: 'action',
             align: 'center',
             render: (data) => {
-                return {
-                    children: (
-                        <div className="">
-                            <Button type="primary" className="mr-2" onClick={() => handleGift(data._id)}>
+                const isDisabled = !voucherStatus[data._id];
+                return (
+                    <div className="space-x-2">
+                        <Space>
+                            <Button type="primary" onClick={() => handleGift(data._id)} disabled={isDisabled}>
                                 Tặng
                             </Button>
-                            <Popconfirm
-                                placement="topLeft"
-                                title="Bạn có chắc muôn xoá voucher này không?"
-                                description="Are you sure to delete this voucher?"
-                                onConfirm={() => confirm(data._id)}
-                                onCancel={cancel}
-                                okText="Yes"
-                                cancelText="No"
-                            >
-                                <Button danger>Delete</Button>
-                            </Popconfirm>
-                        </div>
-                    ),
-                };
+                        </Space>
+                        <Popconfirm
+                            placement="topLeft"
+                            title="Bạn có chắc muốn xoá voucher này không?"
+                            description="Are you sure to delete this voucher?"
+                            onConfirm={() => confirm(data._id)}
+                            onCancel={cancel}
+                            okText="Yes"
+                            cancelText="No"
+                        >
+                            <Button danger disabled={isDisabled}>
+                                Xoá
+                            </Button>
+                        </Popconfirm>
+                    </div>
+                );
             },
         },
     ];
 
+    const onChange = (value) => {
+        setSelectedUser(value);
+    };
+
+    const onSearch = (value) => {
+        if (value !== '' || value !== null) {
+            const filteredUsers = allUsers.data.filter(
+                (user) =>
+                    user.full_name.toLowerCase().includes(value.toLowerCase()) ||
+                    user.email.toLowerCase().includes(value.toLowerCase()),
+            );
+            setResultSearch(filteredUsers);
+        } else {
+            setResultSearch(allUsers?.data);
+        }
+    };
     return (
         <div className="w-full">
             <Breadcrumb
@@ -242,6 +382,7 @@ const DiscountCode = () => {
                 items={[
                     {
                         title: 'Trang chủ',
+                        href: '/dashboard',
                     },
                     {
                         title: 'Mã giảm giá',
@@ -260,45 +401,120 @@ const DiscountCode = () => {
                         </div>
                     </div>
                 </div>
-                <div className="absolute top-[150px] right-10">
+                <div className="absolute top-[150px] left-10">
                     <Flex gap="small" align="flex-start" vertical>
                         <Flex gap="small" wrap>
-                            <Button onClick={() => setIsAddNew(true)} type="primary" size={'30'}>
-                                Thêm mới
-                            </Button>
+                            <Link to={'/manager-discount/gift-voucher'}>
+                                <Button type="primary" size={'30'}>
+                                    Voucher được tặng
+                                </Button>
+                            </Link>
                         </Flex>
                     </Flex>
                 </div>
-                {allVouchers?.vouchers && allVouchers?.vouchers?.length >= 1 ? (
-                    <div className="bg-white mt-[30px]  sm:pt-[100px] md:pt-[150px] pt-[80px] rounded w-full">
-                        <div className="px-[30px] ">
-                            {isLoading ? (
-                                <Skeleton />
-                            ) : (
-                                <Table
-                                    columns={discountCodeColumns}
-                                    dataSource={allVouchers.vouchers}
-                                    loading={isLoading}
-                                />
-                            )}
+                <div className="absolute top-[150px] right-10">
+                    <Flex gap="small" align="flex-start" vertical>
+                        <Flex gap="small" wrap>
+                            <Link to={'/manager-discount/add'}>
+                                <Button type="primary" size={'30'}>
+                                    Thêm mới
+                                </Button>
+                            </Link>
+                        </Flex>
+                    </Flex>
+                </div>
+                <div>
+                    {allVouchers?.vouchers && allVouchers?.vouchers?.length >= 1 ? (
+                        <div className="bg-white mt-[30px]  sm:pt-[100px] md:pt-[150px] pt-[80px] rounded w-full">
+                            <div className="px-[30px] ">
+                                {isLoading ? (
+                                    <Skeleton />
+                                ) : (
+                                    <Table
+                                        columns={discountCodeColumns}
+                                        dataSource={allVouchers?.vouchers}
+                                        loading={isLoading}
+                                    />
+                                )}
+                            </div>
                         </div>
-                    </div>
-                ) : (
-                    <div className="bg-white mt-[30px]  sm:pt-[100px] md:pt-[150px] pt-[80px] rounded w-full">
-                        <div className="px-[30px] flex justify-center items-center">
-                            Hiện tại chưa có voucher nào !!!
+                    ) : (
+                        <div className="bg-white mt-[30px]  sm:pt-[100px] md:pt-[150px] pt-[80px] rounded w-full">
+                            <div className="px-[30px] flex justify-center items-center">
+                                Hiện tại chưa có voucher nào !!!
+                            </div>
                         </div>
-                    </div>
-                )}
-                {isOpen && (
-                    <GiftRecipientSelect
-                        users={allUsers.data}
-                        voucherId={currentIdVoucer}
-                        changeOpen={handleGift}
-                        changeClose={handleClose}
-                    />
-                )}
-                {isAddNew && <CreateDiscountCode />}
+                    )}
+                </div>
+                <>
+                    <Modal
+                        open={open}
+                        title="Tặng voucher"
+                        onOk={handleOk}
+                        onCancel={handleCancel}
+                        footer={(_, { OkBtn, CancelBtn }) => (
+                            <>
+                                <CancelBtn />
+                                <OkBtn />
+                            </>
+                        )}
+                    >
+                        <Select
+                            showSearch
+                            placeholder="Chọn người nhận voucher"
+                            className="flex h-[60px]"
+                            onChange={onChange}
+                            onSearch={onSearch}
+                            onFocus={handleFocus}
+                            filterOption={false}
+                        >
+                            {resultSearch.map((user) => (
+                                <Select.Option key={user._id} value={user._id} onClick={() => setSelectedUser(user)}>
+                                    {resultSearch.map((user) => (
+                                        <Option>
+                                            <div style={{ display: 'flex', alignItems: 'center' }}>
+                                                <Avatar
+                                                    src={`https://picsum.photos/seed/${user._id}/40/40`}
+                                                    alt={user.full_name}
+                                                    className="h-10 w-10 object-fit"
+                                                />
+                                                <div className="">
+                                                    <p style={{ marginLeft: 8 }}>{user.full_name}</p>
+                                                    <span style={{ marginLeft: 8, fontSize: '10px' }}>
+                                                        {user.email}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </Option>
+                                    ))}
+                                    <div style={{ display: 'flex', alignItems: 'center' }}>
+                                        <Avatar
+                                            src={`https://picsum.photos/seed/${user?._id}/40/40`}
+                                            alt={user?.full_name}
+                                            className="h-10 w-10 object-fit"
+                                        />
+                                        <div className="">
+                                            <p style={{ marginLeft: 8, fontSize: '16px', paddingTop: 5 }}>
+                                                {user.full_name}
+                                            </p>
+                                            <span style={{ marginLeft: 8, fontSize: '10px' }}>{user.email}</span>
+                                        </div>
+                                    </div>
+                                </Select.Option>
+                            ))}
+                        </Select>
+                    </Modal>
+                </>
+                <div className="absolute bottom-5 right-[200px]">
+                    <Space>
+                        <Button>
+                            <h4 className="text-small text-blue-600">
+                                Tổng có {allVouchers?.vouchers.length}{' '}
+                                {allVouchers?.vouchers.length > 1 ? 'vouchers' : 'voucher'}
+                            </h4>
+                        </Button>
+                    </Space>
+                </div>
             </div>
         </div>
     );

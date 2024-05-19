@@ -1,5 +1,4 @@
 import DetailBill from '@/pages/DetailBill';
-import UserManager from '@/pages/UserManager';
 import * as Course from '@/pages/CourseManager';
 import * as CourseTeacher from '@/pages/CourseTeacher';
 import Analytics from '@/pages/Analytics';
@@ -11,6 +10,11 @@ import MyStudents from '@/pages/MyStudents';
 import TeacherManager from '@/pages/TeacherManager';
 import RateManager from '@/pages/RateManager';
 import DetailTeacher from '@/pages/DetailTeacher';
+import CreateDiscountCode from '@/pages/DiscountCode/AddDiscountCode';
+import UserManager from '@/pages/UserManager';
+
+import GiftedVouchers from '@/pages/DiscountCode/GiftedVouchers';
+
 
 const publicRoutes = [
     { path: 'dashboard', component: Analytics },
@@ -29,6 +33,8 @@ const publicRoutes = [
     { path: 'manager-bills', component: BillManager },
     { path: 'manager-bills/:id', component: DetailBill },
     { path: 'manager-discount', component: DiscountCode },
+    { path: 'manager-discount/add', component: CreateDiscountCode },
+    { path: 'manager-discount/gift-voucher', component: GiftedVouchers },
 ];
 
 const publicRoutesTeacher = [

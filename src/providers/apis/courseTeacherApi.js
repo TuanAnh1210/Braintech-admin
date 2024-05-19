@@ -28,9 +28,9 @@ export const courseTeacherApi = createApi({
                 return response.courses;
             },
         }),
-        getCoursesTeacher: build.query({
-            query: (teacherId) => {
-                return `/teacher/${teacherId}`;
+        getCoursesTeachers: build.query({
+            query: (id) => {
+                return `/teacher/${id}`;
             },
             transformResponse: (response) => {
                 return response.courses;
@@ -82,11 +82,11 @@ export const {
     useGetAllCoursesQuery,
     useGetStudentsQuery,
     useGetCoursesQuery,
-    useGetCoursesTeacherQuery,
+    useGetCoursesTeachersQuery,
     useGetCourseByIdQuery,
     useUploadImageMutation,
     useCreateCourseMutation,
     useUpdateCourseMutation,
     useDeleteCourseMutation,
-    useDeleteCourseTeacherMutation
+    useDeleteCourseTeacherMutation,
 } = courseTeacherApi;

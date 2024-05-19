@@ -1,8 +1,23 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { Cookies } from 'react-cookie';
+const cookies = new Cookies();
 
 export const userApi = createApi({
     reducerPath: 'userApi',
-    baseQuery: fetchBaseQuery({ baseUrl: import.meta.env.VITE_REACT_APP_API_PATH + 'api' }),
+    baseQuery: fetchBaseQuery({
+        baseUrl: import.meta.env.VITE_REACT_APP_API_PATH + 'api',
+        prepareHeaders: (headers) => {
+            const token = cookies.get('cookieLoginStudent'); // Lấy giá trị token từ cookie
+
+            // If we have a token set in state, let's assume that we should be passing it.
+            if (token) {
+                headers.set('Authorization', `Bearer ${token.accessToken}`);
+            }
+
+            return headers;
+        },
+    }),
+
     endpoints: (build) => ({
         getUsers: build.query({
             query: () => '/user',
@@ -13,8 +28,19 @@ export const userApi = createApi({
             },
         }),
         getUser: build.query({
-            query: (_id) => {
-                return `/user/${_id}`;
+            query: () => {
+                return `/user/get`;
+            },
+            transformResponse: (response) => {
+                return response.data;
+            },
+        }),
+        getUserById: build.query({
+            query: (userId) => {
+                return `/user/${userId}`;
+            },
+            transformResponse: (response) => {
+                return response.data;
             },
         }),
         getTeachers: build.query({
@@ -37,7 +63,12 @@ export const userApi = createApi({
         }),
         updateUser: build.mutation({
             query: ({ userId, ...payload }) => {
-                return { url: `/user/${userId}/update`, method: 'PATCH', body: payload };
+                return { url: `/user/${userId}/updateVoucher`, method: 'PATCH', body: payload };
+            },
+        }),
+        removeExpiredVouchers: build.mutation({
+            query: (payload) => {
+                return { url: `/user/removeExpiredVouchers`, method: 'PATCH', body: payload };
             },
         }),
     }),
@@ -46,10 +77,12 @@ export const userApi = createApi({
 export const {
     useAuthUserMutation,
     useDeleteuserQuery,
-    useGetUserQuery,
-    useGetUsersQuery,
+    useGetUserByIdQuery,
     useUpdateCourseIdQuery,
     useUpdateRoleQuery,
     useUpdateUserMutation,
     useGetTeachersQuery,
+    useGetUsersQuery,
+    useGetUserQuery,
+    useRemoveExpiredVouchersMutation,
 } = userApi;
