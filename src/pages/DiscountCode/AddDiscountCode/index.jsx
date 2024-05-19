@@ -5,7 +5,7 @@ import { Link, useNavigate } from 'react-router-dom';
 
 const CreateDiscountCode = () => {
     const [form] = Form.useForm();
-    const [createVoucher, refetch] = useCreateVoucherMutation();
+    const [createVoucher] = useCreateVoucherMutation();
     const nav = useNavigate();
 
     useEffect(() => {
@@ -18,7 +18,6 @@ const CreateDiscountCode = () => {
             message.success('Tạo mới voucher thành công !!');
             nav('/manager-discount');
         }
-        refetch();
     };
 
     return (
