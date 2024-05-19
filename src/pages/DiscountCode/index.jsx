@@ -39,7 +39,6 @@ const DiscountCode = () => {
     const [selectedUser, setSelectedUser] = useState({});
     const [resultSearch, setResultSearch] = useState([]);
     const [voucherStatus, setVoucherStatus] = useState({});
-
     const { data: allUsers } = useGetUsersQuery();
     const { data: currentUser } = useGetUserByIdQuery(selectedUser, { refetchOnMountOrArgChange: true });
     const { data: currentVoucher } = useGetVoucherByIdQuery(currentIdVoucher);
@@ -190,12 +189,11 @@ const DiscountCode = () => {
             vouchers: [...vouchers, currentIdVoucher],
             accessToken: cookies.access_token,
         };
-
+        console.log(id);
         const newVoucherUpdate = {
             voucherId: id,
             quantity: +quantity - 1,
         };
-
         if (newUserUpdate && newVoucherUpdate) {
             await updateUser(newUserUpdate);
             await updateVoucher(newVoucherUpdate);

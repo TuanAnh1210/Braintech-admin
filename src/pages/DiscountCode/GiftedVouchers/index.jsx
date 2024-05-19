@@ -50,7 +50,9 @@ const GiftedVouchers = () => {
                 return { ...user, voucherCount };
             });
     };
-
+    useEffect(() => {
+        refetchUsers();
+    }, [allUsers]);
     const voucherColumns = [
         {
             title: 'Mã giảm giá',
