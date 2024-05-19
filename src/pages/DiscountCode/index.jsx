@@ -39,8 +39,6 @@ const DiscountCode = () => {
     const [selectedUser, setSelectedUser] = useState({});
     const [resultSearch, setResultSearch] = useState([]);
     const [voucherStatus, setVoucherStatus] = useState({});
-    const selectRef = useRef(null);
-
     const { data: allUsers } = useGetUsersQuery();
     const { data: currentUser } = useGetUserByIdQuery(selectedUser, { refetchOnMountOrArgChange: true });
     const { data: currentVoucher } = useGetVoucherByIdQuery(currentIdVoucher);
