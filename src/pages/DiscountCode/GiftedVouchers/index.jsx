@@ -51,8 +51,9 @@ const GiftedVouchers = () => {
             });
     };
     useEffect(() => {
-        refetchUsers();
+        refetch();
     }, [allUsers]);
+
     const voucherColumns = [
         {
             title: 'Mã giảm giá',
