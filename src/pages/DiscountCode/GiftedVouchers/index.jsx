@@ -141,7 +141,7 @@ const GiftedVouchers = () => {
                 <h1 className="text-2xl font-bold mb-2">Quản Lý Voucher</h1>
                 <div className="mb-8">
                     <button
-                        className="flex items-center bg-red-500 hover:bg-red-700 text-white py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                        className="flex items-center bg-red-500 hover:bg-red-700 text-white py-1 px-2 rounded focus:outline-none focus:shadow-outline"
                         onClick={() => nav(-1)}
                     >
                         <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">

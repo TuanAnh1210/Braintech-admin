@@ -393,7 +393,7 @@ const DiscountCode = () => {
                             <h4 className="xl:text-[25px] lg:text-[25px] sm:text-[18px] md:text-[18px] mt-[10px] mb-[5px]">
                                 Mã giảm giá
                             </h4>
-                            <p>Discount Code</p>
+                            <p>Vouchers</p>
                         </div>
                     </div>
                 </div>
@@ -401,8 +401,8 @@ const DiscountCode = () => {
                     <Flex gap="small" align="flex-start" vertical>
                         <Flex gap="small" wrap>
                             <Link to={'/manager-discount/gift-voucher'}>
-                                <Button type="primary" size={'30'}>
-                                    Voucher được tặng
+                                <Button className="bg-[#eb2f96] text-white" size={'30'}>
+                                    Voucher++
                                 </Button>
                             </Link>
                         </Flex>
@@ -412,7 +412,7 @@ const DiscountCode = () => {
                     <Flex gap="small" align="flex-start" vertical>
                         <Flex gap="small" wrap>
                             <Link to={'/manager-discount/add'}>
-                                <Button type="primary" size={'30'}>
+                                <Button className="bg-[#0958d9] text-white" size={'30'}>
                                     Thêm mới
                                 </Button>
                             </Link>
