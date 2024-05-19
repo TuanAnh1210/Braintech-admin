@@ -66,6 +66,11 @@ export const userApi = createApi({
                 return { url: `/user/${userId}/updateVoucher`, method: 'PATCH', body: payload };
             },
         }),
+        removeExpiredVouchers: build.mutation({
+            query: (payload) => {
+                return { url: `/user/removeExpiredVouchers`, method: 'PATCH', body: payload };
+            },
+        }),
     }),
 });
 
@@ -79,4 +84,5 @@ export const {
     useGetTeachersQuery,
     useGetUsersQuery,
     useGetUserQuery,
+    useRemoveExpiredVouchersMutation,
 } = userApi;

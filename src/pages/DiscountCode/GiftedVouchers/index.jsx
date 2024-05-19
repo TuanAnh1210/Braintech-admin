@@ -2,12 +2,44 @@ import React from 'react';
 import { Table, Avatar } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { useGetAllVoucherQuery } from '@/providers/apis/voucherApi';
-import { useGetUsersQuery } from '@/providers/apis/userApi';
+import { useGetUsersQuery, useRemoveExpiredVouchersMutation } from '@/providers/apis/userApi';
 
 const GiftedVouchers = () => {
     const { data: allVouchers, isLoading: vouchersLoading } = useGetAllVoucherQuery();
     const { data: allUsers, isLoading: usersLoading } = useGetUsersQuery();
     const nav = useNavigate();
+    const [updateUser] = useRemoveExpiredVouchersMutation();
+
+    useEffect(() => {
+        const checkExpiredVouchers = async () => {
+            const currentDate = new Date();
+            const usersToUpdate = [];
+
+            allUsers?.data.forEach((user) => {
+                const validVouchers = user.vouchers.filter((voucher) => {
+                    const expiryDate = new Date(voucher.endDate);
+                    return expiryDate >= currentDate;
+                });
+
+                if (validVouchers.length !== user.vouchers.length) {
+                    usersToUpdate.push({ ...user, vouchers: validVouchers });
+                }
+            });
+
+            for (const user of usersToUpdate) {
+                await updateUser(user);
+            }
+
+            if (usersToUpdate.length > 0) {
+                refetchUsers();
+                message.info('Đã xóa voucher hết hạn khỏi danh sách người dùng.');
+            }
+        };
+
+        if (allUsers && allUsers.data) {
+            checkExpiredVouchers();
+        }
+    }, [allUsers, updateUser, refetchUsers]);
 
     const getRecipients = (voucherId) => {
         if (!allUsers || !allUsers.data) return [];
