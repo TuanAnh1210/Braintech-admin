@@ -6,7 +6,7 @@ import { useGetUsersQuery, useRemoveExpiredVouchersMutation } from '@/providers/
 
 const GiftedVouchers = () => {
     const { data: allVouchers, isLoading: vouchersLoading } = useGetAllVoucherQuery();
-    const { data: allUsers, isLoading: usersLoading, refetch } = useGetUsersQuery();
+    const { data: allUsers, isLoading: usersLoading, refetch: refetchUsers } = useGetUsersQuery();
     const nav = useNavigate();
     const [updateUser] = useRemoveExpiredVouchersMutation();
 
@@ -51,7 +51,7 @@ const GiftedVouchers = () => {
             });
     };
     useEffect(() => {
-        refetch();
+        refetchUsers();
     }, [allUsers]);
     const voucherColumns = [
         {
