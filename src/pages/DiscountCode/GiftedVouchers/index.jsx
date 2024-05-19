@@ -1,11 +1,11 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Table, Avatar } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { useGetAllVoucherQuery } from '@/providers/apis/voucherApi';
 import { useGetUsersQuery, useRemoveExpiredVouchersMutation } from '@/providers/apis/userApi';
 
 const GiftedVouchers = () => {
-    const { data: allVouchers, isLoading: vouchersLoading } = useGetAllVoucherQuery();
+    const { data: allVouchers, isLoading: vouchersLoading, refetch } = useGetAllVoucherQuery();
     const { data: allUsers, isLoading: usersLoading } = useGetUsersQuery();
     const nav = useNavigate();
     const [updateUser] = useRemoveExpiredVouchersMutation();
@@ -31,7 +31,7 @@ const GiftedVouchers = () => {
             }
 
             if (usersToUpdate.length > 0) {
-                refetchUsers();
+                refetch();
                 message.info('Đã xóa voucher hết hạn khỏi danh sách người dùng.');
             }
         };
@@ -39,7 +39,7 @@ const GiftedVouchers = () => {
         if (allUsers && allUsers.data) {
             checkExpiredVouchers();
         }
-    }, [allUsers, updateUser, refetchUsers]);
+    }, [allUsers, updateUser, refetch]);
 
     const getRecipients = (voucherId) => {
         if (!allUsers || !allUsers.data) return [];
