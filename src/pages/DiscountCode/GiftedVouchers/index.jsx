@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Table, Avatar } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { useGetAllVoucherQuery } from '@/providers/apis/voucherApi';
@@ -6,7 +6,7 @@ import { useGetUsersQuery } from '@/providers/apis/userApi';
 
 const GiftedVouchers = () => {
     const { data: allVouchers, isLoading: vouchersLoading } = useGetAllVoucherQuery();
-    const { data: allUsers, isLoading: usersLoading } = useGetUsersQuery();
+    const { data: allUsers, isLoading: usersLoading, refetch } = useGetUsersQuery();
     const nav = useNavigate();
 
     const getRecipients = (voucherId) => {
@@ -18,7 +18,9 @@ const GiftedVouchers = () => {
                 return { ...user, voucherCount };
             });
     };
-
+    useEffect(() => {
+        refetch();
+    }, [allUsers]);
     const voucherColumns = [
         {
             title: 'Mã giảm giá',
