@@ -61,7 +61,7 @@ const UpdateLesson = ({ lesson, setLesson, refetch }) => {
             const formData = new FormData();
             formData.append('video', file);
 
-            const response = await axios.post('http://localhost:8080/api/courses/upload-video', formData, {
+            const response = await axios.post('http://localhost:8080/api/courses_teacher/upload-video', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },
