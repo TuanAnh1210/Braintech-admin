@@ -2,6 +2,9 @@ import { useCreateVoucherMutation } from '@/providers/apis/voucherApi';
 import { DatePicker, Form, Input, InputNumber, Select, message, Button } from 'antd';
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import moment from 'moment';
+
+const { Option } = Select;
 
 const CreateDiscountCode = () => {
     const [form] = Form.useForm();
@@ -13,11 +16,30 @@ const CreateDiscountCode = () => {
     }, []);
 
     const handleSubmit = async (value) => {
-        if (value) {
-            await createVoucher(value);
-            message.success('Tạo mới voucher thành công !!');
+        if (!value) return;
+
+        try {
+            const res = await createVoucher(value);
+            if (res?.error?.status === 400) {
+                throw new Error(res.error.data.msg);
+            }
+            message.success(res.data.message);
             nav('/manager-discount');
+        } catch (error) {
+            message.error(error.message || 'Đã có lỗi xảy ra');
         }
+    };
+
+    const disabledDate = (current) => {
+        return current && current < moment().endOf('day');
+    };
+
+    const checkEndDate = (rule, value) => {
+        const startDate = form.getFieldValue('startDate');
+        if (startDate && value && moment(value.$d).isSameOrBefore(moment(startDate.$d), 'day')) {
+            return Promise.reject(new Error('Ngày kết thúc phải là sau ngày bắt đầu'));
+        }
+        return Promise.resolve();
     };
 
     return (
@@ -84,21 +106,18 @@ const CreateDiscountCode = () => {
                             rules={[{ required: true, message: 'Vui lòng chọn ngày bắt đầu' }]}
                             className="mb-2"
                         >
-                            <DatePicker
-                                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                                format="YYYY-MM-DD"
-                            />
+                            <DatePicker style={{ width: '100%' }} format="YYYY-MM-DD" disabledDate={disabledDate} />
                         </Form.Item>
                         <Form.Item
                             label="Ngày Kết Thúc"
                             name="endDate"
-                            rules={[{ required: true, message: 'Vui lòng chọn ngày kết thúc' }]}
+                            rules={[
+                                { required: true, message: 'Vui lòng chọn ngày kết thúc' },
+                                { validator: checkEndDate },
+                            ]}
                             className="mb-2"
                         >
-                            <DatePicker
-                                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                                format="YYYY-MM-DD"
-                            />
+                            <DatePicker style={{ width: '100%' }} format="YYYY-MM-DD" disabledDate={disabledDate} />
                         </Form.Item>
                         <Form.Item
                             label="Trạng Thái"
@@ -123,7 +142,6 @@ const CreateDiscountCode = () => {
                                 <Option value="500000">500,000 VNĐ</Option>
                                 <Option value="1000000">1,000,000 VNĐ</Option>
                                 <Option value="2000000">2,000,000 VNĐ</Option>
-                                <Option value="5000000">5,000,000 VNĐ</Option>
                             </Select>
                         </Form.Item>
                         <Form.Item className="flex items-center justify-center">
