@@ -13,7 +13,6 @@ import { useGetCateQuery } from '@/providers/apis/cateApi';
 import { useMemo } from 'react';
 
 function getDuplicates(courseData, groupField = 'code', countName = 'courseCount') {
-    console.log(1, courseData);
     const counts = {};
 
     courseData.forEach(({ cate_id }) => {
