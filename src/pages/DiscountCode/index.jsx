@@ -440,7 +440,7 @@ const DiscountCode = () => {
                         </div>
                     </div>
                 </div>
-                <div className="absolute top-[150px] left-10">
+                <div className="absolute top-[140px] right-[150px]">
                     <Flex gap="small" align="flex-start" vertical>
                         <Flex gap="small" wrap>
                             <Link to={'/manager-discount/gift-voucher'}>
@@ -451,7 +451,7 @@ const DiscountCode = () => {
                         </Flex>
                     </Flex>
                 </div>
-                <div className="absolute top-[150px] right-10">
+                <div className="absolute top-[140px] right-10">
                     <Flex gap="small" align="flex-start" vertical>
                         <Flex gap="small" wrap>
                             <Link to={'/manager-discount/add'}>

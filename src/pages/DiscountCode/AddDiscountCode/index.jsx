@@ -47,9 +47,17 @@ const CreateDiscountCode = () => {
             <div className="relative flex flex-col items-center justify-center p-4 bg-white rounded-lg shadow-md">
                 <h3 className="text-xl font-bold text-black shadow-sm">Thêm Mã giảm giá</h3>
                 <button
-                    className="absolute top-1 left-10 bg-red-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline float-left"
+                    className="flex items-center absolute top-1 left-10 bg-red-500 hover:bg-blue-700 text-white font-bold py-1 px-2 rounded focus:outline-none focus:shadow-outline float-left"
                     onClick={() => nav(-1)}
                 >
+                    <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M11 19l-7-7 7-7m8 14l-7-7 7-7"
+                        />
+                    </svg>
                     Trở lại
                 </button>
                 <div className="w-full flex flex-col items-center justify-center bg-gray-100 pt-2">
