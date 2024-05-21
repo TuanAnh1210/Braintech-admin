@@ -4,10 +4,11 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { format } from 'date-fns';
 import Swal from 'sweetalert2';
 import axios from 'axios';
-import { useGetAllCoursesQuery, useGetCoursesTeachersQuery } from '@/providers/apis/courseTeacherApi';
+import { useGetAllCoursesQuery, useGetCoursesTeachersQuery, useUpdateCourseIDMutation } from '@/providers/apis/courseTeacherApi';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Highlighter from 'react-highlight-words';
 import { faSearch } from '@fortawesome/free-solid-svg-icons';
+import { useUpdateCourseIdQuery } from '@/providers/apis/userApi';
 
 
 const DetailTeacher = () => {
@@ -16,6 +17,7 @@ const DetailTeacher = () => {
     const [searchedColumn, setSearchedColumn] = useState('');
     const [loading, setLoading] = useState(false);
     const { data: courses } = useGetCoursesTeachersQuery(id)
+    const [updateCourse] = useUpdateCourseIDMutation()
     const [data1, setData] = useState([]);
     const { data: coursesAll = [], isLoading, refetch } = useGetAllCoursesQuery({}, { refetchOnMountOrArgChange: true });
     const navi = useNavigate();
@@ -25,7 +27,7 @@ const DetailTeacher = () => {
         fetch(`http://localhost:8080/api/courses_teacher/teacher/${id}`)
             .then((res) => res.json())
             .then((data) => {
-                console.log(data.courses);
+
                 setData(data.courses);
                 setLoading(false);
 
@@ -179,11 +181,12 @@ const DetailTeacher = () => {
                         ...courseUpdate,
                         teacherId: [...courseUpdate?.teacherId, id]
                     }
-
-                    axios.put(`http://localhost:8080/api/courses_teacher/update/${courseUpdate._id}`, update).then(() => {
+                    console.log(123, update);
+                    updateCourse(update).then(() => {
                         refetch()
                         fetchData();
                         Swal.fire("Saved!", "", "success")
+                        console.log('ok');
                     })
                 } else if (result.isDenied) {
                     Swal.fire('Hủy thành công', '', 'info');

@@ -6,12 +6,14 @@ import Highlighter from 'react-highlight-words';
 import { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
 import Swal from 'sweetalert2';
-import { useUpdateRoleQuery } from '@/providers/apis/userApi';
+import { useUpdateRoleQuery, useGetUsersQuery, useGetUserQuery, useGetTeachersQuery } from '@/providers/apis/userApi';
 
 const UserManager = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [user, setUser] = useState('');
     const [data, setData] = useState();
+    const { data: users } = useGetTeachersQuery()
+    console.log(users);
     const [valueData, setValueData] = useState('');
     const [loading, setLoading] = useState(false);
     const [searchText, setSearchText] = useState('');
