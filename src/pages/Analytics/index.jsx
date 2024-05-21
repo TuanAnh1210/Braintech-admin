@@ -57,35 +57,35 @@ const Analytics = () => {
     };
 
     //! BAD CODE but will work
-    // useEffect(() => {
-    //     if (billResponse) {
-    //         const data = billResponse?.map((bill) => {
-    //             // eslint-disable-next-line no-unused-vars
-    //             const { course_info, user_info, category_info, ...rest } = bill;
+    useEffect(() => {
+        if (billResponse) {
+            const data = billResponse?.map((bill) => {
+                // eslint-disable-next-line no-unused-vars
+                const { course_info, user_info, category_info, ...rest } = bill;
 
-    //             return { course_info, user_info, ...rest };
-    //         });
+                return { course_info, user_info, ...rest };
+            });
 
-    //         const groupedData = data.reduce((group, b) => {
-    //             const i = group.findIndex((item) => item._id === b.course_info._id);
-    //             return (
-    //                 i === -1
-    //                     ? group.push({
-    //                           _id: b.course_info._id,
-    //                           subscribers: 1,
-    //                           price: b.course_info.price,
-    //                           name: b.course_info.name,
-    //                           chapters: b.course_info.chapters,
-    //                           totalLessons: b.course_info.totalLessons,
-    //                       })
-    //                     : group[i].subscribers++,
-    //                 group
-    //             );
-    //         }, []);
+            const groupedData = data.reduce((group, b) => {
+                const i = group.findIndex((item) => item._id === b.course_info._id);
+                return (
+                    i === -1
+                        ? group.push({
+                              _id: b.course_info._id,
+                              subscribers: 1,
+                              price: b.course_info.price,
+                              name: b.course_info.name,
+                              chapters: b.course_info.chapters,
+                              totalLessons: b.course_info.totalLessons,
+                          })
+                        : group[i].subscribers++,
+                    group
+                );
+            }, []);
 
-    //         setBillData(groupedData);
-    //     }
-    // }, [billResponse]);
+            setBillData(groupedData);
+        }
+    }, [billResponse]);
 
     // handle time range filter
     useEffect(() => {
