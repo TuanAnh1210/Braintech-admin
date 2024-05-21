@@ -137,7 +137,7 @@ function TeacherManager() {
 
     const fetchData = () => {
         setLoading(true);
-        fetch(`http://localhost:8080/api/user/teachers`)
+        fetch(`http://localhost:8080/api/user/all/teachers`)
             .then((res) => res.json())
             .then(({ data }) => {
                 setData(data);

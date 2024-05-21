@@ -1,5 +1,5 @@
 import DetailBill from '@/pages/DetailBill';
-import UserManager from '@/pages/UserManager';
+
 import * as Course from '@/pages/CourseManager';
 import * as CourseTeacher from '@/pages/CourseTeacher';
 import Analytics from '@/pages/Analytics';
@@ -12,6 +12,7 @@ import TeacherManager from '@/pages/TeacherManager';
 import RateManager from '@/pages/RateManager';
 import DetailTeacher from '@/pages/DetailTeacher';
 import CreateDiscountCode from '@/pages/DiscountCode/AddDiscountCode';
+import UserManager from '@/pages/UserManager';
 
 const publicRoutes = [
     { path: 'dashboard', component: Analytics },
