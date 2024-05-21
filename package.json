@@ -44,6 +44,7 @@
     "read-excel-file": "^5.7.1",
     "recharts": "^2.12.6",
     "slick-carousel": "^1.8.1",
+    "socket.io-client": "^4.7.5",
     "sweetalert2": "^11.10.7",
     "video.js": "^8.10.0"
   },

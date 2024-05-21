@@ -26,7 +26,13 @@ import { Link } from 'react-router-dom';
 import { useGetUserByIdQuery, useGetUsersQuery, useUpdateUserMutation } from '@/providers/apis/userApi';
 import { Option } from 'antd/es/mentions';
 import { useCookies } from 'react-cookie';
+import { io } from 'socket.io-client';
 
+const ENDPOINT = 'http://localhost:2096';
+const socket = io(ENDPOINT, {
+    secure: false, // sử dụng SSL/TLS
+    port: 2096,
+});
 const DiscountCode = () => {
     const [searchText, setSearchText] = useState('');
     const [searchedColumn, setSearchedColumn] = useState('');
@@ -39,9 +45,6 @@ const DiscountCode = () => {
     const [selectedUser, setSelectedUser] = useState({});
     const [resultSearch, setResultSearch] = useState([]);
     const [voucherStatus, setVoucherStatus] = useState({});
-
-    const selectRef = useRef(null);
-
     const { data: allUsers } = useGetUsersQuery();
     const { data: currentUser } = useGetUserByIdQuery(selectedUser, { refetchOnMountOrArgChange: true });
     const { data: currentVoucher } = useGetVoucherByIdQuery(currentIdVoucher);
@@ -53,6 +56,16 @@ const DiscountCode = () => {
             setResultSearch(allUsers.data);
         }
     }, [allUsers]);
+
+    useEffect(() => {
+        if (allVouchers?.vouchers && allVouchers?.vouchers.length > 0) {
+            const initialStatus = allVouchers?.vouchers.reduce((acc, voucher) => {
+                acc[voucher._id] = voucher.status === 'ACTIVE';
+                return acc;
+            }, {});
+            setVoucherStatus(initialStatus);
+        }
+    }, [allVouchers?.vouchers]);
 
     const handleSearch = (selectedKeys, confirm, dataIndex) => {
         confirm();
@@ -167,6 +180,36 @@ const DiscountCode = () => {
         setResultSearch(allUsers.data);
     };
 
+    const sendNotification = (id) => {
+        socket.emit('sendNotification', {
+            userId: id,
+            message: 'Bạn đã được tặng một voucher! Vào trang cá nhân để kiểm tra',
+        });
+    };
+
+    const addNoti = async (newUserUpdate, newVoucherUpdate) => {
+        console.log(newUserUpdate, 'newUserUpdate');
+        console.log(newVoucherUpdate, 'newVoucherUpdate');
+
+        const content = `Bạn được tặng mã giảm giá <strong>${newUserUpdate.vouchers[0].codeName}</strong>`;
+        const info = `Giảm tối đa ${newUserUpdate.vouchers[0].maxDiscountAmount}`;
+        const user_id = newUserUpdate.userId;
+
+        const response = await fetch(import.meta.env.VITE_REACT_APP_API_PATH + 'api/noti/addNoti', {
+            method: 'POST', // or 'PUT'
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                content,
+                info,
+                user_id,
+            }),
+        });
+
+        console.log(response, 'response');
+    };
+
     const handleOk = async () => {
         let newObjectUser = { ...currentUser };
         let newObjectVoucher = { ...currentVoucher };
@@ -183,15 +226,21 @@ const DiscountCode = () => {
             accessToken: cookies.access_token,
         };
 
+        console.log(_id, '_id');
+
         const newVoucherUpdate = {
             voucherId: id,
             quantity: +quantity - 1,
         };
-
         if (newUserUpdate && newVoucherUpdate) {
             await updateUser(newUserUpdate);
             await updateVoucher(newVoucherUpdate);
-            message.success('Tặng thành công mã nay!');
+            message.success('Tặng thành công mã này!');
+
+            // Gửi thông báo cho học viên , đừng ai đụng gì tới phần này
+            sendNotification(_id);
+            await addNoti(newUserUpdate, newVoucherUpdate);
+            return;
         }
         setOpen(false);
         refetch();
@@ -211,51 +260,75 @@ const DiscountCode = () => {
         message.error('Clicked on No');
     };
 
-    const handleChangeState = (checked, id) => {
+    const formatCurrency = (value) => {
+        return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value);
+    };
+
+    const handleChangeState = async (checked, id) => {
         setVoucherStatus((prevState) => ({
             ...prevState,
             [id]: checked,
         }));
+        const newState = {
+            voucherId: id,
+            status: checked ? 'ACTIVE' : 'UNKNOWN',
+        };
+        if (newState) {
+            await updateVoucher(newState);
+        }
+        refetch();
     };
 
     const discountCodeColumns = [
+        {
+            title: 'STT',
+            key: 'id',
+            align: 'center',
+            width: 2,
+            render: (data, _, index) => {
+                return <p>{index + 1}</p>;
+            },
+        },
         {
             title: 'Mã giảm giá',
             dataIndex: 'codeName',
             key: 'codeName',
             align: 'center',
-            // add search props here if needed
+            width: 20,
+            ...getColumnSearchProps('codeName'),
         },
         {
             title: 'Số lượng',
             dataIndex: 'quantity',
             key: 'quantity',
             align: 'center',
+            width: 5,
         },
         {
-            title: 'Số lượng giảm giá',
+            title: 'Giảm giá (%)',
             dataIndex: 'discountAmount',
             key: 'discountAmount',
             align: 'center',
-            width: 10,
+            width: 5,
         },
         {
-            title: 'Giảm giá tối đa',
+            title: 'Giảm tối đa (Vnd)',
             dataIndex: 'maxDiscountAmount',
             key: 'maxDiscountAmount',
             align: 'center',
-            width: 10,
+            width: 5,
+            render: (value) => formatCurrency(value),
         },
-        {
-            title: 'Ngày bắt đầu',
-            dataIndex: 'startDate',
-            key: 'startDate',
-            align: 'center',
-            render: (data) => {
-                let date = new Date(data).toLocaleDateString('vi-VN');
-                return <p>{date}</p>;
-            },
-        },
+        // {
+        //     title: 'Ngày hiệu lực',
+        //     dataIndex: 'startDate',
+        //     key: 'startDate',
+        //     align: 'center',
+        //     render: (data) => {
+        //         let date = new Date(data).toLocaleDateString('vi-VN');
+        //         return <p>{date}</p>;
+        //     },
+        // },
         {
             title: 'Ngày kết thúc',
             dataIndex: 'endDate',
@@ -272,17 +345,25 @@ const DiscountCode = () => {
             key: 'status',
             align: 'center',
             render: (status, record) => {
-                const isActive = voucherStatus[record._id];
+                const isActive = (voucherStatus && voucherStatus[record._id]) || false;
                 return (
                     <Switch
                         className="bg-red-600"
                         checked={isActive}
                         onChange={(checked) => handleChangeState(checked, record._id)}
-                        checkedChildren="Kích hoạt"
-                        unCheckedChildren="Chưa kích hoạt"
-                        defaultChecked={true}
+                        checkedChildren="Active"
+                        unCheckedChildren="Stop"
                     />
                 );
+            },
+        },
+        {
+            title: 'Điều kiện áp dụng',
+            dataIndex: 'conditionAmount',
+            key: 'conditionAmount',
+            align: 'center',
+            render: (conditionAmount = '0') => {
+                return <p>{formatCurrency(conditionAmount) || 0}</p>;
             },
         },
         {
@@ -340,6 +421,7 @@ const DiscountCode = () => {
                 items={[
                     {
                         title: 'Trang chủ',
+                        href: '/dashboard',
                     },
                     {
                         title: 'Mã giảm giá',
@@ -354,15 +436,26 @@ const DiscountCode = () => {
                             <h4 className="xl:text-[25px] lg:text-[25px] sm:text-[18px] md:text-[18px] mt-[10px] mb-[5px]">
                                 Mã giảm giá
                             </h4>
-                            <p>Discount Code</p>
+                            <p>Vouchers</p>
                         </div>
                     </div>
                 </div>
-                <div className="absolute top-[150px] right-10">
+                <div className="absolute top-[140px] right-[150px]">
+                    <Flex gap="small" align="flex-start" vertical>
+                        <Flex gap="small" wrap>
+                            <Link to={'/manager-discount/gift-voucher'}>
+                                <Button className="bg-[#eb2f96] text-white" size={'30'}>
+                                    Voucher++
+                                </Button>
+                            </Link>
+                        </Flex>
+                    </Flex>
+                </div>
+                <div className="absolute top-[140px] right-10">
                     <Flex gap="small" align="flex-start" vertical>
                         <Flex gap="small" wrap>
                             <Link to={'/manager-discount/add'}>
-                                <Button type="primary" size={'30'}>
+                                <Button className="bg-[#0958d9] text-white" size={'30'}>
                                     Thêm mới
                                 </Button>
                             </Link>
@@ -378,7 +471,7 @@ const DiscountCode = () => {
                                 ) : (
                                     <Table
                                         columns={discountCodeColumns}
-                                        dataSource={allVouchers.vouchers}
+                                        dataSource={allVouchers?.vouchers}
                                         loading={isLoading}
                                     />
                                 )}
@@ -408,7 +501,7 @@ const DiscountCode = () => {
                         <Select
                             showSearch
                             placeholder="Chọn người nhận voucher"
-                            className="flex h-[50px]"
+                            className="flex h-[60px]"
                             onChange={onChange}
                             onSearch={onSearch}
                             onFocus={handleFocus}
@@ -435,12 +528,14 @@ const DiscountCode = () => {
                                     ))}
                                     <div style={{ display: 'flex', alignItems: 'center' }}>
                                         <Avatar
-                                            src={`https://picsum.photos/seed/${user._id}/40/40`}
-                                            alt={user.full_name}
+                                            src={`https://picsum.photos/seed/${user?._id}/40/40`}
+                                            alt={user?.full_name}
                                             className="h-10 w-10 object-fit"
                                         />
                                         <div className="">
-                                            <p style={{ marginLeft: 8 }}>{user.full_name}</p>
+                                            <p style={{ marginLeft: 8, fontSize: '16px', paddingTop: 5 }}>
+                                                {user.full_name}
+                                            </p>
                                             <span style={{ marginLeft: 8, fontSize: '10px' }}>{user.email}</span>
                                         </div>
                                     </div>
@@ -452,7 +547,7 @@ const DiscountCode = () => {
                 <div className="absolute bottom-5 right-[200px]">
                     <Space>
                         <Button>
-                            <h4 className="text-small font-bold text-blue-600">
+                            <h4 className="text-small text-blue-600">
                                 Tổng có {allVouchers?.vouchers.length}{' '}
                                 {allVouchers?.vouchers.length > 1 ? 'vouchers' : 'voucher'}
                             </h4>

@@ -182,6 +182,7 @@ const UserManager = () => {
     const showModal = () => {
         setIsModalOpen(true);
     };
+
     const handleOk = async () => {
         console.log(valueData);
         try {
@@ -190,15 +191,16 @@ const UserManager = () => {
                 const userUpdate = {
                     ...user,
                     isAdmin: true,
-                    isTeacher: true
-                }
+                    isTeacher: true,
+                };
 
                 await axios.put(`http://localhost:8080/api/user/update/${user?._id}`, userUpdate).then(() => {
                     notification.success({
                         message: 'Thông báo',
-                        description: "Vai trò của tài khoản đã thay đổi!",
+                        description: 'Vai trò của tài khoản đã thay đổi!',
                         duration: 1.75,
                     });
+
                     fetchData()
                 })
 
@@ -264,16 +266,13 @@ const UserManager = () => {
                                             {
                                                 value: 'true',
                                                 label: 'Giảng viên',
-
                                             },
                                         ]}
                                     />
-
-
                                 </Space>
                             </Modal>
                         </>
-                        <Button danger onClick={() => onHandleDelete(id)} >
+                        <Button danger onClick={() => onHandleDelete(id)}>
                             Xóa
                         </Button>
                     </div>
@@ -314,6 +313,6 @@ const UserManager = () => {
             </div>
         </div>
     );
-}
+};
 
 export default UserManager;

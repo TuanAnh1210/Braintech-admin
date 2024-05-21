@@ -65,7 +65,7 @@ const CreateLesson = ({ refetch }) => {
             const formData = new FormData();
             formData.append('video', file);
 
-            const response = await axios.post('http://localhost:8080/api/courses/upload-video', formData, {
+            const response = await axios.post('http://localhost:8080/api/courses_teacher/upload-video', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },
@@ -318,7 +318,7 @@ const CreateLesson = ({ refetch }) => {
                                             <input
                                                 onChange={handleUploadVideo}
                                                 className="opacity-0 absolute inset-0 cursor-pointer"
-                                                title="Chọn hình ảnh bìa khóa học"
+                                                title="Chọn video khóa học"
                                                 accept=".mp4"
                                                 type="file"
                                             />
