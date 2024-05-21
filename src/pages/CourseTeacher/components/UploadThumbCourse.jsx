@@ -4,8 +4,8 @@ import classNames from 'classnames';
 import { Image, Progress } from 'antd';
 import React from 'react';
 
+import { useUploadImageMutation } from '@/providers/apis/courseTeacherApi';
 import { clipboard, convertBytesToReadableSize } from '@/lib/utils';
-import { useUploadImageMutation } from '@/providers/apis/courseApi';
 
 import uploadImageSvg from '@/assets/images/upload.svg';
 

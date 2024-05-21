@@ -5,9 +5,9 @@ import { Image, Progress } from 'antd';
 import React from 'react';
 
 import { clipboard, convertBytesToReadableSize } from '@/lib/utils';
-import { useUploadImageMutation } from '@/providers/apis/courseApi';
 
 import uploadImageSvg from '@/assets/images/upload.svg';
+import { useUploadImageMutation } from '@/providers/apis/courseTeacherApi';
 
 const UploadThumbCourse = ({ course, thumbnail, setThumbnail }) => {
     const [file, setFile] = React.useState(null);
