@@ -138,7 +138,7 @@ const GiftedVouchers = () => {
     return (
         <div className="w-full p-4">
             <div className="flex flex-col items-start justify-center bg-white rounded-lg shadow-md p-8">
-                <h1 className="text-2xl font-bold mb-2">Quản Lý Voucher</h1>
+                <h1 className="text-2xl font-bold mb-2">Quản lý Mã giảm giá</h1>
                 <div className="mb-8">
                     <button
                         className="flex items-center bg-red-500 hover:bg-red-700 text-white py-1 px-2 rounded focus:outline-none focus:shadow-outline"
