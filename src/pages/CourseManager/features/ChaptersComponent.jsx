@@ -6,7 +6,7 @@ import { Link, useParams } from 'react-router-dom';
 import { Flex, Card, Space, Empty, Tag, Tree } from 'antd';
 import React from 'react';
 
-import { useGetCourseByIdQuery } from '@/providers/apis/courseApi';
+import { useGetCourseByIdQuery } from '@/providers/apis/courseTeacherApi';
 
 import CreateChapter from './CreateChapter';
 import UpdateChapter from './UpdateChapter';
@@ -14,11 +14,16 @@ import UpdateChapter from './UpdateChapter';
 const ChaptersComponent = () => {
     const { courseId } = useParams();
 
-    const { data: course = { chapters: [] }, isLoading } = useGetCourseByIdQuery(courseId, {
+    const {
+        data: course = { chapters: [] },
+        isLoading,
+        refetch,
+    } = useGetCourseByIdQuery(courseId, {
         skip: !courseId,
+        refetchOnMountOrArgChange: true,
     });
-
-    const gchapters = course.chapters.map((chapter, index) => {
+    console.log(course)
+    const gchapters = course?.chapters?.map((chapter, index) => {
         const chapterId = chapter._id;
         return {
             key: chapterId,
@@ -26,11 +31,11 @@ const ChaptersComponent = () => {
                 <Flex justify="space-between" className="font-semibold text-base">
                     <Flex>
                         {index + 1}. {chapter.name}
-                        <UpdateChapter chapter={chapter} />
+                        <UpdateChapter chapter={chapter} refetch={refetch} />
                     </Flex>
 
                     <Flex align="flex-start">
-                        {chapter?.isFree && <Tag color="processing">Miễn phí</Tag>}
+                        {/* {chapter?.isFree && <Tag color="processing">Miễn phí</Tag>} */}
                         <Tag color={chapter?.isPublic ? 'success' : 'warning'}>
                             {chapter?.isPublic ? 'Công khai' : 'Bản nháp'}
                         </Tag>
@@ -51,7 +56,7 @@ const ChaptersComponent = () => {
     };
 
     React.useEffect(() => {
-        if (course.chapters.length > 0) {
+        if (course?.chapters?.length > 0) {
             setGData(gchapters);
         }
     }, [course]);
@@ -113,7 +118,7 @@ const ChaptersComponent = () => {
                 <Space className="flex items-center justify-between">
                     <p>Danh sách chương học</p>
 
-                    <CreateChapter />
+                    <CreateChapter refetch={refetch} />
                 </Space>
             }
             className="w-full min-h-[680px]"
@@ -126,7 +131,7 @@ const ChaptersComponent = () => {
                 </div>
             ) : (
                 <>
-                    <h2 className="font-bold text-lg mb-6">Khóa học: {course.name}</h2>
+                    <h2 className="font-bold text-lg mb-6">Khóa học: {course?.name || ''}</h2>
 
                     <Tree
                         draggable
@@ -138,7 +143,7 @@ const ChaptersComponent = () => {
                         className="draggable-tree"
                     />
 
-                    {gData.length === 0 && <Empty className="mt-16" description="Chưa có dữ liệu" />}
+                    {gData?.length === 0 && <Empty className="mt-16" description="Chưa có dữ liệu" />}
 
                     {/* {course.chapters.map((chapter, index) => {
                             const lessons = chapter.lessons;

@@ -1,5 +1,5 @@
 import { Breadcrumb, Button, Col, Input, Row, Space, Table } from 'antd';
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { SearchOutlined } from '@ant-design/icons';
 import Highlighter from 'react-highlight-words';
 import { useGetCoursesQuery } from '@/providers/apis/courseApi';
@@ -120,6 +120,7 @@ const Dashboard = () => {
                 text
             ),
     });
+
     const columns = [
         {
             title: 'STT',
@@ -182,7 +183,6 @@ const Dashboard = () => {
 
     // Hiển thị số lượng và các object không trùng lặp
     uniqueObjects.forEach((obj, index) => {
-        console.log(index);
         let key = JSON.stringify(obj);
         Counts.push({
             id: index + 1,
@@ -203,7 +203,6 @@ const Dashboard = () => {
     }
 
     let sumItem = SumCourt(Counts?.map((i) => i?.total));
-    console.log(listUser?.data?.name);
 
     return (
         <div className="w-full">
@@ -303,7 +302,7 @@ const Dashboard = () => {
                                         viewBox="0 0 16 16"
                                     >
                                         <path
-                                            fill-rule="evenodd"
+                                            fillRule="evenodd"
                                             d="M10 1.5a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5zm-5 0A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5v1A1.5 1.5 0 0 1 9.5 4h-3A1.5 1.5 0 0 1 5 2.5zm-2 0h1v1A2.5 2.5 0 0 0 6.5 5h3A2.5 2.5 0 0 0 12 2.5v-1h1a2 2 0 0 1 2 2V14a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V3.5a2 2 0 0 1 2-2"
                                         />
                                     </svg>
@@ -353,7 +352,7 @@ const Dashboard = () => {
                                         viewBox="0 0 16 16"
                                     >
                                         <path
-                                            fill-rule="evenodd"
+                                            fillRule="evenodd"
                                             d="M10 1.5a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5zm-5 0A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5v1A1.5 1.5 0 0 1 9.5 4h-3A1.5 1.5 0 0 1 5 2.5zm-2 0h1v1A2.5 2.5 0 0 0 6.5 5h3A2.5 2.5 0 0 0 12 2.5v-1h1a2 2 0 0 1 2 2V14a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V3.5a2 2 0 0 1 2-2"
                                         />
                                     </svg>
@@ -404,10 +403,13 @@ const Dashboard = () => {
                                         viewBox="0 0 16 16"
                                     >
                                         <path
-                                            fill-rule="evenodd"
+                                            fillRule="evenodd"
                                             d="M10 1.5a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5zm-5 0A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5v1A1.5 1.5 0 0 1 9.5 4h-3A1.5 1.5 0 0 1 5 2.5zm-2 0h1v1A2.5 2.5 0 0 0 6.5 5h3A2.5 2.5 0 0 0 12 2.5v-1h1a2 2 0 0 1 2 2V14a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V3.5a2 2 0 0 1 2-2"
                                         />
                                     </svg>
+                                    <a href="#pablo" className="warning-link text-white sm:text-[10px] lg:text-[15px]">
+                                        Tổng khóa học
+                                    </a>
                                     <a href="#pablo" className="warning-link text-white sm:text-[10px] lg:text-[15px]">
                                         Tổng khóa học
                                     </a>
@@ -418,6 +420,19 @@ const Dashboard = () => {
                 </Col>
             </Row>
 
+            {/* <div className=" relative p-[5px] mt-[100px] ">
+                <div className="static">
+                    <div className="bg-gray-600 absolute top-0 left-0  w-[95%] sm:h-32 md:h-32 h-[105px] ml-[30px] p-[15px] rounded ">
+                        <h4 className="text-white xl:text-[25px] lg:text-[25px] sm:text-[18px] md:text-[18px] mt-[10px] mb-[5px]">
+                            Doanh thu năm 2024
+                        </h4>
+                        <p className="text-white pb-[20px] mr-[20px] sm:text-[15px] md:text-[15px] text-[18px]">
+                            {' '}
+                            Tổng doanh thu: <span className="px-[5px] font-bold">{VND.format(sumItem)}</span>
+                        </p>
+                    </div>
+                </div>   
+            </div>      */}
             <div className=" relative p-[5px] mt-[100px] ">
                 <div className="static">
                     <div className="bg-gray-600 absolute top-0 left-0  w-[95%] sm:h-32 md:h-32 h-[105px] ml-[30px] p-[15px] rounded ">
@@ -430,13 +445,27 @@ const Dashboard = () => {
                         </p>
                     </div>
                 </div>
-                <div className="bg-white mt-[30px]  sm:pt-[100px] md:pt-[150px] pt-[80px] rounded w-full">
-                    <div className="px-[30px] ">
-                        <Table columns={columns} dataSource={Counts} />
+                <div className=" relative p-[5px] mt-[100px] ">
+                    <div className="static">
+                        <div className="bg-gray-600 absolute top-0 left-0  w-[95%] sm:h-32 md:h-32 h-[105px] ml-[30px] p-[15px] rounded ">
+                            <h4 className="text-white xl:text-[25px] lg:text-[25px] sm:text-[18px] md:text-[18px] mt-[10px] mb-[5px]">
+                                Doanh thu năm 2024
+                            </h4>
+                            <p className="text-white pb-[20px] mr-[20px] sm:text-[15px] md:text-[15px] text-[18px]">
+                                {' '}
+                                Tổng doanh thu: <span className="px-[5px] font-bold">{VND.format(sumItem)}</span>
+                            </p>
+                        </div>
+                    </div>
+                    <div className="bg-white mt-[30px]  sm:pt-[100px] md:pt-[150px] pt-[80px] rounded w-full">
+                        <div className="px-[30px] ">
+                            <Table columns={columns} dataSource={listCourses} />
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     );
 };
+
 export default Dashboard;

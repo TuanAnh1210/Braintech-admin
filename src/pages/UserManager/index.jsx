@@ -1,20 +1,27 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { Breadcrumb, Button, Image, Input, Space, Table } from 'antd';
+import { Breadcrumb, Button, Image, Input, Space, Table, Modal, Select, notification } from 'antd';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearch } from '@fortawesome/free-solid-svg-icons';
 import Highlighter from 'react-highlight-words';
 import { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
+import Swal from 'sweetalert2';
+import { useUpdateRoleQuery, useGetUsersQuery, useGetUserQuery, useGetTeachersQuery } from '@/providers/apis/userApi';
 
-function UserManager() {
+const UserManager = () => {
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [user, setUser] = useState('');
     const [data, setData] = useState();
+    const { data: users } = useGetTeachersQuery()
+    console.log(users);
+    const [valueData, setValueData] = useState('');
     const [loading, setLoading] = useState(false);
     const [searchText, setSearchText] = useState('');
     const [searchedColumn, setSearchedColumn] = useState('');
     const [tableParams, setTableParams] = useState({
         pagination: {
             current: 1,
-            pageSize: 10,
+            pageSize: 6,
         },
     });
     const searchInput = useRef(null);
@@ -118,7 +125,7 @@ function UserManager() {
 
     const fetchData = () => {
         setLoading(true);
-        fetch(`http://localhost:8080/api/user`)
+        fetch(import.meta.env.VITE_REACT_APP_API_PATH + 'api/user/all/students')
             .then((res) => res.json())
             .then(({ data }) => {
                 setData(data);
@@ -128,22 +135,9 @@ function UserManager() {
                     pagination: {
                         ...tableParams.pagination,
                         total: 200,
-                        // 200 is mock data, you should read it from server
-                        // total: data.totalCount,
                     },
                 });
             });
-    };
-
-    const rowSelection = {
-        onChange: (selectedRowKeys, selectedRows) => {
-            console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
-        },
-        getCheckboxProps: (record) => ({
-            disabled: record.name === 'Disabled User',
-            // Column configuration not to be checked
-            name: record.name,
-        }),
     };
 
     useEffect(() => {
@@ -157,23 +151,75 @@ function UserManager() {
             ...sorter,
         });
 
-        // `dataSource` is useless since `pageSize` changed
         if (pagination.pageSize !== tableParams.pagination?.pageSize) {
             setData([]);
         }
     };
     const onHandleDelete = async (id) => {
-        if (confirm('Are you sure?')) {
-            try {
-                const response = await axios.delete(`http://localhost:8080/api/user/delete/${id}`);
-                if (response.status == 200) {
-                    alert('Successfull');
-                    fetchData();
-                }
-            } catch (error) {
-                console.log('ERROR_DELETE:', error);
+        console.log(id);
+        Swal.fire({
+            title: 'Học viên này sẽ bị xóa!!',
+            text: 'Bạn có chắc muốn xóa học viên này chứ ?',
+            showDenyButton: true,
+            confirmButtonText: 'Xóa',
+            showConfirmButton: true,
+            denyButtonText: `Hủy`,
+        }).then((result) => {
+            if (result.isConfirmed) {
+                axios
+                    .delete(import.meta.env.VITE_REACT_APP_API_PATH + 'api/user/delete/' + id)
+                    .then(() => {
+                        fetchData();
+                        Swal.fire('Xóa thành công!', '', 'success');
+                    })
+                    .catch((error) => console.log('ERROR_DELETE:', error));
+            } else if (result.isDenied) {
+                Swal.fire('Hủy thành công', '', 'info');
             }
+        });
+    };
+
+    const showModal = () => {
+        setIsModalOpen(true);
+    };
+
+    const handleOk = async () => {
+        console.log(valueData);
+        try {
+            if (valueData === "true") {
+
+                const userUpdate = {
+                    ...user,
+                    isAdmin: true,
+                    isTeacher: true,
+                };
+
+                await axios.put(`http://localhost:8080/api/user/update/${user?._id}`, userUpdate).then(() => {
+                    notification.success({
+                        message: 'Thông báo',
+                        description: 'Vai trò của tài khoản đã thay đổi!',
+                        duration: 1.75,
+                    });
+
+                    fetchData()
+                })
+
+                setIsModalOpen(false);
+            } return;
+        } catch (error) {
+            console.log(error);
         }
+    };
+    const handleCancel = () => {
+        setIsModalOpen(false);
+    };
+    const onA = (id) => {
+        const user = data?.find(i => i._id === id)
+        setUser(user)
+    }
+    const handleChange = (value) => {
+        setValueData(value)
+
     };
     const columns = [
         {
@@ -184,16 +230,18 @@ function UserManager() {
             },
         },
         {
-            title: 'Email',
-            dataIndex: 'email',
+            title: 'Họ Tên',
+            dataIndex: 'full_name',
+            key: 'full_name',
             sorter: true,
-            ...getColumnSearchProps('email'),
+            ...getColumnSearchProps('full_name'),
         },
         {
-            title: 'Phone',
-            dataIndex: 'phone',
+            title: 'Email',
+            dataIndex: 'email',
+            key: 'email',
             sorter: true,
-            ...getColumnSearchProps('phone'),
+            ...getColumnSearchProps('email'),
         },
         {
             title: 'Thao tác',
@@ -201,9 +249,31 @@ function UserManager() {
             render: (id) => {
                 return (
                     <div className="flex gap-3">
-                        {/* <Button type="primary">Cập nhật</Button> */}
+                        <>
+                            <Button type="primary" onClick={showModal}>
+                                Chỉnh sửa
+                            </Button>
+                            <Modal title="Vai trò" open={isModalOpen} onOk={handleOk} onCancel={handleCancel} maskClosabler={true}>
+                                <Space wrap>
+                                    <Select
+                                        defaultValue="Học viên"
+                                        style={{
+                                            width: 150,
+                                        }}
+                                        onClick={onA(id)}
+                                        onChange={handleChange}
+                                        options={[
+                                            {
+                                                value: 'true',
+                                                label: 'Giảng viên',
+                                            },
+                                        ]}
+                                    />
+                                </Space>
+                            </Modal>
+                        </>
                         <Button danger onClick={() => onHandleDelete(id)}>
-                            Khóa
+                            Xóa
                         </Button>
                     </div>
                 );
@@ -223,7 +293,7 @@ function UserManager() {
                         title: 'Tài khoản',
                     },
                     {
-                        title: 'Quản lý tài khoản',
+                        title: 'Quản lý học viên',
                     },
                 ]}
             />
@@ -233,20 +303,16 @@ function UserManager() {
                     style={{ overflowX: 'auto' }}
                     className="bg-white p-3 rounded"
                     columns={columns}
-                    rowSelection={{
-                        ...rowSelection,
-                    }}
                     dataSource={data}
-                    pagination={tableParams.pagination}
                     loading={loading}
                     title={() => {
-                        return <p style={{ fontWeight: 600, fontSize: '20px' }}>Danh sách tài khoản</p>;
+                        return <p style={{ fontWeight: 600, fontSize: '20px' }}>Danh sách học viên</p>;
                     }}
                     onChange={handleTableChange}
                 />
             </div>
         </div>
     );
-}
+};
 
 export default UserManager;

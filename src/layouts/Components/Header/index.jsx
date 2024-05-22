@@ -1,15 +1,20 @@
 import classNames from 'classnames/bind';
 import { CgSun } from 'react-icons/cg';
-import { FaGear, FaExpand, FaCompress, FaBell } from 'react-icons/fa6';
+import { FaGear, FaExpand, FaCompress, FaBell, FaRightFromBracket } from 'react-icons/fa6';
 import { useEffect, useState } from 'react';
 
 import styles from './AdminHeader.module.scss';
 
 import facesImage from '@/assets/images/faces.jpg';
+import { Cookies, useCookies } from 'react-cookie';
+import { useNavigate } from 'react-router-dom';
 
 const cx = classNames.bind(styles);
 
 function AdminHeader() {
+    const navigate = useNavigate();
+    const [cookies, setCookie] = useCookies(['cookieLoginStudent']);
+
     const [fullScreen, setFullScreen] = useState(false);
 
     const handleFullScreen = () => {
@@ -32,6 +37,9 @@ function AdminHeader() {
     };
 
     useEffect(() => {
+        if (Object.keys(cookies).length === 0 || !cookies?.cookieLoginStudent?.isTeacher && !cookies?.cookieLoginStudent?.isAdmin) {
+            window.location.href = 'http://localhost:3000/';
+        }
         const handleFullScreenChange = () => {
             if (document.fullscreenElement) {
                 setFullScreen(true);
@@ -61,9 +69,15 @@ function AdminHeader() {
             handleExitFullScreen();
         }
     };
+    const _cookies = new Cookies(); // Tạo một instance mới của Cookies
+
+    const handleLogout = () => {
+        _cookies.remove('cookieLoginStudent');
+        window.location.reload();
+    };
 
     return (
-        <div className={cx('header', 'h-[68px] border-b z-[999]')}>
+        <div className={cx('header', 'h-[68px] border-b z-30')}>
             <div className="cursor-pointer">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path
@@ -81,9 +95,9 @@ function AdminHeader() {
                 </svg>
             </div>
             <div className="flex items-center gap-6 text-[#536485] text-lg">
-                <CgSun className="cursor-pointer text-[#ffa735] hover:rotate-180 duration-150" />
+                {/* <CgSun className="cursor-pointer text-[#ffa735] hover:rotate-180 duration-150" /> */}
 
-                <div className={classNames('relative cursor-pointer')}>
+                {/* <div className={classNames('relative cursor-pointer')}>
                     <FaBell />
                     <div className="absolute -right-1 -top-1">
                         <span className="relative flex w-2.5 h-2.5">
@@ -91,24 +105,32 @@ function AdminHeader() {
                             <span className="relative inline-flex rounded-full w-2.5 h-2.5 bg-sky-500"></span>
                         </span>
                     </div>
-                </div>
+                </div> */}
 
                 <div className="cursor-pointer" onClick={handleScreen}>
                     {!fullScreen ? <FaExpand /> : <FaCompress />}
                 </div>
-
-                <div className="flex items-center gap-3 cursor-pointer">
-                    <img width={30} height={30} className="rounded-full" src={facesImage} alt="" />
-                    <div className="flex items-start flex-col">
-                        <span className="leading-5" style={{ fontSize: '12px', fontWeight: '600' }}>
-                            Juno Dev
-                        </span>
-                        <span className="leading-4" style={{ fontSize: '10px' }}>
-                            Web Developer
-                        </span>
+                {
+                    <div className="flex items-center gap-3 cursor-pointer">
+                        <img
+                            width={30}
+                            height={30}
+                            className="rounded-full"
+                            src={cookies?.cookieLoginStudent?.avatar}
+                            alt=""
+                        />
+                        <div className="flex items-start flex-col">
+                            <span className="leading-5" style={{ fontSize: '12px', fontWeight: '600' }}>
+                                {cookies?.cookieLoginStudent?.fullName}
+                            </span>
+                            <span className="leading-4" style={{ fontSize: '10px' }}>
+                                {cookies?.cookieLoginStudent?.email}
+                            </span>
+                        </div>
                     </div>
-                </div>
-                <FaGear className={cx('spin', 'cursor-pointer')} />
+                }
+
+                <FaRightFromBracket title="Đăng xuất" className={cx('cursor-pointer')} onClick={handleLogout} />
             </div>
         </div>
     );

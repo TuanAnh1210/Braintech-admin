@@ -5,36 +5,40 @@ import { Image, Progress } from 'antd';
 import React from 'react';
 
 import { clipboard, convertBytesToReadableSize } from '@/lib/utils';
-import { useUploadImageMutation } from '@/providers/apis/courseApi';
 
 import uploadImageSvg from '@/assets/images/upload.svg';
+import { useUploadImageMutation } from '@/providers/apis/courseTeacherApi';
 
 const UploadThumbCourse = ({ course, thumbnail, setThumbnail }) => {
     const [file, setFile] = React.useState(null);
 
     const [uploadImage, { isLoading: isLoadingUpload }] = useUploadImageMutation({
-        onError: (error) => {
-            console.error('Đã xảy ra lỗi:', error);
-        },
-        onSuccess: (data) => {
-            console.log('Upload ảnh thành công:', data);
-            // Xử lý kết quả upload ảnh ở đây
-        },
-        onProgress: (event) => {
-            const percentCompleted = Math.round((event.loaded / event.total) * 100);
-            console.log('Tiến độ upload:', percentCompleted);
-            // Cập nhật tiến độ upload ở đây
-        },
+        // onError: (error) => {
+        //     console.error('Đã xảy ra lỗi:', error);
+        // },
+        // onSuccess: (data) => {
+        //     console.log('Upload ảnh thành công:', data);
+        //     // Xử lý kết quả upload ảnh ở đây
+        // },
+        // onProgress: (event) => {
+        //     const percentCompleted = Math.round((event.loaded / event.total) * 100);
+        //     console.log('Tiến độ upload:', percentCompleted);
+        //     // Cập nhật tiến độ upload ở đây
+        // },
     });
 
     const handleUploadThumb = async (file) => {
-        setFile(file);
+        try {
+            setFile(file);
 
-        const form = new FormData();
-        form.append('image', file);
+            const form = new FormData();
+            form.append('image', file);
 
-        const { data } = await uploadImage(form);
-        setThumbnail(data?.data);
+            const { data } = await uploadImage(form);
+            setThumbnail(data?.data);
+        } catch (error) {
+            console.log(error);
+        }
     }; // Xử lý upload hình ảnh lên clould
 
     const handleDrop = (event) => {

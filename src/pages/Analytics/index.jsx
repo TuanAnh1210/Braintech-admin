@@ -1,40 +1,46 @@
 /* eslint-disable react/prop-types */
 import { useEffect, useRef, useState } from 'react';
 import Highlighter from 'react-highlight-words';
-import { Layout, Table, Card, Input, Space, Button, Breadcrumb, Form, DatePicker } from 'antd';
-import dayjs from 'dayjs';
+import { Layout, Table, Card, Input, Space, Button, Breadcrumb, Form, DatePicker, Row, Col } from 'antd';
 import isBetween from 'dayjs/plugin/isBetween';
+import dayjs from 'dayjs';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearch } from '@fortawesome/free-solid-svg-icons';
 
-import { useGetSttCourseQuery } from '@/providers/apis/sttCourseApi';
 import { useGetUsersQuery } from '@/providers/apis/userApi';
 import { useGetCoursesQuery } from '@/providers/apis/courseApi';
-import { formatMoneyInt } from '@/lib/utils';
-import { TIMEFRAMES } from './common';
-import { Overview } from './components';
+import { useGetBillsQuery } from '@/providers/apis/billApi';
 
+import { formatMoneyInt } from '@/lib/utils';
+import { TIMEFRAMES } from '@/lib/utils';
+import { Overview } from './overview';
+import { CourseCategoryChart } from './charts';
+import { useGetAllCoursesQuery } from '@/providers/apis/courseTeacherApi';
 const { Content } = Layout;
 const { RangePicker } = DatePicker;
 
 dayjs.extend(isBetween);
 
 const rangeFitler = (items, { fromDate, toDate }) => {
-    return items.filter((item) => dayjs(item.createdAt).isBetween(fromDate, toDate));
+    return items.filter((item) => {
+        if (!item?.createdAt) return false;
+        return dayjs(item?.createdAt).isBetween(fromDate, toDate);
+    });
 };
 
 const Analytics = () => {
-    const [timeStamp, setTimeStamp] = useState(TIMEFRAMES.thisMonth);
-    const { data: statusCourseResponse, isLoading } = useGetSttCourseQuery(timeStamp, { skip: !timeStamp });
+    const [timeframe, setTimeframe] = useState(TIMEFRAMES.thisMonth);
+    const { data: billResponse, isLoading } = useGetBillsQuery(timeframe, { skip: !timeframe });
     const { data: userResponse } = useGetUsersQuery();
-    const { data: courseResponse } = useGetCoursesQuery();
-
+    //const { data: courseTeacher } = useGetCoursesQuery();
+    const { data: courseTeacher } = useGetAllCoursesQuery();
     const [searchText, setSearchText] = useState('');
     const [searchedColumn, setSearchedColumn] = useState('');
-    const [statCourseData, setStatCourseData] = useState([]);
+    const [billData, setBillData] = useState([]);
 
     const [userData, setUserData] = useState(userResponse?.data);
+    const [courseData, setCourseData] = useState(courseTeacher?.data);
 
     const [sortedInfo, setSortedInfo] = useState({});
     const searchInput = useRef(null);
@@ -50,25 +56,57 @@ const Analytics = () => {
         setSearchText('');
     };
 
+    //! BAD CODE but will work
     useEffect(() => {
-        if (typeof statusCourseResponse === 'object' && statusCourseResponse?.data) {
-            setStatCourseData(statusCourseResponse?.data);
+        if (billResponse) {
+            const data = billResponse?.map((bill) => {
+                // eslint-disable-next-line no-unused-vars
+                const { course_info, user_info, category_info, ...rest } = bill;
+
+                return { course_info, user_info, ...rest };
+            });
+
+            const groupedData = data.reduce((group, b) => {
+                const i = group.findIndex((item) => item._id === b.course_info._id);
+                return (
+                    i === -1
+                        ? group.push({
+                              _id: b.course_info._id,
+                              subscribers: 1,
+                              price: b.course_info.price,
+                              name: b.course_info.name,
+                              chapters: b.course_info.chapters,
+                              totalLessons: b.course_info.totalLessons,
+                          })
+                        : group[i].subscribers++,
+                    group
+                );
+            }, []);
+
+            setBillData(groupedData);
         }
-    }, [statusCourseResponse]);
+    }, [billResponse]);
 
     // handle time range filter
     useEffect(() => {
         if (userResponse?.data) {
             const original = userResponse.data.filter((u) => !u.isAdmin);
-            const filtered = rangeFitler(original, timeStamp);
+            const filtered = rangeFitler(original, timeframe);
 
             setUserData({ original, filtered });
         }
-    }, [timeStamp, userResponse, courseResponse]);
+
+        if (courseTeacher) {
+            const original = courseTeacher;
+            const filtered = rangeFitler(original, timeframe);
+
+            setCourseData({ original, filtered });
+        }
+    }, [timeframe, userResponse, courseTeacher]);
 
     // handle sort
     const handleSorted = (sortOrder, columnKey) => {
-        const sortedData = [...statCourseData].sort((a, b) => {
+        const sortedData = [...billData].sort((a, b) => {
             if (sortOrder === 'ascend') {
                 return a[columnKey] - b[columnKey];
             } else {
@@ -77,7 +115,7 @@ const Analytics = () => {
         });
 
         setSortedInfo({ columnKey, order: sortOrder });
-        setStatCourseData(sortedData);
+        setBillData(sortedData);
     };
 
     const getColumnSearchProps = (dataIndex) => ({
@@ -190,7 +228,7 @@ const Analytics = () => {
         },
         {
             title: 'Doanh Thu',
-            dataIndex: 'revenue',
+            dataIndex: 'price',
             key: 'revenue',
             sorter: true,
             sortOrder: sortedInfo.columnKey === 'revenue' && sortedInfo.order,
@@ -200,17 +238,44 @@ const Analytics = () => {
                 },
             }),
             ...getColumnSearchProps('revenue'),
-            render: (price) => formatMoneyInt(price) + 'đ',
+            render: (price, data) => {
+                return formatMoneyInt(price * data.subscribers) + 'đ';
+            },
         },
         {
             title: 'Học Viên',
             dataIndex: 'subscribers',
             key: 'subscribers',
             sorter: true,
-            sortOrder: sortedInfo.columnKey === 'subscribers' && sortedInfo.order,
+            sortOrder: sortedInfo.columnKey === 'full_name' && sortedInfo.order,
             onHeaderCell: () => ({
                 onClick: () => {
                     handleSorted(sortedInfo.order === 'ascend' ? 'descend' : 'ascend', 'subscribers');
+                },
+            }),
+        },
+        {
+            title: 'Chương',
+            dataIndex: 'chapters',
+            key: 'chapters',
+            sorter: true,
+            sortOrder: sortedInfo.columnKey === 'full_name' && sortedInfo.order,
+            onHeaderCell: () => ({
+                onClick: () => {
+                    handleSorted(sortedInfo.order === 'ascend' ? 'descend' : 'ascend', 'chapters');
+                },
+            }),
+            render: (chapters) => chapters?.length,
+        },
+        {
+            title: 'Bài học',
+            dataIndex: 'totalLessons',
+            key: 'totalLessons',
+            sorter: true,
+            sortOrder: sortedInfo.columnKey === 'totalLessons' && sortedInfo.order,
+            onHeaderCell: () => ({
+                onClick: () => {
+                    handleSorted(sortedInfo.order === 'ascend' ? 'descend' : 'ascend', 'totalLessons');
                 },
             }),
         },
@@ -219,33 +284,43 @@ const Analytics = () => {
     const [form] = Form.useForm();
 
     // Update range
-    const updateCourseData = (date) => {
+    const updateTimeframe = (date) => {
         let [fromDate, toDate] = date;
-        setTimeStamp({ fromDate: fromDate.valueOf(), toDate: toDate.valueOf() });
+        setTimeframe({ fromDate: fromDate.valueOf(), toDate: toDate.endOf('day').valueOf() });
     };
 
     return (
         <Layout>
             <Breadcrumb className="mb-4" items={[{ title: 'Trang chủ' }, { title: ' Thống kê' }]} />
             <Content>
-                <Overview userData={userData} statCourseData={statCourseData} courseData={courseResponse} />
-                <Card
-                    title={
-                        <Form
-                            className="mt-6"
-                            form={form}
-                            initialValues={{
-                                range_picker: [dayjs().startOf('month'), dayjs()],
-                            }}
+                <Overview userData={userData} billData={billData} courseData={courseData} />
+                <Row gutter={[16, 16]}>
+                    <Col span={18} xl={18} md={24}>
+                        <Card
+                            title={
+                                <Form
+                                    className="mt-6"
+                                    form={form}
+                                    initialValues={{
+                                        range_picker: [dayjs().startOf('month'), dayjs()],
+                                    }}
+                                >
+                                    <Form.Item name="range_picker" label="Thống Kê">
+                                        <RangePicker onChange={updateTimeframe} />
+                                    </Form.Item>
+                                </Form>
+                            }
                         >
-                            <Form.Item name="range_picker" label="Thống Kê">
-                                <RangePicker onChange={updateCourseData} />
-                            </Form.Item>
-                        </Form>
-                    }
-                >
-                    <Table loading={isLoading} dataSource={statCourseData} columns={columnCourse} />
-                </Card>
+                            <Table loading={isLoading} dataSource={billData} columns={columnCourse} />
+                        </Card>
+                    </Col>
+                    <Col span={6} className="relative h-100" xl={6} md={0}>
+                        <p className="text-black text-bold text-right absolute text-lg mt-2 ml-6 z-[100] left-0">
+                            Thông kê danh mục
+                        </p>
+                        <CourseCategoryChart courseData={courseData} />
+                    </Col>
+                </Row>
             </Content>
         </Layout>
     );

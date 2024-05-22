@@ -13,13 +13,14 @@ import { useGetCateQuery } from '@/providers/apis/cateApi';
 
 import { formatMoneyInt } from '@/lib/utils';
 import { Link } from 'react-router-dom';
+import { useGetAllCoursesQuery } from '@/providers/apis/courseTeacherApi';
 
 const CourseManager = () => {
     const [searchText, setSearchText] = React.useState('');
     const [searchedColumn, setSearchedColumn] = React.useState('');
     const searchInput = React.useRef(null);
 
-    const { data: courses = [], isLoading } = useGetCoursesQuery();
+    const { data: courses = [], isLoading } = useGetAllCoursesQuery({}, { refetchOnMountOrArgChange: true });
     const { data: categories = [] } = useGetCateQuery();
 
     const categoriesFormat = categories.map((c) => ({ _id: c._id, text: c.name, value: c.code }));
@@ -150,11 +151,15 @@ const CourseManager = () => {
             onFilter: (value, record) => record.cate_id.code === value,
         },
         {
-            title: 'Tổng bài học',
+            title: 'Tổng chương học',
             dataIndex: 'chapters',
             render: (chapters) => {
                 return <div>{chapters.length}</div>;
             },
+        },
+        {
+            title: 'Tổng bài học',
+            dataIndex: 'totalLessons',
         },
         {
             title: 'Giá khóa học',

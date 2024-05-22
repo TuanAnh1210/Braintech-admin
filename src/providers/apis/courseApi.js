@@ -2,11 +2,11 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
 export const courseApi = createApi({
     reducerPath: 'courseApi',
-    baseQuery: fetchBaseQuery({ baseUrl: 'http://localhost:8080/api' }),
+    baseQuery: fetchBaseQuery({ baseUrl: import.meta.env.VITE_REACT_APP_API_PATH + 'api/courses' }),
     endpoints: (build) => ({
         getCourses: build.query({
             query: () => {
-                return '/courses/all';
+                return '/all';
             },
             transformResponse: (response) => {
                 return response.courses;
@@ -14,7 +14,7 @@ export const courseApi = createApi({
         }),
         getCourseById: build.query({
             query: (_id) => {
-                return `/courses/${_id}`;
+                return `/${_id}`;
             },
             transformResponse: (response) => {
                 return response.course;
@@ -22,22 +22,22 @@ export const courseApi = createApi({
         }),
         createCourse: build.mutation({
             query: (payload) => {
-                return { url: '/courses/create', method: 'POST', body: payload };
+                return { url: '/create', method: 'POST', body: payload };
             },
         }),
         updateCourse: build.mutation({
             query: ({ _id, ...payload }) => {
-                return { url: `/courses/${_id}/update`, method: 'PUT', body: payload };
+                return { url: `/${_id}/update`, method: 'PUT', body: payload };
             },
         }),
         deleteCourse: build.mutation({
             query: (payload) => {
-                return { url: `/courses/${payload._id}/delete`, method: 'DELETE' };
+                return { url: `/${payload._id}/delete`, method: 'DELETE' };
             },
         }),
         uploadImage: build.mutation({
-            queryFn: async (payload) => {
-                return { url: '/courses/upload', method: 'POST', body: payload };
+            query: (payload) => {
+                return { url: '/upload', method: 'POST', body: payload };
             },
         }),
     }),
