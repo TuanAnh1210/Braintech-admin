@@ -445,7 +445,7 @@ const DiscountCode = () => {
                         <Flex gap="small" wrap>
                             <Link to={'/manager-discount/gift-voucher'}>
                                 <Button className="bg-[#eb2f96] text-white" size={'30'}>
-                                    Voucher++
+                                    Mã giảm giá đã tặng
                                 </Button>
                             </Link>
                         </Flex>

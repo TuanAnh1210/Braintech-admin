@@ -31,7 +31,7 @@ const CreateDiscountCode = () => {
     };
 
     const disabledDate = (current) => {
-        return current && current < moment().endOf('day');
+        return current && current < moment().startOf('day');
     };
 
     const checkEndDate = (rule, value) => {

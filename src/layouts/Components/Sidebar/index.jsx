@@ -1,5 +1,5 @@
 import { FaUser, FaClapperboard, FaCommentDots, FaRegCreditCard, FaHouseChimney, FaStar } from 'react-icons/fa6';
-
+import { MdDiscount } from 'react-icons/md';
 import { Link, NavLink } from 'react-router-dom';
 import classNames from 'classnames/bind';
 
@@ -7,7 +7,6 @@ import styles from './AdminSidebar.module.scss';
 
 import logoImage from '@/assets/images/logo.png';
 import { useCookies } from 'react-cookie';
-import CreateDiscountCode from '@/pages/DiscountCode/AddDiscountCode';
 
 const cx = classNames.bind(styles);
 
@@ -21,7 +20,7 @@ function AdminSidebar() {
         { path: '/manager-comments', label: 'Bình luận', icon: <FaCommentDots className="text-lg" /> },
         { path: '/manager-rating', label: 'Đánh giá', icon: <FaStar className="text-lg" /> },
         { path: '/manager-bills', label: 'Hóa đơn', icon: <FaRegCreditCard className="text-lg" /> },
-        { path: '/manager-discount', label: 'Mã giảm giá', icon: <FaRegCreditCard className="text-lg" /> },
+        { path: '/manager-discount', label: 'Mã giảm giá', icon: <MdDiscount className="text-lg" /> },
     ];
     const navItemTeacher = [
         { path: '/my-courses', label: 'Khóa học của tôi', icon: <FaClapperboard className="text-lg" /> },
